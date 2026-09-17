@@ -7,7 +7,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Kodchasan:wght@400;600;700&family=Mali:wght@400;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js"></script>
 <style>
   :root{
@@ -18,14 +17,13 @@
     --pink-soft:#ffe3ec;
     --peach:#ffb199;
     --mint:#7fd9bd;
-    --butter:#ffd97a;
     --ink:#4a3b42;
     --ink-soft:#8a7580;
     --line:#f3ddE6;
     --radius:16px;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
-  html,body{width:100vw;height:100vh;overflow:hidden;}
+  html, body{width:100vw;height:100vh;overflow:hidden;}
   body{
     background:
       radial-gradient(circle at 8% 12%, #ffe9d6 0%, transparent 40%),
@@ -39,51 +37,39 @@
   button{font-family:'Prompt',sans-serif;cursor:pointer;}
   input,select{font-family:'Prompt',sans-serif;}
 
-  /* ============================================================= */
-  /* CONTROL APP (ONE-SCREEN FIT 100VH)                            */
-  /* ============================================================= */
+  /* MAIN WRAPPER (FIT SCREEN 100VH) */
   #app{
-    display:flex;
-    flex-direction:column;
-    height:100vh;
-    padding:8px 16px 12px;
-    box-sizing:border-box;
+    display:flex;flex-direction:column;width:100vw;height:100vh;
+    padding:8px 16px;box-sizing:border-box;overflow:hidden;
   }
-
   .topbar{
     display:flex;align-items:center;justify-content:space-between;
-    padding:4px 8px;flex-shrink:0;height:42px;
+    height:36px;flex-shrink:0;margin-bottom:4px;
   }
   .brand{display:flex;align-items:baseline;gap:8px;}
   .brand .logo{font-size:22px;font-weight:700;color:var(--pink-deep);}
-  .brand .tagline{font-family:'Mali',cursive;font-size:13px;color:var(--ink-soft);}
+  .brand .tagline{font-family:'Mali',cursive;font-size:12px;color:var(--ink-soft);}
 
-  .steps{
-    display:flex;gap:8px;margin:4px 0 8px;flex-shrink:0;height:34px;
-  }
+  .steps{display:flex;gap:8px;height:30px;flex-shrink:0;margin-bottom:8px;}
   .step-pill{
-    flex:1;text-align:center;padding:5px 4px;border-radius:10px;
+    flex:1;text-align:center;border-radius:10px;line-height:28px;
     background:var(--panel);border:1px solid var(--line);color:var(--ink-soft);
-    font-size:12px;font-weight:600;line-height:22px;
+    font-size:12px;font-weight:600;
   }
   .step-pill.active{background:var(--pink);color:#fff;border-color:var(--pink);}
   .step-pill.done{background:var(--pink-soft);color:var(--pink-deep);}
 
-  /* จัด LAYOUT 2 ฝั่ง พอดีความสูงจอ */
+  /* 2-COLUMN LAYOUT */
   .layout{
-    flex:1;
-    display:grid;
-    grid-template-columns: 1.15fr 0.85fr;
-    gap:14px;
-    min-height:0; /* จุดสำคัญ: กัน Flex Child ขยายล้นจอ */
-    height:calc(100vh - 100px);
+    flex:1;display:grid;grid-template-columns:1.2fr 0.8fr;gap:14px;
+    height:calc(100vh - 86px);min-height:0;overflow:hidden;
   }
 
-  /* ฝั่งซ้าย: กล้อง และปุ่มกด */
+  /* LEFT: CAMERA & ACTIONS (NO OVERFLOW) */
   .stage-panel{
     background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
-    padding:12px;display:flex;flex-direction:column;min-height:0;height:100%;
-    box-shadow:0 6px 16px rgba(232,92,140,.05);
+    padding:10px;display:flex;flex-direction:column;height:100%;min-height:0;
+    overflow:hidden;
   }
   .stage-wrap{
     flex:1;position:relative;background:#2c2430;border-radius:12px;
@@ -92,122 +78,114 @@
   }
   .stage-wrap video{width:100%;height:100%;object-fit:contain;}
   .stage-wrap video.mirror{transform:scaleX(-1);}
-  .stage-wrap .placeholder{color:#f4d9e5;font-size:14px;text-align:center;padding:14px;font-family:'Mali',cursive;}
-  
-  #composeWrap{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center;}
+  .stage-wrap .placeholder{color:#f4d9e5;font-size:14px;text-align:center;padding:12px;font-family:'Mali',cursive;}
+
+  #composeWrap{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center;min-height:0;}
   #composeCanvas{max-width:100%;max-height:100%;object-fit:contain;border-radius:10px;}
   #stickerLayer{position:absolute;inset:0;}
-  .sticker{position:absolute;font-size:40px;transform:translate(-50%,-50%);cursor:grab;user-select:none;}
+  .sticker{position:absolute;font-size:36px;transform:translate(-50%,-50%);cursor:grab;user-select:none;}
 
   #countdownOverlay{
     position:absolute;inset:0;display:none;align-items:center;justify-content:center;
     background:rgba(30,20,25,.25);z-index:5;
   }
-  #countdownOverlay span{font-family:'Kodchasan',sans-serif;font-weight:700;font-size:14vw;color:#fff;}
+  #countdownOverlay span{font-family:'Kodchasan',sans-serif;font-weight:700;font-size:12vw;color:#fff;}
   #flashOverlay{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:6;}
 
-  /* แผงควบคุมกล้องด้านล่าง (ล็อกให้อยู่ในหน้าเสมอ) */
   .stage-controls{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;flex-shrink:0;}
-  .btn{border:none;border-radius:10px;padding:8px 14px;font-weight:600;font-size:13px;display:inline-flex;align-items:center;gap:6px;}
+  .btn{border:none;border-radius:8px;padding:7px 12px;font-weight:600;font-size:12.5px;display:inline-flex;align-items:center;gap:6px;}
   .btn-primary{background:linear-gradient(135deg,var(--pink),var(--pink-deep));color:#fff;}
   .btn-secondary{background:var(--pink-soft);color:var(--pink-deep);}
   .btn-outline{background:#fff;border:1px solid var(--line);color:var(--ink);}
   .btn:disabled{opacity:.45;cursor:not-allowed;}
-  .row-inline{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:6px;font-size:12px;color:var(--ink-soft);flex-shrink:0;}
-  select.small{padding:4px 6px;border-radius:6px;border:1px solid var(--line);background:#fff;}
+  .row-inline{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:6px;font-size:11.5px;color:var(--ink-soft);flex-shrink:0;}
+  select.small{padding:3px 6px;border-radius:6px;border:1px solid var(--line);background:#fff;}
 
-  /* ฝั่งขวา: การตั้งค่า (มี Scrollbar ในกล่อง ไม่ล้นหน้าจอ) */
+  /* RIGHT: OPTIONS (SCROLLABLE CONTAINER) */
   .controls-panel{
     background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
-    padding:14px;display:flex;flex-direction:column;min-height:0;height:100%;
-    overflow-y:auto;box-shadow:0 6px 16px rgba(232,92,140,.05);
+    padding:12px 14px;display:flex;flex-direction:column;height:100%;min-height:0;
+    overflow-y:auto;
   }
   .controls-panel::-webkit-scrollbar{width:5px;}
   .controls-panel::-webkit-scrollbar-thumb{background:#ffccd9;border-radius:4px;}
 
-  .field{margin-bottom:12px;}
-  .field label.title{display:block;font-size:12.5px;font-weight:600;color:var(--ink);margin-bottom:5px;}
-  .chip-row{display:flex;flex-wrap:wrap;gap:5px;}
-  .chip{padding:6px 10px;border-radius:8px;border:1.5px solid var(--line);background:#fff;font-size:12px;display:flex;align-items:center;gap:5px;}
+  .field{margin-bottom:10px;}
+  .field label.title{display:block;font-size:12px;font-weight:600;color:var(--ink);margin-bottom:4px;}
+  .chip-row{display:flex;flex-wrap:wrap;gap:4px;}
+  .chip{padding:5px 9px;border-radius:8px;border:1.5px solid var(--line);background:#fff;font-size:11.5px;display:flex;align-items:center;gap:4px;}
   .chip.active{border-color:var(--pink);background:var(--pink-soft);color:var(--pink-deep);font-weight:600;}
   .chip .del-btn{margin-left:3px;color:#e85c8c;font-weight:bold;cursor:pointer;}
-  input[type=text]{width:100%;padding:7px 10px;border-radius:8px;border:1.5px solid var(--line);font-size:13px;}
+  input[type=text]{width:100%;padding:6px 9px;border-radius:8px;border:1.5px solid var(--line);font-size:12px;}
   .sticker-palette{display:flex;flex-wrap:wrap;gap:4px;}
-  .sticker-palette button{width:32px;height:32px;border-radius:6px;border:1px solid var(--line);background:#fff;font-size:16px;}
+  .sticker-palette button{width:30px;height:30px;border-radius:6px;border:1px solid var(--line);background:#fff;font-size:15px;}
+  .guide-box{background:#fff6f9;border:1px dashed #ffb1cb;border-radius:8px;padding:6px 8px;margin-top:5px;font-size:11px;color:#7a4a5a;line-height:1.4;}
 
-  .guide-box{background:#fff6f9;border:1px dashed #ffb1cb;border-radius:10px;padding:8px;margin-top:6px;font-size:11.5px;color:#7a4a5a;line-height:1.4;}
-
-  /* ============================================================= */
-  /* DISPLAY APP (SECOND SCREEN)                                   */
-  /* ============================================================= */
+  /* SECOND SCREEN (DISPLAY) */
   body.display-mode{background:#0d0a0f !important;color:#fff;width:100vw;height:100vh;overflow:hidden !important;}
   body.display-mode #app{display:none !important;}
 
   #displayApp{
     display:none;width:100vw;height:100vh;box-sizing:border-box;
-    padding:10px 18px 14px;flex-direction:column;
+    padding:10px 16px;flex-direction:column;
   }
   body.display-mode #displayApp{display:flex;}
 
   .dheader{
     font-family:'Kodchasan',sans-serif;font-size:18px;font-weight:700;color:#ff9fc0;
-    text-align:center;height:28px;line-height:28px;flex-shrink:0;margin:0 0 6px 0;
+    text-align:center;height:26px;line-height:26px;flex-shrink:0;margin:0 0 6px 0;
   }
-
   .d-viewport{
-    flex:1;display:grid;grid-template-columns: 1fr 340px;gap:16px;
+    flex:1;display:grid;grid-template-columns:1fr 340px;gap:16px;
     height:calc(100vh - 48px);min-height:0;
   }
-
   .d-left-box{
-    background:#000;border-radius:20px;border:3px solid #ff7aa8;overflow:hidden;
+    background:#000;border-radius:18px;border:3px solid #ff7aa8;overflow:hidden;
     position:relative;display:flex;align-items:center;justify-content:center;
     height:100%;min-height:0;
   }
   .d-left-box img.live{width:100%;height:100%;object-fit:contain;background:#111;display:block;}
-  .d-left-box .placeholder{color:#ff9fc0;font-family:'Mali',cursive;font-size:20px;text-align:center;}
+  .d-left-box .placeholder{color:#ff9fc0;font-family:'Mali',cursive;font-size:18px;text-align:center;}
   #displayCountdown{
     position:absolute;inset:0;display:none;align-items:center;justify-content:center;
     background:rgba(0,0,0,.35);z-index:10;
   }
-  #displayCountdown span{font-family:'Kodchasan',sans-serif;font-weight:700;font-size:16vw;color:#fff;}
+  #displayCountdown span{font-family:'Kodchasan',sans-serif;font-weight:700;font-size:15vw;color:#fff;}
   #displayFlash{position:absolute;inset:0;background:#fff;opacity:0;z-index:11;pointer-events:none;}
 
-  .d-right-box{display:flex;flex-direction:column;gap:12px;height:100%;min-height:0;}
-
+  .d-right-box{display:flex;flex-direction:column;gap:10px;height:100%;min-height:0;}
   .d-card-photo{
-    flex:1;background:#1b1522;border:2px solid #3d2b3a;border-radius:18px;
-    padding:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    flex:1;background:#1b1522;border:2px solid #3d2b3a;border-radius:16px;
+    padding:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;
     position:relative;overflow:hidden;min-height:0;
   }
   .d-card-photo .badge{
-    position:absolute;top:8px;left:8px;background:rgba(0,0,0,.7);
-    color:#ff9fc0;font-family:'Kodchasan',sans-serif;font-size:11px;
-    padding:2px 8px;border-radius:6px;z-index:2;
+    position:absolute;top:6px;left:6px;background:rgba(0,0,0,.7);
+    color:#ff9fc0;font-family:'Kodchasan',sans-serif;font-size:10px;
+    padding:2px 6px;border-radius:5px;z-index:2;
   }
   .d-card-photo img.result-pic{
-    max-width:100%;max-height:100%;object-fit:contain;border-radius:10px;display:none;
+    max-width:100%;max-height:100%;object-fit:contain;border-radius:8px;display:none;
   }
-  .d-card-photo .empty-state{color:#6c5767;font-family:'Mali',cursive;font-size:14px;text-align:center;}
+  .d-card-photo .empty-state{color:#6c5767;font-family:'Mali',cursive;font-size:13px;text-align:center;}
 
   .d-card-qr{
-    height:130px;flex-shrink:0;background:#1b1522;border:2px solid #3d2b3a;
-    border-radius:18px;padding:10px 14px;display:flex;align-items:center;justify-content:center;
-    gap:14px;box-sizing:border-box;
+    height:120px;flex-shrink:0;background:#1b1522;border:2px solid #3d2b3a;
+    border-radius:16px;padding:8px 12px;display:flex;align-items:center;justify-content:center;
+    gap:12px;box-sizing:border-box;
   }
   .d-qr-white{
-    background:#fff;padding:6px;border-radius:10px;width:95px;height:95px;
+    background:#fff;padding:4px;border-radius:8px;width:90px;height:90px;
     flex-shrink:0;display:flex;align-items:center;justify-content:center;overflow:hidden;
   }
   .d-qr-white img{width:100% !important;height:100% !important;object-fit:contain;}
-  .d-qr-text{display:flex;flex-direction:column;gap:3px;min-width:0;}
-  .d-qr-text h4{font-family:'Kodchasan',sans-serif;font-size:15px;color:#ffb1cb;margin:0;}
-  .d-qr-text p{font-size:11px;color:#b4a2af;margin:0;line-height:1.3;}
+  .d-qr-text{display:flex;flex-direction:column;gap:2px;min-width:0;}
+  .d-qr-text h4{font-family:'Kodchasan',sans-serif;font-size:14px;color:#ffb1cb;margin:0;}
+  .d-qr-text p{font-size:11px;color:#b4a2af;margin:0;line-height:1.2;}
 </style>
 </head>
 <body>
 
-<!-- จอควบคุมหลัก -->
 <div id="app">
   <div class="topbar">
     <div class="brand">
@@ -224,11 +202,10 @@
   </div>
 
   <div class="layout">
-    <!-- ซ้าย: เวทีกล้องและปุ่มสั่งการ -->
     <div class="stage-panel">
       <div class="stage-wrap" id="stage">
         <video id="video" autoplay playsinline muted class="mirror"></video>
-        <div class="placeholder" id="stagePlaceholder">กดปุ่ม "เปิดกล้อง" เพื่อเริ่มต้น</div>
+        <div class="placeholder" id="stagePlaceholder">กดปุ่ม "เปิดกล้อง" เพื่อเริ่มต้น 🌸</div>
         <div id="countdownOverlay"><span id="countdownNum">3</span></div>
         <div id="flashOverlay"></div>
       </div>
@@ -253,43 +230,39 @@
           <select class="small" id="countdownSelect">
             <option value="3" selected>3 วิ</option>
             <option value="5">5 วิ</option>
-            <option value="8">8 วิ</option>
           </select>
         </label>
-        <label>กล้อง <select class="small" id="cameraSelect"><option value="">เลือกกล้อง</option></select></label>
+        <label>กล้อง <select class="small" id="cameraSelect"><option value="">เลือกกล้อง...</option></select></label>
       </div>
     </div>
 
-    <!-- ขวา: เมนูตัวเลือกและพรีเซ็ต (มี Scrollbar ในกล่อง) -->
     <div class="controls-panel">
       <div class="field">
         <label class="title">รูปแบบภาพ</label>
         <div class="chip-row" id="formatChips">
-          <button class="chip active" data-format="single">รูปเดี่ยว</button>
-          <button class="chip" data-format="strip4">สตริป 4 ช่อง</button>
-          <button class="chip" data-format="grid2x2">ตาราง 2×2</button>
+          <button class="chip active" data-format="single">🖼️ รูปเดี่ยว</button>
+          <button class="chip" data-format="strip4">🎞️ สตริป 4 ช่อง</button>
+          <button class="chip" data-format="grid2x2">🔲 ตาราง 2×2</button>
         </div>
       </div>
 
       <div class="field">
         <label class="title">กรอบภาพ (Frame)</label>
         <div class="chip-row" id="frameChips"></div>
-        <div style="margin-top: 6px;">
-          <button class="btn btn-outline" style="font-size:11.5px;padding:5px 10px;" onclick="document.getElementById('frameInput').click()">📤 อัปโหลดกรอบ (.PNG)</button>
+        <div style="margin-top: 5px;">
+          <button class="btn btn-outline" style="font-size:11px;padding:4px 8px;" onclick="document.getElementById('frameInput').click()">📤 อัปโหลดกรอบ (.PNG)</button>
           <input type="file" id="frameInput" accept="image/png" class="hidden">
         </div>
         <div class="guide-box">
-          📐 <strong>ขนาดที่แนะนำสำหรับออกแบบกรอบ (PNG โปร่งใส):</strong><br>
-          • <strong>รูปเดี่ยว / 2×2:</strong> 1200 × 1800 px (สัดส่วน 4:6 แนวตั้ง)<br>
-          • <strong>สตริป 4 ช่อง:</strong> 600 × 1800 px (สัดส่วน 2:6 แนวยาว)
+          📐 <strong>ขนาดแนะนำ:</strong> รูปเดี่ยว/2×2: 1200×1800 px | สตริป 4: 600×1800 px
         </div>
       </div>
 
       <div class="field">
-        <label class="title">โทนสี &amp; พรีเซ็ต (Tones)</label>
+        <label class="title">โทนสี &amp; พรีเซ็ต</label>
         <div class="chip-row" id="toneChips"></div>
-        <div style="margin-top: 6px;">
-          <button class="btn btn-outline" style="font-size:11.5px;padding:5px 10px;" onclick="document.getElementById('presetInput').click()">🎨 นำเข้า Preset (.cube / .dng preview)</button>
+        <div style="margin-top: 5px;">
+          <button class="btn btn-outline" style="font-size:11px;padding:4px 8px;" onclick="document.getElementById('presetInput').click()">🎨 นำเข้า Preset (.cube / .dng preview)</button>
           <input type="file" id="presetInput" accept=".cube,.dng,.xmp" class="hidden">
         </div>
       </div>
@@ -302,7 +275,7 @@
       <div class="field">
         <label class="title">ข้อความใต้รูป</label>
         <input type="text" id="captionInput" value="วันดี ๆ ของเรา" maxlength="40" />
-        <div class="row-inline" style="margin-top:6px;">
+        <div class="row-inline" style="margin-top:5px;">
           <label>ฟอนต์
             <select class="small" id="fontSelect">
               <option value="Mali" selected>Mali</option>
@@ -319,13 +292,12 @@
 
 <div id="printArea" style="display:none;"></div>
 
-<!-- จอแสดงผลที่สอง (SECOND SCREEN) -->
 <div id="displayApp">
   <div class="dheader">TSK PHOTOBOOTH · จอแสดงผล</div>
   <div class="d-viewport">
     <div class="d-left-box">
       <img class="live" id="displayLive" style="display:none;">
-      <div class="placeholder" id="displayWaiting">รอเปิดกล้องจากจอควบคุม...</div>
+      <div class="placeholder" id="displayWaiting">รอเปิดกล้องจากจอควบคุม... 🌸</div>
       <div id="displayCountdown"><span id="displayCountdownNum">3</span></div>
       <div id="displayFlash"></div>
     </div>
@@ -340,8 +312,8 @@
       <div class="d-card-qr">
         <div class="d-qr-white" id="displayQR"></div>
         <div class="d-qr-text">
-          <h4 id="displayQrTitle">แสกน QR CODE รับรูป</h4>
-          <p id="displayQrSub">Scan to get photos</p>
+          <h4 id="displayQrTitle">คิวอาร์โค้ดรับรูป</h4>
+          <p id="displayQrSub">สแกนด้วยโทรศัพท์เพื่อดาวน์โหลดภาพเฉพาะรอบนี้</p>
         </div>
       </div>
     </div>
@@ -358,7 +330,7 @@ if (isDisplay) document.body.classList.add('display-mode');
 
 const channel = ('BroadcastChannel' in window) ? new BroadcastChannel('tsk_photobooth_channel') : null;
 
-// URL Web App จาก Google Apps Script
+// GAS Web App URL
 const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxZx9lUhn6pC3VOUzhPnWJft2pwuiEyN3B-0H_-zqUWu4IllQGPxFcTUwDZu_Z0Ndg-MQ/exec";
 
 const DEFAULT_FRAMES = [
@@ -398,7 +370,6 @@ if (!isDisplay) {
 
 function initControlApp(){
   const video = document.getElementById('video');
-  const stage = document.getElementById('stage');
   const stagePlaceholder = document.getElementById('stagePlaceholder');
   const composeWrap = document.getElementById('composeWrap');
   const composeCanvas = document.getElementById('composeCanvas');
@@ -442,7 +413,6 @@ function initControlApp(){
         const del = document.createElement('span');
         del.className = 'del-btn';
         del.innerHTML = '✕';
-        del.title = 'ลบกรอบนี้';
         del.onclick = (e)=>{
           e.stopPropagation();
           state.customFrames = state.customFrames.filter(x=>x.key!==f.key);
@@ -595,8 +565,8 @@ function initControlApp(){
       p.classList.toggle('active', s===n);
       p.classList.toggle('done', s<n);
     });
-    if(n===3){ stage.classList.add('hidden'); composeWrap.classList.remove('hidden'); }
-    else { stage.classList.remove('hidden'); composeWrap.classList.add('hidden'); }
+    if(n===3){ document.getElementById('stage').classList.add('hidden'); composeWrap.classList.remove('hidden'); }
+    else { document.getElementById('stage').classList.remove('hidden'); composeWrap.classList.add('hidden'); }
   }
 
   async function startCapture(){
@@ -605,7 +575,7 @@ function initControlApp(){
     state.stickers = [];
     state.lastQrLink = null;
     
-    // สั่งจอ 2 ลบรูปและ QR ของรอบก่อนหน้าทันที
+    // ลบรูปและ QR ของคนก่อนหน้าทันที ไม่ให้ซ้อนทับ
     broadcast({ type: 'clearRound' });
 
     goStep(2);
@@ -771,7 +741,7 @@ function initControlApp(){
     }
   }
 
-  // อัปโหลดเข้า Google Apps Script พร้อมระบบอ่านผลลัพธ์ CORS ทันที
+  // อัปโหลดเข้า Drive แยกรายไฟล์
   async function autoSendResult(){
     sendResultToDisplay();
 
@@ -784,23 +754,20 @@ function initControlApp(){
         filename: filename
       });
 
-      // ส่งด้วย POST ข้ามโดเมน
-      fetch(GAS_WEB_APP_URL, {
+      // ส่งแบบ text/plain เข้า Apps Script
+      const res = await fetch(GAS_WEB_APP_URL, {
         method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: "data=" + encodeURIComponent(payload)
-      }).then(()=>{
-        // หลังจากส่งข้อมูลแล้ว ดึง Direct Link ของ Google Drive Folder มาแปลงเป็น QR ทันที
-        const directDriveLink = "https://drive.google.com/drive/folders/1VV8BQzppPxrOzFrZvVEVUxMH6rib5I6J";
-        state.lastQrLink = directDriveLink;
-        sendResultToDisplay();
-      }).catch(err=>{
-        console.error("Upload error:", err);
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: payload
       });
 
+      const json = await res.json();
+      if(json.status === "success" && json.url){
+        state.lastQrLink = json.url; // รับ URL เฉพาะไฟล์รูปนี้
+        sendResultToDisplay();
+      }
     } catch (err) {
-      console.error("Auto upload failed:", err);
+      console.error("Auto upload fallback error:", err);
     }
   }
 
@@ -821,7 +788,7 @@ function initControlApp(){
     const c = document.createElement('canvas');
     liveTimer = setInterval(()=>{
       if(!video.videoWidth) return;
-      const w = 380, h = Math.round(380 * video.videoHeight/video.videoWidth);
+      const w = 360, h = Math.round(360 * video.videoHeight/video.videoWidth);
       c.width = w; c.height = h;
       const cx = c.getContext('2d');
       if(state.mirrored){ cx.translate(w,0); cx.scale(-1,1); }
@@ -835,7 +802,7 @@ function initControlApp(){
 }
 
 /* ============================================================= */
-/* DISPLAY APP LOGIC (SECOND SCREEN)                             */
+/* DISPLAY APP LOGIC (PER-USER PRIVATE QR CODE)                  */
 /* ============================================================= */
 function initDisplayApp(){
   const live = document.getElementById('displayLive');
@@ -876,7 +843,7 @@ function initDisplayApp(){
       setTimeout(()=>{ flash.style.opacity = '0'; }, 50);
     }
 
-    // แสดงผลงานภาพ + ปล่อย QR Code
+    // แสดงรูปและปล่อย QR Code เฉพาะไฟล์ของรอบนี้
     if(msg.type === 'roundResult'){
       resultEmpty.style.display = 'none';
       finalImg.src = msg.composedSrc;
@@ -884,24 +851,25 @@ function initDisplayApp(){
 
       if(msg.qrText && msg.qrText.startsWith('http')){
         qrTitle.textContent = `สแกนรับภาพรอบที่ ${msg.roundNumber} 🌸`;
-        qrSub.textContent = 'เปิดกล้องมือถือส่องเพื่อเปิดรับรูปภาพ';
+        qrSub.textContent = 'สแกนเพื่อรับไฟล์ภาพของคุณ (เฉพาะรูปนี้)';
         
-        // วาด QR Code ผ่าน External API แสดงผลได้ 100%
+        // ใช้ QR Image Service แสดงผลภาพเดี่ยว 100%
         qrHolder.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(msg.qrText)}" alt="QR Code">`;
       } else {
         qrHolder.innerHTML = '';
         qrTitle.textContent = `ภาพถ่ายรอบที่ ${msg.roundNumber}`;
-        qrSub.textContent = 'กำลังเตรียม QR Code รับรูป...';
+        qrSub.textContent = 'กำลังอัปโหลดและสร้าง QR Code...';
       }
     }
 
+    // เคลียร์รอบเก่าทิ้งเมื่อเริ่มรอบใหม่ทันที
     if(msg.type === 'clearRound'){
       finalImg.style.display = 'none';
       finalImg.src = '';
       resultEmpty.style.display = 'block';
       qrHolder.innerHTML = '';
       qrTitle.textContent = 'คิวอาร์โค้ดรับรูป';
-      qrSub.textContent = 'สแกนด้วยโทรศัพท์เพื่อดาวน์โหลดภาพ';
+      qrSub.textContent = 'สแกนด้วยโทรศัพท์เพื่อดาวน์โหลดภาพเฉพาะรอบนี้';
     }
   };
 }
