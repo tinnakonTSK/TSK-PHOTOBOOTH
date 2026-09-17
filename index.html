@@ -85,7 +85,7 @@
   }
   .panel h3{font-size:15px;color:var(--pink-deep);margin-bottom:12px;}
 
-  /* ---------- stage (camera / capture / result) ---------- */
+  /* ---------- stage ---------- */
   .cam-warning{
     background:#fff3e0;border:1px solid #ffcf94;color:#7a4a12;font-size:13px;line-height:1.6;
     border-radius:14px;padding:12px 14px;margin-bottom:14px;
@@ -152,9 +152,6 @@
   .chip.active{border-color:var(--pink);background:var(--pink-soft);color:var(--pink-deep);font-weight:600;}
   input[type=text]{width:100%;padding:11px 14px;border-radius:12px;border:1.5px solid var(--line);font-size:14px;}
   input[type=text]:focus,select:focus{outline:none;border-color:var(--pink);}
-  .swatch-row{display:flex;gap:8px;flex-wrap:wrap;}
-  .swatch{width:30px;height:30px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1.5px var(--line);}
-  .swatch.active{box-shadow:0 0 0 2px var(--pink);}
   .sticker-palette{display:flex;flex-wrap:wrap;gap:6px;}
   .sticker-palette button{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:#fff;font-size:19px;}
 
@@ -171,7 +168,6 @@
   .modal{background:#fff;border-radius:20px;padding:26px;max-width:440px;width:100%;max-height:88vh;overflow:auto;}
   .modal h3{color:var(--pink-deep);margin-bottom:4px;}
   .modal p.hint{font-size:12.5px;color:var(--ink-soft);line-height:1.6;margin:8px 0 16px;}
-  .modal .field label.title{margin-bottom:6px;}
   .modal-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;}
   .status-pill{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;padding:6px 12px;border-radius:20px;background:var(--pink-soft);color:var(--pink-deep);}
   .status-pill.ok{background:#e2f8ee;color:#1f7a4d;}
@@ -181,35 +177,45 @@
   #qrCanvasHolder{background:#fff;padding:10px;border-radius:14px;border:1px solid var(--line);}
 
   /* ================= DISPLAY (second screen) MODE ================= */
-  body.display-mode{background:#1c1520;color:#fff;}
-  #displayApp{display:none;min-height:100vh;flex-direction:column;align-items:center;justify-content:center;padding:30px;}
+  body.display-mode{background:#140e17;color:#fff;overflow:hidden;}
+  #displayApp{display:none;min-height:100vh;flex-direction:column;align-items:center;justify-content:center;padding:20px;}
   body.display-mode #displayApp{display:flex;}
   body.display-mode #app{display:none;}
-  #displayApp .dbrand{font-family:'Kodchasan',sans-serif;font-size:26px;font-weight:700;color:#ff9fc0;margin-bottom:18px;letter-spacing:.5px;}
+  #displayApp .dbrand{font-family:'Kodchasan',sans-serif;font-size:26px;font-weight:700;color:#ff9fc0;margin-bottom:14px;letter-spacing:.5px;}
   #displayStage{
-    position:relative;width:min(80vh,90vw);aspect-ratio:3/4;background:#000;border-radius:26px;overflow:hidden;
-    box-shadow:0 20px 60px rgba(0,0,0,.5);border:4px solid #ff9fc0;
+    position:relative;width:min(80vh,88vw);aspect-ratio:3/4;background:#000;border-radius:26px;overflow:hidden;
+    box-shadow:0 20px 60px rgba(0,0,0,.6);border:4px solid #ff9fc0;
   }
   #displayStage img.live{width:100%;height:100%;object-fit:cover;display:block;}
-  #displayGrid{
-    position:absolute;inset:0;display:grid;gap:4px;padding:4px;background:#111;
-  }
+  #displayGrid{position:absolute;inset:0;display:grid;gap:4px;padding:4px;background:#111;}
   #displayGrid img{width:100%;height:100%;object-fit:cover;border-radius:8px;background:#333;}
-  #displayResult{position:absolute;inset:0;background:#fff;display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;padding:18px;}
-  #displayResult img.final{max-width:100%;max-height:60%;border-radius:12px;box-shadow:0 8px 20px rgba(0,0,0,.2);}
-  #displayResult .qrLabel{font-family:'Mali',cursive;font-size:20px;color:#4a3b42;}
-  #displayQR{background:#fff;padding:10px;border-radius:12px;}
-  #displayCountdown{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(20,10,15,.3);z-index:5;}
-  #displayCountdown span{font-family:'Kodchasan',sans-serif;font-weight:700;font-size:180px;color:#fff;text-shadow:0 6px 20px rgba(0,0,0,.4);}
+  
+  /* DISPLAY RESULT: สวยงาม เห็นรูปเต็มตา พร้อม QR ด้านข้าง/ด้านล่าง */
+  #displayResult{
+    position:absolute;inset:0;background:#1e1724;display:none;
+    flex-direction:column;align-items:center;justify-content:space-evenly;padding:24px;
+  }
+  #displayResult img.final{
+    max-width:78%;max-height:62%;border-radius:16px;box-shadow:0 12px 28px rgba(0,0,0,.45);
+    object-fit:contain;
+  }
+  .display-qr-card{
+    background:#ffffff;padding:14px 20px;border-radius:20px;display:flex;align-items:center;gap:16px;
+    box-shadow:0 10px 25px rgba(0,0,0,.3);
+  }
+  .display-qr-info{display:flex;flex-direction:column;}
+  .display-qr-info .qrLabel{font-family:'Mali',cursive;font-size:18px;color:#4a3b42;font-weight:700;margin:0;}
+  .display-qr-info .qrSub{font-size:13px;color:#8a7580;}
+  #displayQR{background:#fff;display:inline-block;}
+
+  #displayCountdown{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(20,10,15,.35);z-index:5;}
+  #displayCountdown span{font-family:'Kodchasan',sans-serif;font-weight:700;font-size:180px;color:#fff;text-shadow:0 6px 20px rgba(0,0,0,.5);}
   #displayFlash{position:absolute;inset:0;background:#fff;opacity:0;z-index:6;pointer-events:none;}
-  #displayWaiting{color:#f4d9e5;font-family:'Mali',cursive;font-size:20px;text-align:center;padding:30px;}
+  #displayWaiting{color:#f4d9e5;font-family:'Mali',cursive;font-size:22px;text-align:center;padding:30px;}
 </style>
 </head>
 <body>
 
-<!-- ============================================================= -->
-<!-- MAIN CONTROL APP                                               -->
-<!-- ============================================================= -->
 <div id="app">
   <div class="topbar">
     <div class="brand">
@@ -229,12 +235,9 @@
   </div>
 
   <div class="layout">
-    <!-- LEFT: STAGE -->
     <div class="panel stage-wrap">
       <div class="cam-warning hidden" id="camWarning">
-        ⚠️ หน้านี้ไม่ได้เปิดผ่าน HTTPS หรือ localhost เบราว์เซอร์จะ<strong>ไม่ขึ้นขออนุญาตใช้กล้องเลย</strong> —
-        ให้อัปโหลดไฟล์นี้ขึ้นเว็บโฮสต์จริง (มี HTTPS) หรือรันผ่านเซิร์ฟเวอร์ในเครื่อง เช่น
-        <code>python -m http.server</code> แล้วเปิดผ่าน <code>http://localhost:...</code> แทนการดับเบิลคลิกเปิดไฟล์ตรง ๆ
+        ⚠️ หน้านี้ไม่ได้เปิดผ่าน HTTPS หรือ localhost เบราว์เซอร์จะไม่ขึ้นขออนุญาตใช้กล้อง
       </div>
       <div class="stage" id="stage">
         <video id="video" autoplay playsinline muted class="mirror"></video>
@@ -272,7 +275,6 @@
       </div>
     </div>
 
-    <!-- RIGHT: CONTROLS -->
     <div class="panel" id="controlsPanel">
       <div class="field">
         <label class="title">รูปแบบ</label>
@@ -290,9 +292,6 @@
           <button class="chip" id="uploadFrameBtn" type="button">📤 อัปโหลดกรอบของฉัน</button>
           <input type="file" id="uploadFrameInput" accept="image/png,image/webp" class="hidden">
         </div>
-        <p style="font-size:12px;color:var(--ink-soft);margin:8px 0 0;">
-          ใช้ภาพ PNG พื้นหลังโปร่งใส (มีช่องตรงกลางให้เห็นรูป) จะได้ผลลัพธ์สวยที่สุด กรอบที่อัปโหลดจะถูกจำไว้ในเบราว์เซอร์นี้ เลือกใช้ซ้ำได้ทุกครั้ง
-        </p>
       </div>
 
       <div class="field">
@@ -337,11 +336,10 @@
   </div>
 </div>
 
-<!-- Settings modal -->
 <div class="modal-backdrop hidden" id="settingsModal">
   <div class="modal">
     <h3>⚙️ ตั้งค่า Google Drive</h3>
-    <p class="hint">ใส่ OAuth Client ID (ประเภท Web application) ของโปรเจกต์คุณ แล้วเพิ่มโดเมนที่วางไฟล์นี้ไว้ใน "Authorized JavaScript origins" รูปจะถูกอัปโหลดเข้าโฟลเดอร์ที่ระบุใน Drive ของคุณเอง — TSK PHOTOBOOTH ไม่ได้เก็บรูปหรือ token ไว้ที่เซิร์ฟเวอร์ใด ๆ</p>
+    <p class="hint">ใส่ OAuth Client ID ของคุณ เพื่อให้อัปโหลดรูปและสร้าง QR Code ให้อัตโนมัติหลังถ่ายเสร็จ</p>
     <div class="field">
       <label class="title">Client ID</label>
       <input type="text" id="clientIdInput" placeholder="xxxxx.apps.googleusercontent.com">
@@ -359,7 +357,6 @@
   </div>
 </div>
 
-<!-- QR modal -->
 <div class="modal-backdrop hidden" id="qrModal">
   <div class="modal" id="qrBox">
     <h3 id="qrModalTitle">🔳 สแกนรับรูป</h3>
@@ -371,7 +368,6 @@
   </div>
 </div>
 
-<!-- print area (only visible when printing) -->
 <div id="printArea" style="display:none;"></div>
 
 <!-- ============================================================= -->
@@ -386,8 +382,13 @@
     <div id="displayFlash"></div>
     <div id="displayResult">
       <img class="final" id="displayFinalImg">
-      <div class="qrLabel" id="displayQrLabel">สแกนรับรูปรอบนี้</div>
-      <div id="displayQR"></div>
+      <div class="display-qr-card">
+        <div id="displayQR"></div>
+        <div class="display-qr-info">
+          <p class="qrLabel" id="displayQrLabel">สแกนรับรูปทันที 📱</p>
+          <span class="qrSub" id="displayQrSub">ใช้กล้องมือถือส่องเพื่อโหลดรูป</span>
+        </div>
+      </div>
     </div>
     <div id="displayWaiting">รอจอควบคุมเริ่มถ่ายภาพ... 🌸<br><span style="font-size:14px;">(เปิดไฟล์นี้จากปุ่ม "เปิดจอแสดงผล" บนจอหลัก)</span></div>
   </div>
@@ -397,18 +398,12 @@
 (function(){
 "use strict";
 
-/* ======================================================================
-   MODE DETECTION
-   ====================================================================== */
 const params = new URLSearchParams(location.search);
 const isDisplay = params.get('display') === '1';
 if (isDisplay) document.body.classList.add('display-mode');
 
 const channel = ('BroadcastChannel' in window) ? new BroadcastChannel('tsk_photobooth_channel') : null;
 
-/* ======================================================================
-   SHARED DATA: frames / tones / stickers
-   ====================================================================== */
 const FRAMES = [
   {key:'sakura',   label:'ซากุระ',    bg:'#ffe4ec', border:'#ff9fbe', text:'#7a3b55'},
   {key:'mint',     label:'มินต์',     bg:'#e3fbf3', border:'#7fddbb', text:'#1f5c48'},
@@ -429,9 +424,6 @@ const TONES = [
 ];
 const STICKERS = ['💖','✨','🌸','😎','🎉','🌈','🐻','⭐','👑','🎀','🔥','😂'];
 
-/* ======================================================================
-   STATE (control window only)
-   ====================================================================== */
 const state = {
   step: 1,
   format: 'single',
@@ -445,8 +437,8 @@ const state = {
   captionColor: '#4a3b42',
   showDate: false,
   showDecor: true,
-  stickers: [], // {id,emoji,x,y,scale,rot}
-  shots: [],    // raw canvases
+  stickers: [],
+  shots: [],
   roundNumber: 0,
   drive: {clientId:'', folderName:'Photobooth', accessToken:null, folderId:null, tokenClient:null},
   lastQrLink: null,
@@ -457,9 +449,6 @@ const state = {
 let selectedStickerId = null;
 let stream = null;
 
-/* ======================================================================
-   INIT (both modes read from localStorage settings, control-only for rest)
-   ====================================================================== */
 try {
   const saved = JSON.parse(localStorage.getItem('tsk_pb_settings') || '{}');
   if (saved.clientId) state.drive.clientId = saved.clientId;
@@ -481,9 +470,6 @@ if (!isDisplay) {
   initDisplayApp();
 }
 
-/* ======================================================================
-   ============================  CONTROL APP  ============================
-   ====================================================================== */
 function initControlApp(){
   const video = document.getElementById('video');
   const stage = document.getElementById('stage');
@@ -541,7 +527,6 @@ function initControlApp(){
   clientIdInput.value = state.drive.clientId;
   folderNameInput.value = state.drive.folderName;
 
-  /* ---------- build frame chips (built-in + custom uploaded) ---------- */
   const uploadFrameBtn = document.getElementById('uploadFrameBtn');
   const uploadFrameInput = document.getElementById('uploadFrameInput');
 
@@ -604,7 +589,7 @@ function initControlApp(){
           localStorage.setItem('tsk_pb_custom_frames', JSON.stringify(customFrames));
         }catch(err){
           customFrames.pop();
-          alert('บันทึกกรอบไม่สำเร็จ: ไฟล์ใหญ่เกินพื้นที่จัดเก็บของเบราว์เซอร์ ลองใช้ภาพที่มีขนาดเล็กลง');
+          alert('บันทึกกรอบไม่สำเร็จ: ไฟล์ใหญ่เกินไป');
           return;
         }
         state.frameKey = key;
@@ -617,7 +602,6 @@ function initControlApp(){
     uploadFrameInput.value = '';
   });
 
-  /* ---------- build tone chips ---------- */
   TONES.forEach(t=>{
     const c = document.createElement('button');
     c.className = 'chip' + (t.key===state.toneKey?' active':'');
@@ -627,7 +611,6 @@ function initControlApp(){
     toneChips.appendChild(c);
   });
 
-  /* ---------- sticker palette ---------- */
   STICKERS.forEach(emo=>{
     const b = document.createElement('button');
     b.textContent = emo;
@@ -646,12 +629,10 @@ function initControlApp(){
     renderComposite();
   });
 
-  /* ---------- camera (UPDATED & FIXED) ---------- */
   async function listCameras(){
     try{
       const devices = await navigator.mediaDevices.enumerateDevices();
       const cams = devices.filter(d=>d.kind==='videoinput');
-      
       const currentTrack = stream ? stream.getVideoTracks()[0] : null;
       const currentDeviceId = currentTrack ? currentTrack.getSettings().deviceId : null;
 
@@ -677,7 +658,7 @@ function initControlApp(){
 
   async function openCamera(specificDeviceId = null){
     if (!window.isSecureContext){
-      alert('ใช้กล้องไม่ได้: หน้านี้เปิดแบบไม่ปลอดภัย (ไม่ใช่ HTTPS หรือ localhost) เบราว์เซอร์จะไม่ขึ้นขออนุญาตใช้กล้อง กรุณาเปิดผ่าน HTTPS');
+      alert('ใช้กล้องไม่ได้: หน้านี้เปิดแบบไม่ปลอดภัย (ไม่ใช่ HTTPS หรือ localhost)');
       return;
     }
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
@@ -690,8 +671,6 @@ function initControlApp(){
     }
 
     const targetId = specificDeviceId || (cameraSelect.value ? cameraSelect.value : null);
-    
-    // ตั้งค่า Constraints แบบยืดหยุ่น ป้องกัน OverconstrainedError
     const videoConstraints = {
       width: { ideal: 1280 },
       height: { ideal: 720 }
@@ -717,8 +696,6 @@ function initControlApp(){
       await listCameras();
       startLivePreviewBroadcast();
     }catch(err){
-      console.warn("Retrying with simple camera constraints due to:", err);
-      // Fallback: ถ้าล้มเหลว ให้ลองขอแบบ basic ที่สุด
       try {
         stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
         video.srcObject = stream;
@@ -728,13 +705,7 @@ function initControlApp(){
         await listCameras();
         startLivePreviewBroadcast();
       } catch(fallbackErr) {
-        console.error("Camera Open Error:", fallbackErr);
-        let detail = fallbackErr.message || fallbackErr.name || 'ไม่ทราบสาเหตุ';
-        let msg = 'เปิดกล้องไม่สำเร็จ: ' + detail;
-        if (fallbackErr.name === 'NotAllowedError') msg = 'คุณปฏิเสธการขอใช้กล้อง กรุณากดอนุญาตกล้องที่แถบ URL ด้านบนแล้วรีเฟรชใหม่';
-        else if (fallbackErr.name === 'NotFoundError') msg = 'ไม่พบกล้องในอุปกรณ์นี้ ตรวจสอบการเชื่อมต่อกล้อง';
-        else if (fallbackErr.name === 'NotReadableError') msg = 'กล้องถูกโปรแกรมอื่นใช้งานอยู่ กรุณาปิดโปรแกรมอื่นแล้วลองใหม่';
-        alert(msg);
+        alert('เปิดกล้องไม่สำเร็จ: ' + (fallbackErr.message || fallbackErr.name));
       }
     }
   }
@@ -745,9 +716,7 @@ function initControlApp(){
   });
 
   if (navigator.mediaDevices && navigator.mediaDevices.addEventListener) {
-    navigator.mediaDevices.addEventListener('devicechange', () => {
-      listCameras();
-    });
+    navigator.mediaDevices.addEventListener('devicechange', () => listCameras());
   }
 
   mirrorChk.addEventListener('change', ()=>{
@@ -762,7 +731,6 @@ function initControlApp(){
   dateChk.addEventListener('change', ()=>{ state.showDate = dateChk.checked; renderComposite(); });
   decorChk.addEventListener('change', ()=>{ state.showDecor = decorChk.checked; renderComposite(); });
 
-  /* ---------- steps UI ---------- */
   function goStep(n){
     state.step = n;
     document.querySelectorAll('.step-pill').forEach(p=>{
@@ -780,7 +748,6 @@ function initControlApp(){
   }
   goStep(1);
 
-  /* ---------- sound (simple beep, no external file) ---------- */
   let audioCtx = null;
   function beep(freq=880, dur=0.08){
     if (!state.soundOn) return;
@@ -796,13 +763,13 @@ function initControlApp(){
     }catch(e){}
   }
 
-  /* ---------- capture sequence ---------- */
   function shotsNeeded(){ return state.format==='single' ? 1 : 4; }
 
   async function startCapture(){
     if (!stream) { alert('กรุณาเปิดกล้องก่อน'); return; }
     state.shots = [];
     state.stickers = [];
+    state.lastQrLink = null;
     goStep(2);
     startCaptureBtn.disabled = true;
     broadcast({type:'roundStart', total: shotsNeeded()});
@@ -817,6 +784,9 @@ function initControlApp(){
     goStep(3);
     renderComposite();
     revealStep3Buttons();
+
+    // อัปโหลดและสร้าง QR Code อัตโนมัติทันทีที่ถ่ายจบ
+    autoUploadAndShowQr();
   }
   startCaptureBtn.addEventListener('click', startCapture);
 
@@ -870,6 +840,7 @@ function initControlApp(){
   retakeBtn.addEventListener('click', ()=>{
     state.shots = [];
     state.stickers = [];
+    state.lastQrLink = null;
     stickerLayer.innerHTML = '';
     hideStep3Buttons();
     goStep(1);
@@ -888,9 +859,8 @@ function initControlApp(){
     qrInlineBox.classList.add('hidden');
   }
 
-  /* ---------- stickers ---------- */
   function addSticker(emoji){
-    if (state.shots.length===0){ alert('ถ่ายภาพให้เสร็จก่อน แล้วค่อยแปะสติกเกอร์นะ'); return; }
+    if (state.shots.length===0){ alert('ถ่ายภาพให้เสร็จก่อน แล้วค่อยแปะสติกเกอร์'); return; }
     const id = 's'+Date.now()+Math.random().toString(16).slice(2);
     state.stickers.push({id, emoji, x:50, y:50, scale:1, rot:0});
     renderStickerLayer();
@@ -955,7 +925,6 @@ function initControlApp(){
   }
   stickerLayer.addEventListener('pointerdown', ()=>{ selectedStickerId=null; renderStickerLayer(); });
 
-  /* ---------- composition ---------- */
   function getPrintSize(){
     if (state.format==='strip4') return {w:600,h:1800};
     return {w:1200,h:1800};
@@ -1101,12 +1070,33 @@ function initControlApp(){
     clearTimeout(resultBroadcastTimer);
     resultBroadcastTimer = setTimeout(()=>{
       if (state.step===3){
-        broadcast({type:'roundResult', composedSrc: composeCanvas.toDataURL('image/jpeg',0.85), roundNumber: state.roundNumber, qrText: state.lastQrLink});
+        broadcast({
+          type: 'roundResult',
+          composedSrc: composeCanvas.toDataURL('image/jpeg', 0.85),
+          roundNumber: state.roundNumber,
+          qrText: state.lastQrLink
+        });
       }
     }, 150);
   }
 
-  /* ---------- download / print / gif ---------- */
+  // อัปโหลดและสร้าง QR Code อัตโนมัติทันที
+  async function autoUploadAndShowQr(){
+    if (state.drive.clientId) {
+      try {
+        const link = await uploadComposedToDrive();
+        state.lastQrLink = link;
+        driveStatus.textContent = 'เชื่อมต่อแล้ว ✓';
+        driveStatus.classList.add('ok');
+        addToGallery(composeCanvas.toDataURL('image/png'), state.roundNumber, link);
+        qrBtn.classList.remove('hidden');
+        showQr(link, true);
+      } catch (err) {
+        console.warn("Auto drive upload failed:", err);
+      }
+    }
+  }
+
   downloadBtn.addEventListener('click', ()=>{
     const a = document.createElement('a');
     a.download = `tsk-photobooth-${Date.now()}.png`;
@@ -1117,7 +1107,7 @@ function initControlApp(){
 
   downloadGifBtn.addEventListener('click', buildGif);
   function buildGif(){
-    if (typeof GIF === 'undefined'){ alert('โหลดไลบรารี GIF ไม่สำเร็จ ตรวจสอบการเชื่อมต่ออินเทอร์เน็ต'); return; }
+    if (typeof GIF === 'undefined'){ alert('โหลดไลบรารี GIF ไม่สำเร็จ'); return; }
     downloadGifBtn.disabled = true;
     downloadGifBtn.textContent = '⏳ กำลังสร้าง GIF...';
     const gif = new GIF({ workers:2, quality:10, workerScript:'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js' });
@@ -1167,10 +1157,9 @@ function initControlApp(){
     galleryGrid.prepend(item);
   }
 
-  /* ---------- Google Drive ---------- */
   function initTokenClientIfNeeded(){
     if (!state.drive.clientId) throw new Error('ยังไม่ได้ตั้งค่า Client ID');
-    if (!window.google || !google.accounts || !google.accounts.oauth2) throw new Error('Google Identity Services โหลดไม่สำเร็จ (ต้องมีอินเทอร์เน็ต)');
+    if (!window.google || !google.accounts || !google.accounts.oauth2) throw new Error('Google Identity Services โหลดไม่สำเร็จ');
     if (!state.drive.tokenClient){
       state.drive.tokenClient = google.accounts.oauth2.initTokenClient({
         client_id: state.drive.clientId,
@@ -1276,11 +1265,10 @@ function initControlApp(){
 
   qrBtn.addEventListener('click', ()=>{
     if (state.lastQrLink) showQr(state.lastQrLink, true);
-    else alert('ต้องกด "ส่งเข้า Google Drive" ก่อน ถึงจะสร้างลิงก์สำหรับ QR ได้');
+    else alert('กรุณาส่งเข้า Google Drive ก่อนเพื่อสร้าง URL');
   });
   closeQrBtn.addEventListener('click', ()=> qrModal.classList.add('hidden'));
 
-  /* ---------- settings modal ---------- */
   openSettingsBtn.addEventListener('click', ()=> settingsModal.classList.remove('hidden'));
   closeSettingsBtn.addEventListener('click', ()=> settingsModal.classList.add('hidden'));
   saveSettingsBtn.addEventListener('click', ()=>{
@@ -1300,13 +1288,11 @@ function initControlApp(){
     driveStatus.classList.remove('ok');
   });
 
-  /* ---------- second screen ---------- */
   openDisplayBtn.addEventListener('click', ()=>{
     const url = location.pathname + '?display=1';
     state.displayWindow = window.open(url, 'tsk_display', 'width=900,height=1000');
   });
 
-  /* ---------- live preview broadcast to display window ---------- */
   let liveTimer = null;
   function startLivePreviewBroadcast(){
     if (liveTimer) clearInterval(liveTimer);
@@ -1334,9 +1320,6 @@ function initControlApp(){
   function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
 }
 
-/* ======================================================================
-   ============================  DISPLAY APP  ============================
-   ====================================================================== */
 function initDisplayApp(){
   const live = document.getElementById('displayLive');
   const grid = document.getElementById('displayGrid');
@@ -1346,6 +1329,7 @@ function initDisplayApp(){
   const result = document.getElementById('displayResult');
   const finalImg = document.getElementById('displayFinalImg');
   const qrLabel = document.getElementById('displayQrLabel');
+  const qrSub = document.getElementById('displayQrSub');
   const qrHolder = document.getElementById('displayQR');
   const waiting = document.getElementById('displayWaiting');
 
@@ -1357,7 +1341,7 @@ function initDisplayApp(){
   }
 
   if (!channel){
-    waiting.textContent = 'เบราว์เซอร์นี้ไม่รองรับการเชื่อมต่อสองจอ (BroadcastChannel)';
+    waiting.textContent = 'เบราว์เซอร์นี้ไม่รองรับการเชื่อมต่อสองจอ';
     return;
   }
 
@@ -1410,11 +1394,15 @@ function initDisplayApp(){
       finalImg.src = msg.composedSrc;
       result.style.display = 'flex';
       qrHolder.innerHTML = '';
+      
       if (msg.qrText){
-        qrLabel.textContent = `สแกนรับรูป รอบที่ ${msg.roundNumber}`;
-        new QRCode(qrHolder, {text: msg.qrText, width:180, height:180, correctLevel: QRCode.CorrectLevel.M});
+        qrLabel.textContent = `สแกนรับรูปรอบที่ ${msg.roundNumber} 🌸`;
+        qrSub.textContent = 'เปิดกล้องมือถือเพื่อดาวน์โหลดรูปภาพ';
+        new QRCode(qrHolder, {text: msg.qrText, width:140, height:140, correctLevel: QRCode.CorrectLevel.M});
       } else {
-        qrLabel.textContent = 'รอเชื่อมต่อ Google Drive เพื่อสร้าง QR รับรูป';
+        // กรณีถ่ายเสร็จใหม่ๆ และกำลังส่งข้อมูล
+        qrLabel.textContent = `รูปถ่ายรอบที่ ${msg.roundNumber}`;
+        qrSub.textContent = 'กำลังเตรียม QR Code รับรูป...';
       }
     }
     if (msg.type === 'clearRound'){
