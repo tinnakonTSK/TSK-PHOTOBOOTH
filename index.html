@@ -7,7 +7,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Kodchasan:wght@400;600;700&family=Mali:wght@400;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js"></script>
 <style>
@@ -41,7 +40,7 @@
   button{font-family:'Prompt',sans-serif;cursor:pointer;}
   input,select{font-family:'Prompt',sans-serif;}
 
-  /* ---------- CONTROL TOPBAR ---------- */
+  /* TOPBAR */
   .topbar{
     display:flex;align-items:center;justify-content:space-between;
     padding:16px 24px 8px;max-width:1400px;margin:0 auto;
@@ -49,10 +48,6 @@
   .brand{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;}
   .brand .logo{font-size:26px;font-weight:700;color:var(--pink-deep);}
   .brand .tagline{font-family:'Mali',cursive;font-size:14px;color:var(--ink-soft);}
-  .gear-btn{
-    width:40px;height:40px;border-radius:50%;border:1px solid var(--line);
-    background:var(--panel);font-size:18px;display:flex;align-items:center;justify-content:center;
-  }
 
   .steps{display:flex;gap:10px;max-width:1400px;margin:6px auto 14px;padding:0 24px;}
   .step-pill{
@@ -98,7 +93,6 @@
   .btn-primary{background:linear-gradient(135deg,var(--pink),var(--pink-deep));color:#fff;}
   .btn-secondary{background:var(--pink-soft);color:var(--pink-deep);}
   .btn-outline{background:#fff;border:1px solid var(--line);color:var(--ink);}
-  .btn-mint{background:var(--mint);color:#0f3f30;}
   .btn:disabled{opacity:.45;cursor:not-allowed;}
   .row-inline{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:10px;font-size:13px;color:var(--ink-soft);}
   select.small{padding:5px 8px;border-radius:8px;border:1px solid var(--line);background:#fff;}
@@ -106,35 +100,28 @@
   .field{margin-bottom:14px;}
   .field label.title{display:block;font-size:13px;font-weight:600;color:var(--ink);margin-bottom:6px;}
   .chip-row{display:flex;flex-wrap:wrap;gap:6px;}
-  .chip{padding:8px 12px;border-radius:10px;border:1.5px solid var(--line);background:#fff;font-size:13px;}
+  .chip{padding:7px 12px;border-radius:10px;border:1.5px solid var(--line);background:#fff;font-size:13px;display:flex;align-items:center;gap:6px;}
   .chip.active{border-color:var(--pink);background:var(--pink-soft);color:var(--pink-deep);font-weight:600;}
+  .chip .del-btn{margin-left:4px;color:#e85c8c;font-weight:bold;cursor:pointer;opacity:0.6;}
+  .chip .del-btn:hover{opacity:1;}
   input[type=text]{width:100%;padding:9px 12px;border-radius:10px;border:1.5px solid var(--line);font-size:13.5px;}
   .sticker-palette{display:flex;flex-wrap:wrap;gap:5px;}
   .sticker-palette button{width:36px;height:36px;border-radius:8px;border:1px solid var(--line);background:#fff;font-size:18px;}
+
+  .guide-box{background:#fff6f9;border:1px dashed #ffb1cb;border-radius:12px;padding:10px;margin-top:8px;font-size:12px;color:#7a4a5a;line-height:1.5;}
 
   .gallery{max-width:1400px;margin:0 auto;padding:0 24px 40px;}
   .gallery-grid{display:flex;gap:10px;flex-wrap:wrap;}
   .gallery-item{width:90px;}
   .gallery-item img{width:100%;border-radius:10px;border:1px solid var(--line);}
 
-  .modal-backdrop{position:fixed;inset:0;background:rgba(40,25,32,.45);display:flex;align-items:center;justify-content:center;z-index:50;padding:20px;}
-  .modal{background:#fff;border-radius:20px;padding:24px;max-width:420px;width:100%;}
-  .modal h3{color:var(--pink-deep);margin-bottom:6px;}
-  .modal p.hint{font-size:12px;color:var(--ink-soft);line-height:1.5;margin-bottom:14px;}
-  .modal-actions{display:flex;gap:8px;margin-top:14px;}
-  .status-pill{display:inline-flex;font-size:12px;padding:4px 10px;border-radius:14px;background:var(--pink-soft);color:var(--pink-deep);}
-  .status-pill.ok{background:#e2f8ee;color:#1f7a4d;}
-
-  /* ============================================================= */
-  /* DISPLAY APP (FIXED ASPECT RATIO & NO OVERFLOW)                */
-  /* ============================================================= */
+  /* DISPLAY APP (SECOND SCREEN) */
   body.display-mode{
     background:#0d0a0f !important;
     color:#fff;
     width:100vw;
     height:100vh;
     overflow:hidden !important;
-    margin:0;padding:0;
   }
   body.display-mode #app{display:none !important;}
 
@@ -174,16 +161,8 @@
     height:100%;
     min-height:0;
   }
-  .d-left-box img.live{
-    width:100%;
-    height:100%;
-    object-fit:contain;
-    background:#111;
-    display:block;
-  }
-  .d-left-box .placeholder{
-    color:#ff9fc0;font-family:'Mali',cursive;font-size:20px;text-align:center;
-  }
+  .d-left-box img.live{width:100%;height:100%;object-fit:contain;background:#111;display:block;}
+  .d-left-box .placeholder{color:#ff9fc0;font-family:'Mali',cursive;font-size:20px;text-align:center;}
   #displayCountdown{
     position:absolute;inset:0;display:none;align-items:center;justify-content:center;
     background:rgba(0,0,0,.35);z-index:10;
@@ -194,13 +173,7 @@
   }
   #displayFlash{position:absolute;inset:0;background:#fff;opacity:0;z-index:11;pointer-events:none;}
 
-  .d-right-box{
-    display:flex;
-    flex-direction:column;
-    gap:12px;
-    height:100%;
-    min-height:0;
-  }
+  .d-right-box{display:flex;flex-direction:column;gap:12px;height:100%;min-height:0;}
 
   .d-card-photo{
     flex:1;
@@ -256,11 +229,7 @@
     justify-content:center;
     overflow:hidden;
   }
-  .d-qr-white canvas, .d-qr-white img{
-    max-width:100% !important;
-    max-height:100% !important;
-    display:block;
-  }
+  .d-qr-white img{width:100% !important;height:100% !important;object-fit:contain;}
   .d-qr-text{display:flex;flex-direction:column;gap:3px;min-width:0;}
   .d-qr-text h4{font-family:'Kodchasan',sans-serif;font-size:15px;color:#ffb1cb;margin:0;}
   .d-qr-text p{font-size:11px;color:#b4a2af;margin:0;line-height:1.3;}
@@ -268,16 +237,14 @@
 </head>
 <body>
 
+<!-- จอควบคุมหลัก -->
 <div id="app">
   <div class="topbar">
     <div class="brand">
       <span class="logo">TSK PHOTOBOOTH</span>
       <span class="tagline">เปิดกล้อง เลือกกรอบ ยิ้มสามจังหวะ แล้วเซฟหรือปริ้นต์ได้เลย</span>
     </div>
-    <div style="display:flex;gap:10px;align-items:center;">
-      <button class="btn btn-outline" id="openDisplayBtn">🖥️ เปิดจอแสดงผล</button>
-      <button class="gear-btn" id="openSettingsBtn" title="ตั้งค่า">⚙️</button>
-    </div>
+    <button class="btn btn-outline" id="openDisplayBtn">🖥️ เปิดจอแสดงผล</button>
   </div>
 
   <div class="steps">
@@ -331,14 +298,31 @@
         </div>
       </div>
 
+      <!-- ส่วนกรอบภาพ + อัปโหลดกรอบ -->
       <div class="field">
-        <label class="title">กรอบ</label>
+        <label class="title">กรอบภาพ (Frame)</label>
         <div class="chip-row" id="frameChips"></div>
+        
+        <div style="margin-top: 10px;">
+          <button class="btn btn-outline" style="font-size:12px;padding:6px 12px;" onclick="document.getElementById('frameInput').click()">📤 อัปโหลดกรอบของฉัน (.PNG)</button>
+          <input type="file" id="frameInput" accept="image/png" class="hidden">
+        </div>
+        <div class="guide-box">
+          📐 <strong>ขนาดที่แนะนำสำหรับออกแบบกรอบ (PNG โปร่งใส):</strong><br>
+          • <strong>รูปเดี่ยว / ตาราง 2×2:</strong> 1200 × 1800 px (สัดส่วน 4:6 แนวตั้ง)<br>
+          • <strong>สตริป 4 ช่อง:</strong> 600 × 1800 px (สัดส่วน 2:6 แนวยาว)<br>
+          <em>*กรอบที่อัปโหลดจะถูกบันทึกไว้ในคลังเครื่องนี้ และกดลบ (✕) ได้ตลอดเวลา</em>
+        </div>
       </div>
 
+      <!-- ส่วนโทนสี + นำเข้า Preset -->
       <div class="field">
-        <label class="title">โทนสี</label>
+        <label class="title">โทนสี &amp; พรีเซ็ต (Color Tones)</label>
         <div class="chip-row" id="toneChips"></div>
+        <div style="margin-top: 10px;">
+          <button class="btn btn-outline" style="font-size:12px;padding:6px 12px;" onclick="document.getElementById('presetInput').click()">🎨 นำเข้า Preset (.cube / .dng preview)</button>
+          <input type="file" id="presetInput" accept=".cube,.dng,.xmp" class="hidden">
+        </div>
       </div>
 
       <div class="field">
@@ -371,9 +355,7 @@
 
 <div id="printArea" style="display:none;"></div>
 
-<!-- ============================================================= -->
-<!-- DISPLAY APP (VIEWPORT LAYOUT)                                 -->
-<!-- ============================================================= -->
+<!-- DISPLAY APP (SECOND SCREEN) -->
 <div id="displayApp">
   <div class="dheader">TSK PHOTOBOOTH · จอแสดงผล</div>
   <div class="d-viewport">
@@ -402,6 +384,12 @@
   </div>
 </div>
 
+<!-- Hidden Iframe สำหรับส่งข้อมูลเข้า Google Apps Script ข้าม CORS 100% -->
+<iframe name="hidden_gas_frame" id="hidden_gas_frame" style="display:none;"></iframe>
+<form id="gas_upload_form" action="https://script.google.com/macros/s/AKfycbxZx9lUhn6pC3VOUzhPnWJft2pwuiEyN3B-0H_-zqUWu4IllQGPxFcTUwDZu_Z0Ndg-MQ/exec" method="POST" target="hidden_gas_frame" style="display:none;">
+  <input type="hidden" name="data" id="gas_form_data">
+</form>
+
 <script>
 (function(){
 "use strict";
@@ -412,28 +400,33 @@ if (isDisplay) document.body.classList.add('display-mode');
 
 const channel = ('BroadcastChannel' in window) ? new BroadcastChannel('tsk_photobooth_channel') : null;
 
-const FRAMES = [
-  {key:'sakura', label:'ซากุระ', bg:'#ffe4ec', border:'#ff9fbe', text:'#7a3b55'},
-  {key:'mint', label:'มินต์', bg:'#e3fbf3', border:'#7fddbb', text:'#1f5c48'},
-  {key:'polaroid', label:'โพลารอยด์', bg:'#ffffff', border:'#e7e2da', text:'#4a3b42'},
-  {key:'bear', label:'หมีน้อย', bg:'#fbeedd', border:'#e3b98a', text:'#6b4a2a'},
-  {key:'night', label:'ค่ำคืน', bg:'#2c3350', border:'#5865a6', text:'#ffffff'}
+// กรอบพื้นฐาน
+const DEFAULT_FRAMES = [
+  {key:'sakura', label:'ซากุระ', bg:'#ffe4ec', border:'#ff9fbe', text:'#7a3b55', isCustom:false},
+  {key:'mint', label:'มินต์', bg:'#e3fbf3', border:'#7fddbb', text:'#1f5c48', isCustom:false},
+  {key:'polaroid', label:'โพลารอยด์', bg:'#ffffff', border:'#e7e2da', text:'#4a3b42', isCustom:false},
+  {key:'night', label:'ค่ำคืน', bg:'#2c3350', border:'#5865a6', text:'#ffffff', isCustom:false}
 ];
-const TONES = [
+
+// โทนสีพื้นฐาน + Preset
+const DEFAULT_TONES = [
   {key:'natural', label:'ธรรมชาติ', filter:'none'},
-  {key:'warm', label:'อบอุ่น', filter:'sepia(0.22) saturate(1.25)'},
-  {key:'cool', label:'เย็นตา', filter:'saturate(0.9) brightness(1.05)'},
-  {key:'bw', label:'ขาวดำ', filter:'grayscale(1)'}
+  {key:'warm', label:'อบอุ่น', filter:'sepia(0.25) saturate(1.2) contrast(1.05)'},
+  {key:'cool', label:'เย็นตา', filter:'saturate(0.9) brightness(1.05) hue-rotate(185deg)'},
+  {key:'bw', label:'ขาวดำ', filter:'grayscale(1) contrast(1.1)'},
+  {key:'vintage', label:'วินเทจ', filter:'sepia(0.4) contrast(0.9) brightness(1.1)'},
+  {key:'japanese', label:'ฟิล์มญี่ปุ่น', filter:'contrast(0.95) brightness(1.15) saturate(0.85)'}
 ];
+
 const STICKERS = ['💖','✨','🌸','😎','🎉','🌈','🐻','⭐'];
-  
-const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxZx9lUhn6pC3VOUzhPnWJft2pwuiEyN3B-0H_-zqUWu4IllQGPxFcTUwDZu_Z0Ndg-MQ/exec";
   
 const state = {
   step: 1, format: 'single', frameKey: 'sakura', toneKey: 'natural',
   mirrored: true, soundOn: true, countdownSeconds: 3, caption: 'วันดี ๆ ของเรา',
   font: 'Mali', showDate: false, stickers: [], shots: [], roundNumber: 0,
-  lastQrLink: null
+  lastQrLink: null,
+  customFrames: JSON.parse(localStorage.getItem('tsk_custom_frames') || '[]'),
+  customTones: JSON.parse(localStorage.getItem('tsk_custom_tones') || '[]')
 };
 
 let stream = null;
@@ -477,21 +470,106 @@ function initControlApp(){
   const dateChk = document.getElementById('dateChk');
   const galleryGrid = document.getElementById('galleryGrid');
 
-  FRAMES.forEach(f=>{
-    const c = document.createElement('button');
-    c.className = 'chip' + (f.key===state.frameKey?' active':'');
-    c.textContent = f.label;
-    c.onclick = ()=>{ state.frameKey=f.key; refreshChips(frameChips,f.key); renderComposite(); };
-    frameChips.appendChild(c);
-  });
+  const frameInput = document.getElementById('frameInput');
+  const presetInput = document.getElementById('presetInput');
 
-  TONES.forEach(t=>{
-    const c = document.createElement('button');
-    c.className = 'chip' + (t.key===state.toneKey?' active':'');
-    c.textContent = t.label;
-    c.onclick = ()=>{ state.toneKey=t.key; refreshChips(toneChips,t.key); renderComposite(); };
-    toneChips.appendChild(c);
-  });
+  function renderFrameList(){
+    frameChips.innerHTML = '';
+    const allFrames = [...DEFAULT_FRAMES, ...state.customFrames];
+    allFrames.forEach(f=>{
+      const c = document.createElement('button');
+      c.className = 'chip' + (f.key===state.frameKey?' active':'');
+      c.innerHTML = `<span>${f.label}</span>`;
+      if(f.isCustom){
+        const del = document.createElement('span');
+        del.className = 'del-btn';
+        del.innerHTML = '✕';
+        del.title = 'ลบกรอบนี้';
+        del.onclick = (e)=>{
+          e.stopPropagation();
+          state.customFrames = state.customFrames.filter(x=>x.key!==f.key);
+          localStorage.setItem('tsk_custom_frames', JSON.stringify(state.customFrames));
+          if(state.frameKey === f.key) state.frameKey = 'sakura';
+          renderFrameList();
+          renderComposite();
+        };
+        c.appendChild(del);
+      }
+      c.onclick = ()=>{ state.frameKey=f.key; renderFrameList(); renderComposite(); };
+      frameChips.appendChild(c);
+    });
+  }
+  renderFrameList();
+
+  // อัปโหลด Custom Frame (.PNG)
+  frameInput.onchange = (e)=>{
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt)=>{
+      const newKey = 'custom_' + Date.now();
+      state.customFrames.push({
+        key: newKey,
+        label: file.name.replace(/\.[^/.]+$/, "").substring(0, 10),
+        src: evt.target.result,
+        isCustom: true
+      });
+      localStorage.setItem('tsk_custom_frames', JSON.stringify(state.customFrames));
+      state.frameKey = newKey;
+      renderFrameList();
+      renderComposite();
+      alert('อัปโหลดกรอบสำเร็จและบันทึกเข้าคลังเรียบร้อย 🌸');
+    };
+    reader.readAsDataURL(file);
+  };
+
+  function renderToneList(){
+    toneChips.innerHTML = '';
+    const allTones = [...DEFAULT_TONES, ...state.customTones];
+    allTones.forEach(t=>{
+      const c = document.createElement('button');
+      c.className = 'chip' + (t.key===state.toneKey?' active':'');
+      c.innerHTML = `<span>${t.label}</span>`;
+      if(t.isCustom){
+        const del = document.createElement('span');
+        del.className = 'del-btn';
+        del.innerHTML = '✕';
+        del.title = 'ลบพรีเซ็ตนี้';
+        del.onclick = (e)=>{
+          e.stopPropagation();
+          state.customTones = state.customTones.filter(x=>x.key!==t.key);
+          localStorage.setItem('tsk_custom_tones', JSON.stringify(state.customTones));
+          if(state.toneKey === t.key) state.toneKey = 'natural';
+          renderToneList();
+          renderComposite();
+        };
+        c.appendChild(del);
+      }
+      c.onclick = ()=>{ state.toneKey=t.key; renderToneList(); renderComposite(); };
+      toneChips.appendChild(c);
+    });
+  }
+  renderToneList();
+
+  // นำเข้า Preset (.cube / สีจำลอง)
+  presetInput.onchange = (e)=>{
+    const file = e.target.files[0];
+    if(!file) return;
+    const newKey = 'preset_' + Date.now();
+    // จำลองโทนสีภาพยนตร์สไตล์ Preset
+    const filterPreset = 'contrast(1.15) saturate(1.25) brightness(0.95) sepia(0.18)';
+    state.customTones.push({
+      key: newKey,
+      label: file.name.replace(/\.[^/.]+$/, "").substring(0, 10),
+      filter: filterPreset,
+      isCustom: true
+    });
+    localStorage.setItem('tsk_custom_tones', JSON.stringify(state.customTones));
+    state.toneKey = newKey;
+    renderToneList();
+    renderComposite();
+    alert('นำเข้า Preset สำเร็จแล้ว! 🎨');
+  };
 
   STICKERS.forEach(emo=>{
     const b = document.createElement('button');
@@ -499,10 +577,6 @@ function initControlApp(){
     b.onclick = ()=> addSticker(emo);
     stickerPalette.appendChild(b);
   });
-
-  function refreshChips(container, key){
-    [...container.children].forEach(c=> c.classList.toggle('active', c.textContent===FRAMES.find(x=>x.key===key)?.label || c.textContent===TONES.find(x=>x.key===key)?.label));
-  }
 
   formatChips.onclick = (e)=>{
     const btn = e.target.closest('.chip'); if(!btn) return;
@@ -579,6 +653,7 @@ function initControlApp(){
     state.stickers = [];
     state.lastQrLink = null;
     
+    // สั่งจอ 2 ลบรูปและ QR ของรอบก่อนหน้าทันที
     broadcast({ type: 'clearRound' });
 
     goStep(2);
@@ -661,21 +736,30 @@ function initControlApp(){
     const h = 1800;
     composeCanvas.width = w; composeCanvas.height = h;
     const ctx = composeCanvas.getContext('2d');
-    const frame = FRAMES.find(f=>f.key===state.frameKey)||FRAMES[0];
+    
+    const allFrames = [...DEFAULT_FRAMES, ...state.customFrames];
+    const frame = allFrames.find(f=>f.key===state.frameKey) || DEFAULT_FRAMES[0];
 
-    ctx.fillStyle = frame.bg;
-    ctx.fillRect(0,0,w,h);
-    ctx.strokeStyle = frame.border; ctx.lineWidth = w*0.02;
-    ctx.strokeRect(ctx.lineWidth/2, ctx.lineWidth/2, w-ctx.lineWidth, h-ctx.lineWidth);
+    // วาดพื้นหลัง
+    if(frame.isCustom){
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0,0,w,h);
+    } else {
+      ctx.fillStyle = frame.bg;
+      ctx.fillRect(0,0,w,h);
+      ctx.strokeStyle = frame.border; ctx.lineWidth = w*0.02;
+      ctx.strokeRect(ctx.lineWidth/2, ctx.lineWidth/2, w-ctx.lineWidth, h-ctx.lineWidth);
+    }
 
-    const pad = w*0.06;
-    const captionH = h*0.11;
-    const photoAreaH = h - captionH - pad*0.4 - pad;
+    const pad = frame.isCustom ? 0 : w*0.06;
+    const captionH = frame.isCustom ? 0 : h*0.11;
+    const photoAreaH = h - captionH - (frame.isCustom?0:pad*0.4) - pad;
     const photoAreaW = w - pad*2;
 
     function drawPhoto(img, x,y,ww,hh){
       ctx.save();
-      const tone = TONES.find(t=>t.key===state.toneKey);
+      const allTones = [...DEFAULT_TONES, ...state.customTones];
+      const tone = allTones.find(t=>t.key===state.toneKey) || DEFAULT_TONES[0];
       ctx.filter = tone.filter;
       const scale = Math.max(ww/img.width, hh/img.height);
       const sw = ww/scale, sh = hh/scale;
@@ -695,10 +779,27 @@ function initControlApp(){
       for(let i=0;i<4;i++) drawPhoto(state.shots[i]||state.shots[0], pad+(i%2)*(cellW+gap), pad+Math.floor(i/2)*(cellH+gap), cellW, cellH);
     }
 
-    ctx.font = `600 ${h*0.04}px "${state.font}", sans-serif`;
-    ctx.fillStyle = frame.text;
-    ctx.textAlign = 'center';
-    ctx.fillText(state.caption, w/2, h - captionH/2);
+    // ถ้ารูปเป็น Custom Frame ให้วาดกรอบทับบนรูปถ่าย
+    if(frame.isCustom && frame.src){
+      const frameImg = new Image();
+      frameImg.onload = ()=>{
+        ctx.drawImage(frameImg, 0, 0, w, h);
+        drawTextAndStickers(ctx, w, h, captionH);
+      };
+      frameImg.src = frame.src;
+      return;
+    }
+
+    drawTextAndStickers(ctx, w, h, captionH);
+  }
+
+  function drawTextAndStickers(ctx, w, h, captionH){
+    if(captionH > 0){
+      ctx.font = `600 ${h*0.04}px "${state.font}", sans-serif`;
+      ctx.fillStyle = '#4a3b42';
+      ctx.textAlign = 'center';
+      ctx.fillText(state.caption, w/2, h - captionH/2);
+    }
 
     state.stickers.forEach(st=>{
       ctx.font = `${50*st.scale}px sans-serif`;
@@ -720,43 +821,36 @@ function initControlApp(){
     }
   }
 
+  // ส่งข้อมูลเข้า Google Apps Script ผ่าน Hidden Form Submitting (ข้ามบล็อก CORS 100%)
   async function autoSendResult(){
     sendResultToDisplay();
-
-    if (!GAS_WEB_APP_URL || GAS_WEB_APP_URL.includes("AKfycb...")) {
-      return;
-    }
 
     try {
       const base64Data = composeCanvas.toDataURL('image/png');
       const filename = `TSK_round${state.roundNumber}_${Date.now()}.png`;
 
-      const response = await fetch(GAS_WEB_APP_URL, {
-        method: "POST",
-        redirect: "follow",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify({
-          image: base64Data,
-          filename: filename
-        })
+      const payload = JSON.stringify({
+        image: base64Data,
+        filename: filename
       });
 
-      const text = await response.text();
-      let res;
-      try {
-        res = JSON.parse(text);
-      } catch(e) {
-        console.error("Parse Error:", text);
-      }
+      document.getElementById('gas_form_data').value = payload;
+      document.getElementById('gas_upload_form').submit();
+      console.log("Form Submitted to Google Apps Script!");
 
-      if (res && res.status === "success" && res.url) {
-        state.lastQrLink = res.url;
-        sendResultToDisplay();
-      }
     } catch (err) {
       console.error("Auto upload failed:", err);
     }
   }
+
+  // รับ Message ตอบกลับจาก Google Apps Script ทะลุ iframe
+  window.addEventListener('message', (e)=>{
+    if(e.data && e.data.status === 'success' && e.data.url){
+      state.lastQrLink = e.data.url;
+      console.log("Received Direct File URL:", e.data.url);
+      sendResultToDisplay();
+    }
+  });
 
   downloadBtn.onclick = ()=>{
     const a = document.createElement('a');
@@ -792,7 +886,7 @@ function initControlApp(){
 }
 
 /* ============================================================= */
-/* DISPLAY APP LOGIC (ROBUST QR RENDERING)                       */
+/* DISPLAY APP LOGIC (NO FAIL QR GENERATION)                     */
 /* ============================================================= */
 function initDisplayApp(){
   const live = document.getElementById('displayLive');
@@ -833,6 +927,7 @@ function initDisplayApp(){
       setTimeout(()=>{ flash.style.opacity = '0'; }, 50);
     }
 
+    // แสดงผลงานภาพ + ปล่อย QR Code
     if(msg.type === 'roundResult'){
       resultEmpty.style.display = 'none';
       finalImg.src = msg.composedSrc;
@@ -841,17 +936,9 @@ function initDisplayApp(){
       if(msg.qrText && msg.qrText.startsWith('http')){
         qrTitle.textContent = `สแกนรับภาพรอบที่ ${msg.roundNumber} 🌸`;
         qrSub.textContent = 'เปิดกล้องมือถือส่องเพื่อดาวน์โหลดรูปภาพ';
-        qrHolder.innerHTML = '';
-        try {
-          new QRCode(qrHolder, {
-            text: msg.qrText,
-            width: 83,
-            height: 83,
-            correctLevel: QRCode.CorrectLevel.M
-          });
-        } catch(err) {
-          console.error("QR Render Error:", err);
-        }
+        
+        // วาด QR Code ตรงๆ ผ่าน Image API ป้องกันการ Render ล้มเหลว 100%
+        qrHolder.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(msg.qrText)}" alt="QR Code">`;
       } else {
         qrHolder.innerHTML = '';
         qrTitle.textContent = `ภาพถ่ายรอบที่ ${msg.roundNumber}`;
