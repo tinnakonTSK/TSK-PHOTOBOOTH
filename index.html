@@ -162,7 +162,6 @@
     min-height:0;
   }
 
-  /* ฝั่งซ้าย: กล้องสด ล็อกสัดส่วนกล้องไม่ให้ล้นขอบ */
   .d-left-box{
     background:#000;
     border-radius:20px;
@@ -195,7 +194,6 @@
   }
   #displayFlash{position:absolute;inset:0;background:#fff;opacity:0;z-index:11;pointer-events:none;}
 
-  /* ฝั่งขวา: พรีวิวภาพ + QR Code */
   .d-right-box{
     display:flex;
     flex-direction:column;
@@ -204,7 +202,6 @@
     min-height:0;
   }
 
-  /* กล่องรูปผลงานด้านบน */
   .d-card-photo{
     flex:1;
     background:#1b1522;
@@ -234,7 +231,6 @@
   }
   .d-card-photo .empty-state{color:#6c5767;font-family:'Mali',cursive;font-size:14px;text-align:center;}
 
-  /* กล่อง QR ด้านล่าง ตรึงความสูงไว้ที่ 130px */
   .d-card-qr{
     height:130px;
     flex-shrink:0;
@@ -258,10 +254,12 @@
     display:flex;
     align-items:center;
     justify-content:center;
+    overflow:hidden;
   }
   .d-qr-white canvas, .d-qr-white img{
-    width:100% !important;
-    height:100% !important;
+    max-width:100% !important;
+    max-height:100% !important;
+    display:block;
   }
   .d-qr-text{display:flex;flex-direction:column;gap:3px;min-width:0;}
   .d-qr-text h4{font-family:'Kodchasan',sans-serif;font-size:15px;color:#ffb1cb;margin:0;}
@@ -309,7 +307,6 @@
         <button class="btn btn-secondary hidden" id="downloadBtn">⬇️ บันทึกรูป</button>
         <button class="btn btn-secondary hidden" id="downloadGifBtn">🎞️ บันทึก GIF</button>
         <button class="btn btn-outline hidden" id="printBtn">🖨️ ปริ้นต์</button>
-        <button class="btn btn-mint hidden" id="driveBtn">☁️ ส่งเข้า Google Drive</button>
       </div>
       <div class="row-inline">
         <label><input type="checkbox" id="mirrorChk" checked> กลับด้านซ้าย-ขวา</label>
@@ -372,21 +369,6 @@
   </div>
 </div>
 
-<div class="modal-backdrop hidden" id="settingsModal">
-  <div class="modal">
-    <h3>⚙️ ตั้งค่า Google Drive</h3>
-    <p class="hint">ใส่ OAuth Client ID เพื่อส่งรูปเข้า Drive และสร้าง QR ทันที</p>
-    <div class="field">
-      <input type="text" id="clientIdInput" placeholder="xxxxx.apps.googleusercontent.com">
-    </div>
-    <div id="driveStatus" class="status-pill">ยังไม่ได้เชื่อมต่อ</div>
-    <div class="modal-actions">
-      <button class="btn btn-primary" id="saveSettingsBtn">บันทึก</button>
-      <button class="btn btn-outline" id="closeSettingsBtn">ปิด</button>
-    </div>
-  </div>
-</div>
-
 <div id="printArea" style="display:none;"></div>
 
 <!-- ============================================================= -->
@@ -445,23 +427,16 @@ const TONES = [
 ];
 const STICKERS = ['💖','✨','🌸','😎','🎉','🌈','🐻','⭐'];
   
-// ใส่ URL Web App จาก Google Apps Script
 const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxZx9lUhn6pC3VOUzhPnWJft2pwuiEyN3B-0H_-zqUWu4IllQGPxFcTUwDZu_Z0Ndg-MQ/exec";
   
 const state = {
   step: 1, format: 'single', frameKey: 'sakura', toneKey: 'natural',
   mirrored: true, soundOn: true, countdownSeconds: 3, caption: 'วันดี ๆ ของเรา',
   font: 'Mali', showDate: false, stickers: [], shots: [], roundNumber: 0,
-  drive: {clientId:'', folderName:'Photobooth', accessToken:null, folderId:null, tokenClient:null},
   lastQrLink: null
 };
 
 let stream = null;
-
-try {
-  const saved = JSON.parse(localStorage.getItem('tsk_pb_settings') || '{}');
-  if (saved.clientId) state.drive.clientId = saved.clientId;
-} catch(e){}
 
 if (!isDisplay) {
   initControlApp();
@@ -486,7 +461,6 @@ function initControlApp(){
   const downloadBtn = document.getElementById('downloadBtn');
   const downloadGifBtn = document.getElementById('downloadGifBtn');
   const printBtn = document.getElementById('printBtn');
-  const driveBtn = document.getElementById('driveBtn');
   const openDisplayBtn = document.getElementById('openDisplayBtn');
 
   const mirrorChk = document.getElementById('mirrorChk');
@@ -502,13 +476,6 @@ function initControlApp(){
   const fontSelect = document.getElementById('fontSelect');
   const dateChk = document.getElementById('dateChk');
   const galleryGrid = document.getElementById('galleryGrid');
-
-  const settingsModal = document.getElementById('settingsModal');
-  const openSettingsBtn = document.getElementById('openSettingsBtn');
-  const closeSettingsBtn = document.getElementById('closeSettingsBtn');
-  const clientIdInput = document.getElementById('clientIdInput');
-  const saveSettingsBtn = document.getElementById('saveSettingsBtn');
-  clientIdInput.value = state.drive.clientId;
 
   FRAMES.forEach(f=>{
     const c = document.createElement('button');
@@ -612,7 +579,6 @@ function initControlApp(){
     state.stickers = [];
     state.lastQrLink = null;
     
-    // สั่งจอ 2 ลบรูปและ QR ของรอบก่อนหน้าทิ้งทันที เพื่อความเป็นส่วนตัว
     broadcast({ type: 'clearRound' });
 
     goStep(2);
@@ -671,7 +637,7 @@ function initControlApp(){
     state.shots = []; state.stickers = [];
     state.lastQrLink = null;
     stickerLayer.innerHTML = '';
-    [retakeBtn,downloadBtn,downloadGifBtn,printBtn,driveBtn].forEach(b=>b.classList.add('hidden'));
+    [retakeBtn,downloadBtn,downloadGifBtn,printBtn].forEach(b=>b.classList.add('hidden'));
     goStep(1);
     broadcast({type:'clearRound'});
   };
@@ -755,11 +721,9 @@ function initControlApp(){
   }
 
   async function autoSendResult(){
-    // แสดงภาพบนจอ 2 ทันทีระหว่างรอผล QR
     sendResultToDisplay();
 
     if (!GAS_WEB_APP_URL || GAS_WEB_APP_URL.includes("AKfycb...")) {
-      console.warn("ยังไม่ได้ตั้งค่า Google Apps Script URL");
       return;
     }
 
@@ -767,9 +731,9 @@ function initControlApp(){
       const base64Data = composeCanvas.toDataURL('image/png');
       const filename = `TSK_round${state.roundNumber}_${Date.now()}.png`;
 
-      // ส่งรูปภาพขึ้น Google Apps Script
       const response = await fetch(GAS_WEB_APP_URL, {
         method: "POST",
+        redirect: "follow",
         headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify({
           image: base64Data,
@@ -777,10 +741,17 @@ function initControlApp(){
         })
       });
 
-      const res = await response.json();
-      if (res.status === "success" && res.url) {
+      const text = await response.text();
+      let res;
+      try {
+        res = JSON.parse(text);
+      } catch(e) {
+        console.error("Parse Error:", text);
+      }
+
+      if (res && res.status === "success" && res.url) {
         state.lastQrLink = res.url;
-        sendResultToDisplay(); // อัปเดต QR เฉพาะไฟล์ของคนนี้ลงจอ 2
+        sendResultToDisplay();
       }
     } catch (err) {
       console.error("Auto upload failed:", err);
@@ -818,18 +789,10 @@ function initControlApp(){
 
   function broadcast(msg){ if(channel) try{ channel.postMessage(msg); }catch(e){} }
   function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
-
-  openSettingsBtn.onclick = ()=> settingsModal.classList.remove('hidden');
-  closeSettingsBtn.onclick = ()=> settingsModal.classList.add('hidden');
-  saveSettingsBtn.onclick = ()=>{
-    state.drive.clientId = clientIdInput.value.trim();
-    localStorage.setItem('tsk_pb_settings', JSON.stringify({clientId:state.drive.clientId}));
-    settingsModal.classList.add('hidden');
-  };
 }
 
 /* ============================================================= */
-/* DISPLAY APP LOGIC (NO FLICKER / RELIABLE QR & RESULT DISPLAY)  */
+/* DISPLAY APP LOGIC (ROBUST QR RENDERING)                       */
 /* ============================================================= */
 function initDisplayApp(){
   const live = document.getElementById('displayLive');
@@ -870,29 +833,32 @@ function initDisplayApp(){
       setTimeout(()=>{ flash.style.opacity = '0'; }, 50);
     }
 
-    // แสดงผลงานรูปถ่าย + QR Code ด้านขวา
     if(msg.type === 'roundResult'){
       resultEmpty.style.display = 'none';
       finalImg.src = msg.composedSrc;
       finalImg.style.display = 'block';
 
-      qrHolder.innerHTML = '';
-      if(msg.qrText){
+      if(msg.qrText && msg.qrText.startsWith('http')){
         qrTitle.textContent = `สแกนรับภาพรอบที่ ${msg.roundNumber} 🌸`;
         qrSub.textContent = 'เปิดกล้องมือถือส่องเพื่อดาวน์โหลดรูปภาพ';
-        new QRCode(qrHolder, {
-          text: msg.qrText,
-          width: 83,
-          height: 83,
-          correctLevel: QRCode.CorrectLevel.M
-        });
+        qrHolder.innerHTML = '';
+        try {
+          new QRCode(qrHolder, {
+            text: msg.qrText,
+            width: 83,
+            height: 83,
+            correctLevel: QRCode.CorrectLevel.M
+          });
+        } catch(err) {
+          console.error("QR Render Error:", err);
+        }
       } else {
+        qrHolder.innerHTML = '';
         qrTitle.textContent = `ภาพถ่ายรอบที่ ${msg.roundNumber}`;
         qrSub.textContent = 'กำลังเตรียม QR Code รับรูป...';
       }
     }
 
-    // ล้างรูปและ QR Code ของคนก่อนหน้าออกทันทีเมื่อกดเริ่มรอบใหม่
     if(msg.type === 'clearRound'){
       finalImg.style.display = 'none';
       finalImg.src = '';
