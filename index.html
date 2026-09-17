@@ -50,6 +50,7 @@
     stroke-linecap: round; stroke-linejoin: round; display: inline-block; vertical-align: middle;
   }
 
+  /* APP LAYOUT - FIXED HEIGHT NO OVERFLOW */
   #app { display: flex; flex-direction: column; width: 100vw; height: 100vh; padding: 6px 14px; overflow: hidden; }
   
   .topbar {
@@ -101,17 +102,20 @@
     border: 1px solid var(--border);
   }
   
-  /* ตัววิดีโอกล้องสดตัวจริง */
-  #video { width: 100%; height: 100%; object-fit: cover; display: none; }
+  /* ตัววิดีโอกล้องสดหลัก - จัดการเต็มพื้นที่พร้อมรันภาพทันที */
+  #video {
+    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain;
+    background: #000; z-index: 1; display: none;
+  }
   #video.mirror { transform: scaleX(-1); }
 
   .view-placeholder {
     position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 8px; color: var(--primary-light); font-size: 13.5px; font-weight: 500;
+    gap: 8px; color: var(--primary-light); font-size: 13.5px; font-weight: 500; z-index: 2;
   }
   .view-placeholder svg { width: 40px; height: 40px; stroke: var(--primary-light); }
 
-  #composeWrap { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; min-height: 0; }
+  #composeWrap { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; min-height: 0; z-index: 5; }
   #composeCanvas { max-width: 100%; max-height: 100%; object-fit: contain; }
 
   #countdownOverlay {
@@ -139,17 +143,17 @@
   .studio-switch input:checked + .switch-rail { background: var(--switch-on); border-color: var(--switch-on); }
   .studio-switch input:checked + .switch-rail .switch-knob { transform: translateX(13px); }
 
-  /* RIGHT PANEL */
+  /* RIGHT PANEL - แก้ไขไม่ให้หัวข้อด้านบนโดนดันหลุดจอ */
   .settings-card {
     background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius);
-    padding: 10px 12px; display: flex; flex-direction: column; height: 100%; min-height: 0;
-    overflow-y: auto;
+    padding: 12px 14px; display: flex; flex-direction: column; height: 100%; min-height: 0;
+    overflow-y: auto; box-sizing: border-box;
   }
   .settings-card::-webkit-scrollbar { width: 3px; }
   .settings-card::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
-  .cfg-group { margin-bottom: 10px; }
-  .cfg-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+  .cfg-group { margin-bottom: 10px; flex-shrink: 0; }
+  .cfg-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; height: 20px; }
   .cfg-label { font-size: 11px; font-weight: 600; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.5px; }
 
   .btn-help {
@@ -167,7 +171,7 @@
 
   .matrix-layout {
     display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px;
-    max-height: 160px; overflow-y: auto; padding-right: 2px;
+    max-height: 155px; overflow-y: auto; padding-right: 2px;
   }
   .card-option {
     border: 1px solid var(--border); border-radius: var(--radius); padding: 5px 2px; background: var(--panel-hover);
@@ -311,6 +315,7 @@
   </symbol>
 </svg>
 
+<!-- 1. STUDIO CONTROL APP -->
 <div id="app">
   <div class="topbar">
     <div class="brand">
@@ -503,7 +508,7 @@
   </div>
 </div>
 
-<!-- 2. CLIENT GALLERY PORTAL (หน้าสำหรับมือถือผู้ใช้งาน) -->
+<!-- 2. CLIENT GALLERY PORTAL -->
 <div id="clientPortal">
   <div class="portal-container">
     <div class="portal-head">
@@ -526,7 +531,7 @@
   </div>
 </div>
 
-<!-- 3. DISPLAY APP (จอสอง) -->
+<!-- 3. DISPLAY APP -->
 <div id="displayApp">
   <div style="text-align: center; font-size: 14px; font-weight: 700; color: var(--primary-light); height: 24px;">
     TSK PHOTO STUDIO · LIVE DISPLAY
@@ -598,7 +603,7 @@ if (themeBtn) {
 }
 
 /* --------------------------------------------------------------------------
-   MODE: CLIENT GALLERY PORTAL (หน้ารับผลงานบนมือถือ)
+   MODE: CLIENT GALLERY PORTAL
 -------------------------------------------------------------------------- */
 if (viewToken) {
   const data = JSON.parse(sessionStorage.getItem('tsk_art_' + viewToken) || localStorage.getItem('tsk_art_' + viewToken) || '{}');
@@ -828,7 +833,7 @@ function initControlStudio() {
     renderComposedPhoto();
   };
 
-  // CAMERA ENGINE (DIRECT VIDEO STREAMING WITH SYNC LOOP)
+  // CAMERA ENGINE (DIRECT STREAMING)
   let liveBroadcastTimer = null;
   async function listCameras() {
     try {
@@ -847,7 +852,10 @@ function initControlStudio() {
   async function startCamera(deviceId = null) {
     if (stream) stream.getTracks().forEach(t => t.stop());
     const dev = deviceId || cameraSelect.value || undefined;
-    const constraints = { video: dev ? { deviceId: { ideal: dev } } : { facingMode: 'user' }, audio: false };
+    const constraints = { 
+      video: dev ? { deviceId: { exact: dev } } : { facingMode: 'user' }, 
+      audio: false 
+    };
     try {
       stream = await navigator.mediaDevices.getUserMedia(constraints);
       video.srcObject = stream;
@@ -860,10 +868,23 @@ function initControlStudio() {
       await video.play();
       await listCameras();
 
-      // เริ่มต้นส่งภาพสดไปยังจอรอง
+      // สตรีมมิ่งสดไปยังจอที่ 2
       startBroadcastLoop();
     } catch (err) {
-      alert('ไม่สามารถเปิดกล้องได้ กรุณาตรวจสอบสิทธิ์การเข้าถึงอุปกรณ์');
+      try {
+        // Fallback รองรับทุกอุปกรณ์
+        stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+        video.srcObject = stream;
+        video.style.display = 'block';
+        stagePlaceholder.classList.add('hidden');
+        openCamBtn.classList.add('hidden');
+        closeCamBtn.classList.remove('hidden');
+        startCaptureBtn.disabled = false;
+        await video.play();
+        startBroadcastLoop();
+      } catch (fallbackErr) {
+        alert('ไม่สามารถเปิดกล้องได้ กรุณาตรวจสอบสิทธิ์การเข้าถึงอุปกรณ์กล้อง');
+      }
     }
   }
 
@@ -1163,16 +1184,14 @@ function initControlStudio() {
     }
   }
 
-  // PUBLISH TO PRIVATE CLIENT PORTAL & SCREEN 2
+  // เผยแพร่ผลงานขึ้น Client Portal ทันที
   async function publishToPortalAndDisplay() {
     const sessionToken = "ART_" + Date.now();
     const base64Png = composeCanvas.toDataURL('image/png', 0.9);
     state.lastPhotoData = base64Png;
 
-    // สร้างลิงก์ Portal ส่วนตัวสำหรับมือถือ
     const portalUrl = `${window.location.origin}${window.location.pathname}?view=${sessionToken}`;
 
-    // แสดงผลบนจอ 2 ทันที
     if (channel) {
       channel.postMessage({
         type: 'roundResult',
@@ -1182,7 +1201,7 @@ function initControlStudio() {
       });
     }
 
-    // สร้าง GIF อัตโนมัติด้วย gifshot
+    // สร้าง GIF ทันที
     if (state.shots.length > 0 && typeof gifshot !== 'undefined') {
       const frameImgs = state.shots.map(s => {
         const c = document.createElement('canvas');
@@ -1203,7 +1222,6 @@ function initControlStudio() {
           base64Gif = obj.image;
           state.lastGifData = base64Gif;
         }
-
         const artPayload = { image: base64Png, gif: base64Gif };
         sessionStorage.setItem('tsk_art_' + sessionToken, JSON.stringify(artPayload));
         localStorage.setItem('tsk_art_' + sessionToken, JSON.stringify(artPayload));
@@ -1241,7 +1259,7 @@ function initControlStudio() {
 }
 
 /* -------------------------------------------------------------
-   DISPLAY STUDIO (จอสอง + ระบบล้างค่า 60 วินาที)
+   DISPLAY STUDIO ENGINE (SECOND SCREEN + AUTO WIPE 60s)
 ------------------------------------------------------------- */
 function initDisplayStudio() {
   const liveImg = document.getElementById('dLiveImg');
@@ -1311,10 +1329,9 @@ function initDisplayStudio() {
       resultPic.src = msg.composedSrc;
       resultPic.style.display = 'block';
 
-      // QR Code เข้าสู่ Client Portal ส่วนตัว
       qrFrame.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(msg.qrText)}" alt="QR Code">`;
 
-      // 60-SECOND AUTO WIPE TIMER
+      // 60 วินาทีล้างข้อมูลอัตโนมัติ
       if (wipeTimer) clearTimeout(wipeTimer);
       if (ticker) clearInterval(ticker);
 
