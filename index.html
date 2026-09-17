@@ -749,14 +749,43 @@ function initControlApp(){
   }
 
   async function autoSendResult(){
-    if(state.drive.clientId){
-      try{
-        sendResultToDisplay();
-      }catch(e){}
-    }else{
+    // ตรวจสอบว่าใส่ URL ของ Google Apps Script หรือยัง
+    if (!GAS_WEB_APP_URL || GAS_WEB_APP_URL.includes("AKfycb...")) {
+      console.warn("ยังไม่ได้ใส่ URL ของ Google Apps Script");
       state.lastQrLink = window.location.href;
       sendResultToDisplay();
+      return;
     }
+
+    try {
+      const base64Data = composeCanvas.toDataURL('image/png');
+      const filename = `TSK-${Date.now()}.png`;
+
+      // ส่งรูปขึ้น Google Drive ผ่าน Web App ฟรี
+      const response = await fetch(GAS_WEB_APP_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" }, // ใช้ text/plain เพื่อเลี่ยงติดปัญหา CORS
+        body: JSON.stringify({
+          image: base64Data,
+          filename: filename
+        })
+      });
+
+      const res = await response.json();
+      if (res.status === "success") {
+        state.lastQrLink = res.url; // นำลิงก์รูปจริงมาใส่
+      } else {
+        console.error("Upload error:", res.message);
+        state.lastQrLink = window.location.href;
+      }
+    } catch (err) {
+      console.error("Auto upload failed:", err);
+      state.lastQrLink = window.location.href;
+    }
+
+    // สั่งให้จอ 2 รีเฟรช QR Code เป็นลิงก์รูปภาพทันที
+    sendResultToDisplay();
+  }
   }
 
   downloadBtn.onclick = ()=>{
