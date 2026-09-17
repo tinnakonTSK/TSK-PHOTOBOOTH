@@ -42,52 +42,54 @@
   * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
   html, body { width: 100vw; height: 100vh; overflow: hidden; background: var(--bg-base); color: var(--ink); font-family: 'Prompt', sans-serif; }
   button, input, select { font-family: 'Prompt', sans-serif; outline: none; }
-
-  /* ซ่อน INPUT FILE ให้มิดชิด */
   input[type="file"] { display: none !important; }
 
-  /* LINE ICONS */
   .line-icon {
-    width: 15px; height: 15px; stroke: currentColor; stroke-width: 1.8; fill: none;
+    width: 14px; height: 14px; stroke: currentColor; stroke-width: 1.8; fill: none;
     stroke-linecap: round; stroke-linejoin: round; display: inline-block; vertical-align: middle;
   }
 
-  /* APP LAYOUT */
   #app { display: flex; flex-direction: column; width: 100vw; height: 100vh; padding: 6px 14px; overflow: hidden; }
+  
   .topbar {
     display: flex; align-items: center; justify-content: space-between;
-    height: 38px; border-bottom: 1px solid var(--border); padding-bottom: 4px; margin-bottom: 6px; flex-shrink: 0;
+    height: 36px; border-bottom: 1px solid var(--border); padding-bottom: 4px; margin-bottom: 6px; flex-shrink: 0;
   }
   .brand { display: flex; align-items: center; gap: 8px; }
-  .brand svg { width: 22px; height: 22px; stroke: var(--primary-light); }
-  .brand-title { font-family: 'Kodchasan', sans-serif; font-size: 18px; font-weight: 700; color: var(--primary-light); }
-  .brand-tag { font-size: 11px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.8px; }
+  .brand svg { width: 20px; height: 20px; stroke: var(--primary-light); }
+  .brand-title { font-family: 'Kodchasan', sans-serif; font-size: 17px; font-weight: 700; color: var(--primary-light); }
 
   .top-actions { display: flex; align-items: center; gap: 8px; }
   .btn-action {
-    height: 30px; padding: 0 10px; border-radius: var(--radius);
+    height: 28px; padding: 0 10px; border-radius: var(--radius);
     border: 1px solid var(--border); background: var(--panel); color: var(--ink);
-    font-size: 11.5px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
+    font-size: 11px; font-weight: 500; display: inline-flex; align-items: center; gap: 5px; cursor: pointer;
   }
   .btn-action:hover { border-color: var(--border-focus); background: var(--panel-hover); }
 
-  /* WORKFLOW STEPS */
-  .steps-bar { display: flex; gap: 6px; height: 28px; margin-bottom: 6px; flex-shrink: 0; }
-  .step-node {
-    flex: 1; display: flex; align-items: center; justify-content: center;
-    background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius);
-    font-size: 11.5px; font-weight: 500; color: var(--ink-muted);
+  /* STEPS DESIGN AS REQUESTED */
+  .stepper-wrap {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    height: 32px; margin-bottom: 6px; flex-shrink: 0;
   }
-  .step-node.active { background: var(--primary); border-color: var(--primary); color: #fff; font-weight: 600; }
-  .step-node.done { background: var(--panel-hover); color: var(--primary-light); border-color: var(--primary); }
+  .step-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink-muted); font-weight: 500; }
+  .step-circle {
+    width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    background: var(--border); color: var(--ink-muted); font-size: 11px; font-weight: 700;
+  }
+  .step-item.active { color: var(--primary-light); font-weight: 600; }
+  .step-item.active .step-circle { background: var(--primary); color: #fff; box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.25); }
+  .step-item.done { color: var(--ink); }
+  .step-item.done .step-circle { background: #10b981; color: #fff; }
+  .step-line { width: 32px; height: 2px; background: var(--border); }
+  .step-line.done { background: var(--primary); }
 
-  /* 2-COLUMN WORKSPACE */
+  /* WORKSPACE */
   .workspace {
-    flex: 1; display: grid; grid-template-columns: 1.3fr 0.7fr; gap: 12px;
-    height: calc(100vh - 86px); min-height: 0; overflow: hidden;
+    flex: 1; display: grid; grid-template-columns: 1.28fr 0.72fr; gap: 12px;
+    height: calc(100vh - 90px); min-height: 0; overflow: hidden;
   }
 
-  /* LEFT: STAGE */
   .stage-card {
     background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius);
     padding: 8px; display: flex; flex-direction: column; height: 100%; min-height: 0;
@@ -97,11 +99,11 @@
     overflow: hidden; display: flex; align-items: center; justify-content: center; min-height: 0;
     border: 1px solid var(--border);
   }
-  .view-viewport video { width: 100%; height: 100%; object-fit: contain; }
+  .view-viewport video { width: 100%; height: 100%; object-fit: contain; display: none; }
   .view-viewport video.mirror { transform: scaleX(-1); }
   .view-placeholder {
     position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 8px; color: var(--primary-light); font-size: 13.5px; font-weight: 500; pointer-events: none;
+    gap: 8px; color: var(--primary-light); font-size: 13.5px; font-weight: 500;
   }
   .view-placeholder svg { width: 40px; height: 40px; stroke: var(--primary-light); }
 
@@ -117,28 +119,23 @@
 
   .stage-toolbar { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; flex-shrink: 0; }
   .btn-ctl {
-    border: none; border-radius: var(--radius); padding: 6px 12px; font-weight: 500; font-size: 12px;
+    border: none; border-radius: var(--radius); padding: 6px 12px; font-weight: 500; font-size: 11.5px;
     display: inline-flex; align-items: center; gap: 5px; cursor: pointer;
   }
   .btn-ctl-primary { background: var(--primary); color: #fff; }
+  .btn-ctl-danger { background: #dc2626; color: #fff; }
   .btn-ctl-sub { background: var(--border); color: var(--ink); }
   .btn-ctl:disabled { opacity: 0.35; cursor: not-allowed; }
 
-  .controls-footer { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 6px; font-size: 11.5px; color: var(--ink-muted); flex-shrink: 0; }
-  .studio-switch { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+  .controls-footer { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 6px; font-size: 11px; color: var(--ink-muted); flex-shrink: 0; }
+  .studio-switch { display: inline-flex; align-items: center; gap: 5px; cursor: pointer; }
   .studio-switch input { display: none; }
-  .switch-rail {
-    width: 30px; height: 16px; background: var(--switch-bg); border-radius: 20px;
-    position: relative; border: 1px solid var(--border);
-  }
-  .switch-knob {
-    width: 10px; height: 10px; background: #fff; border-radius: 50%;
-    position: absolute; top: 2px; left: 2px; transition: transform 0.2s ease;
-  }
+  .switch-rail { width: 28px; height: 15px; background: var(--switch-bg); border-radius: 20px; position: relative; border: 1px solid var(--border); }
+  .switch-knob { width: 9px; height: 9px; background: #fff; border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: transform 0.2s ease; }
   .studio-switch input:checked + .switch-rail { background: var(--switch-on); border-color: var(--switch-on); }
-  .studio-switch input:checked + .switch-rail .switch-knob { transform: translateX(14px); }
+  .studio-switch input:checked + .switch-rail .switch-knob { transform: translateX(13px); }
 
-  /* RIGHT: SETTINGS */
+  /* RIGHT PANEL */
   .settings-card {
     background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius);
     padding: 10px 12px; display: flex; flex-direction: column; height: 100%; min-height: 0;
@@ -148,33 +145,44 @@
   .settings-card::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
   .cfg-group { margin-bottom: 10px; }
-  .cfg-label { display: block; font-size: 11px; font-weight: 600; color: var(--ink-muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .cfg-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+  .cfg-label { font-size: 11px; font-weight: 600; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.5px; }
 
-  .matrix-layout { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+  /* TOOLTIP QUESTION MARK BUTTON */
+  .btn-help {
+    width: 16px; height: 16px; border-radius: 50%; border: 1px solid var(--border);
+    background: var(--panel-hover); color: var(--primary-light); font-size: 10px;
+    display: inline-flex; align-items: center; justify-content: center; cursor: pointer; position: relative;
+  }
+  .btn-help .tooltip-box {
+    visibility: hidden; opacity: 0; position: absolute; bottom: 125%; right: 0;
+    background: #0f172a; color: #f8fafc; border: 1px solid var(--border-focus);
+    padding: 6px 10px; border-radius: 6px; font-size: 10.5px; white-space: nowrap; z-index: 50;
+    transition: opacity 0.2s ease; pointer-events: none; box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  }
+  .btn-help:hover .tooltip-box { visibility: visible; opacity: 1; }
+
+  /* COMPACT MATRIX LAYOUT */
+  .matrix-layout {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px;
+    max-height: 180px; overflow-y: auto; padding-right: 2px;
+  }
+  .matrix-layout::-webkit-scrollbar { width: 3px; }
+  .matrix-layout::-webkit-scrollbar-thumb { background: var(--border); }
+  
   .card-option {
-    border: 1px solid var(--border); border-radius: var(--radius); padding: 6px 4px; background: var(--panel-hover);
-    display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer;
+    border: 1px solid var(--border); border-radius: var(--radius); padding: 5px 2px; background: var(--panel-hover);
+    display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer;
   }
-  .card-option.active { border-color: var(--primary-light); background: rgba(56, 189, 248, 0.08); }
-  .card-option svg { width: 22px; height: 26px; stroke: var(--ink-muted); }
+  .card-option.active { border-color: var(--primary-light); background: rgba(56, 189, 248, 0.12); }
+  .card-option svg { width: 22px; height: 28px; stroke: var(--ink-muted); fill: none; }
   .card-option.active svg { stroke: var(--primary-light); }
-  .card-option span { font-size: 10.5px; font-weight: 500; text-align: center; }
+  .card-option span { font-size: 9.5px; font-weight: 500; text-align: center; }
 
-  .matrix-swatches { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
-  .swatch-box {
-    border: 1px solid var(--border); border-radius: var(--radius); padding: 5px 3px; background: var(--panel-hover);
-    display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer;
-  }
-  .swatch-box.active { border-color: var(--primary-light); }
-  .swatch-circle { width: 18px; height: 18px; border-radius: 3px; border: 1px solid rgba(255,255,255,0.2); }
-  .swatch-title { font-size: 10px; }
-
-  .field-input { width: 100%; padding: 6px 8px; border-radius: var(--radius); border: 1px solid var(--border); font-size: 11.5px; background: var(--panel); color: var(--ink); }
+  .field-input { width: 100%; padding: 5px 8px; border-radius: var(--radius); border: 1px solid var(--border); font-size: 11.5px; background: var(--panel); color: var(--ink); }
   .field-select { width: 100%; padding: 5px 8px; border-radius: var(--radius); border: 1px solid var(--border); font-size: 11.5px; background: var(--panel); color: var(--ink); }
 
-  /* ============================================================= */
-  /* DISPLAY APP (SECOND SCREEN)                                   */
-  /* ============================================================= */
+  /* SECOND SCREEN */
   body.display-mode { background: var(--bg-base) !important; width: 100vw; height: 100vh; overflow: hidden !important; }
   body.display-mode #app { display: none !important; }
 
@@ -193,11 +201,6 @@
     position: relative; display: flex; align-items: center; justify-content: center; height: 100%; min-height: 0;
   }
   .d-live-frame img { width: 100%; height: 100%; object-fit: contain; display: block; }
-  .d-live-frame .d-placeholder {
-    position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 8px; color: var(--primary-light); font-size: 15px; font-weight: 500;
-  }
-
   .d-sidebar { display: flex; flex-direction: column; gap: 10px; height: 100%; min-height: 0; }
   .d-card-result {
     flex: 1; background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius);
@@ -205,8 +208,7 @@
     position: relative; overflow: hidden; min-height: 0;
   }
   .d-card-result img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 4px; display: none; }
-  .d-card-result .d-empty { color: var(--ink-muted); font-size: 13px; }
-
+  
   .d-card-qr-box {
     height: 135px; flex-shrink: 0; background: var(--panel); border: 1px solid var(--border);
     border-radius: var(--radius); padding: 8px 12px; display: flex; align-items: center; justify-content: center;
@@ -228,7 +230,7 @@
 </head>
 <body>
 
-<!-- SVG ICONS DEFINITIONS -->
+<!-- SVG DEFINITIONS -->
 <svg style="display:none;">
   <symbol id="icon-shutter" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
     <circle cx="12" cy="12" r="10"></circle>
@@ -237,6 +239,10 @@
   <symbol id="icon-camera" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
     <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path>
     <circle cx="12" cy="13" r="3"></circle>
+  </symbol>
+  <symbol id="icon-camera-off" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="1" y1="1" x2="23" y2="23"></line>
+    <path d="M21 21H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h3m3-3h6l2.5 3H20a2 2 0 0 1 2 2v7"></path>
   </symbol>
   <symbol id="icon-play" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
     <polygon points="5 3 19 12 5 21 5 3"></polygon>
@@ -260,34 +266,14 @@
   <symbol id="icon-moon" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
     <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
   </symbol>
-  <symbol id="layout-single" viewBox="0 0 28 34" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-    <rect x="2" y="2" width="24" height="30" rx="2"></rect>
-    <rect x="5" y="5" width="18" height="20" rx="1"></rect>
-  </symbol>
-  <symbol id="layout-strip" viewBox="0 0 28 34" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-    <rect x="6" y="2" width="16" height="30" rx="2"></rect>
-    <rect x="8" y="4" width="12" height="5" rx="0.5"></rect>
-    <rect x="8" y="10.5" width="12" height="5" rx="0.5"></rect>
-    <rect x="8" y="17" width="12" height="5" rx="0.5"></rect>
-    <rect x="8" y="23.5" width="12" height="5" rx="0.5"></rect>
-  </symbol>
-  <symbol id="layout-grid" viewBox="0 0 28 34" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-    <rect x="2" y="2" width="24" height="30" rx="2"></rect>
-    <rect x="5" y="5" width="8" height="9" rx="0.5"></rect>
-    <rect x="15" y="5" width="8" height="9" rx="0.5"></rect>
-    <rect x="5" y="16" width="8" height="9" rx="0.5"></rect>
-    <rect x="15" y="16" width="8" height="9" rx="0.5"></rect>
-  </symbol>
 </svg>
 
-<!-- 1. STUDIO CONTROL APP -->
 <div id="app">
   <div class="topbar">
     <div class="brand">
       <svg><use href="#icon-shutter"></use></svg>
       <div>
         <span class="brand-title">TSK PHOTO STUDIO</span>
-        <span class="brand-tag">· Studio Pro Edition</span>
       </div>
     </div>
     <div class="top-actions">
@@ -296,10 +282,22 @@
     </div>
   </div>
 
-  <div class="steps-bar">
-    <div class="step-node" data-step="1">1. เตรียมความพร้อม</div>
-    <div class="step-node" data-step="2">2. ลั่นชัตเตอร์บันทึกภาพ</div>
-    <div class="step-node" data-step="3">3. จัดพิมพ์ &amp; ส่งออกไฟล์</div>
+  <!-- STEPPER 1 - 2 - 3 DESIGN AS REQUESTED -->
+  <div class="stepper-wrap">
+    <div class="step-item active" id="step1">
+      <div class="step-circle" id="circle1">1</div>
+      <span>เลือกเทมเพลต</span>
+    </div>
+    <div class="step-line" id="line1"></div>
+    <div class="step-item" id="step2">
+      <div class="step-circle" id="circle2">2</div>
+      <span>เพิ่มรูปภาพ</span>
+    </div>
+    <div class="step-line" id="line2"></div>
+    <div class="step-item" id="step3">
+      <div class="step-circle" id="circle3">3</div>
+      <span>แก้ไขและดาวน์โหลด</span>
+    </div>
   </div>
 
   <div class="workspace">
@@ -309,7 +307,7 @@
         <video id="video" autoplay playsinline muted class="mirror"></video>
         <div class="view-placeholder" id="stagePlaceholder">
           <svg><use href="#icon-shutter"></use></svg>
-          <span>กด "เปิดกล้อง" เพื่อเริ่มต้นระบบสตูดิโอ</span>
+          <span>กด "เปิดกล้อง" เพื่อเริ่มต้นระบบ</span>
         </div>
         <div id="countdownOverlay"><span id="countdownNum">3</span></div>
         <div id="flashEffect"></div>
@@ -321,10 +319,10 @@
 
       <div class="stage-toolbar">
         <button class="btn-ctl btn-ctl-sub" id="openCamBtn"><svg class="line-icon"><use href="#icon-camera"></use></svg> เปิดกล้อง</button>
-        <button class="btn-ctl btn-ctl-primary" id="startCaptureBtn" disabled><svg class="line-icon"><use href="#icon-play"></use></svg> เริ่มถ่าย</button>
+        <button class="btn-ctl btn-ctl-danger hidden" id="closeCamBtn"><svg class="line-icon"><use href="#icon-camera-off"></use></svg> ปิดกล้อง</button>
+        <button class="btn-ctl btn-ctl-primary" id="startCaptureBtn" disabled><svg class="line-icon"><use href="#icon-play"></use></svg> เริ่มถ่าย (<span id="keyLabel">Space</span>)</button>
         <button class="btn-ctl btn-ctl-sub hidden" id="retakeBtn"><svg class="line-icon"><use href="#icon-refresh"></use></svg> ถ่ายใหม่</button>
         <button class="btn-ctl btn-ctl-sub hidden" id="downloadBtn"><svg class="line-icon"><use href="#icon-download"></use></svg> บันทึกรูป</button>
-        <button class="btn-ctl btn-ctl-sub hidden" id="downloadGifBtn"><svg class="line-icon"><use href="#icon-download"></use></svg> บันทึก GIF</button>
         <button class="btn-ctl btn-ctl-sub hidden" id="printBtn"><svg class="line-icon"><use href="#icon-printer"></use></svg> จัดพิมพ์ภาพ</button>
       </div>
 
@@ -337,79 +335,116 @@
         <label class="studio-switch">
           <input type="checkbox" id="soundChk" checked>
           <span class="switch-rail"><span class="switch-knob"></span></span>
-          <span>เสียงสัญญาณ</span>
+          <span>เสียงเตือน</span>
         </label>
         <label>นับถอยหลัง:
-          <select class="field-select" style="width: auto; display: inline-block; padding: 2px 6px;" id="countdownSelect">
-            <option value="3" selected>3 วินาที</option>
-            <option value="5">5 วินาที</option>
+          <select class="field-select" style="width: auto; display: inline-block; padding: 2px 4px;" id="countdownSelect">
+            <option value="3" selected>3 วิ</option>
+            <option value="5">5 วิ</option>
+            <option value="8">8 วิ</option>
+            <option value="10">10 วิ</option>
           </select>
         </label>
+        <label>ปุ่มลัด:
+          <button class="btn-action" style="padding: 1px 6px; height: 20px; font-size: 10.5px;" id="changeKeyBtn">เปลี่ยนปุ่ม</button>
+        </label>
         <label>กล้อง:
-          <select class="field-select" style="width: 140px; display: inline-block; padding: 2px 6px;" id="cameraSelect"><option value="">ตรวจหาอุปกรณ์...</option></select>
+          <select class="field-select" style="width: 120px; display: inline-block; padding: 2px 4px;" id="cameraSelect"><option value="">ตรวจหา...</option></select>
         </label>
       </div>
     </div>
 
     <!-- RIGHT: SETTINGS -->
     <div class="settings-card">
-      <!-- 1. รูปแบบการถ่าย -->
+      <!-- 1. รูปแบบเฟรม พร้อมปุ่ม ? บอกขนาด -->
       <div class="cfg-group">
-        <label class="cfg-label">รูปแบบเฟรมการถ่าย (Capture Layout)</label>
+        <div class="cfg-header">
+          <label class="cfg-label">รูปแบบเฟรมถ่ายภาพ (LAYOUT)</label>
+          <div class="btn-help" id="btnHelp">
+            ?
+            <div class="tooltip-box" id="tooltipText">ขนาดที่แนะนำ: 1200 × 1800 px (4:6)</div>
+          </div>
+        </div>
         <div class="matrix-layout" id="formatMatrix">
-          <div class="card-option active" data-format="single">
-            <svg><use href="#layout-single"></use></svg>
+          <!-- ตัวเลือกเลย์เอาต์ตามภาพ -->
+          <div class="card-option active" data-format="single" data-size="1200 × 1800 px (4:6)">
+            <svg viewBox="0 0 24 30"><rect x="2" y="2" width="20" height="26" rx="2"/><rect x="4" y="4" width="16" height="18" fill="rgba(255,255,255,0.2)"/></svg>
             <span>รูปเดี่ยว</span>
           </div>
-          <div class="card-option" data-format="strip4">
-            <svg><use href="#layout-strip"></use></svg>
-            <span>สตริป 4 ช่อง</span>
+          <div class="card-option" data-format="h_dual" data-size="1800 × 1200 px (6:4)">
+            <svg viewBox="0 0 24 30"><rect x="2" y="4" width="20" height="22" rx="2"/><rect x="4" y="6" width="7.5" height="14" fill="rgba(255,255,255,0.2)"/><rect x="12.5" y="6" width="7.5" height="14" fill="rgba(255,255,255,0.2)"/></svg>
+            <span>2 รูป (แนวนอน)</span>
           </div>
-          <div class="card-option" data-format="grid2x2">
-            <svg><use href="#layout-grid"></use></svg>
-            <span>ตาราง 2×2</span>
+          <div class="card-option" data-format="v_dual" data-size="1200 × 1800 px (4:6)">
+            <svg viewBox="0 0 24 30"><rect x="4" y="2" width="16" height="26" rx="2"/><rect x="6" y="4" width="12" height="10" fill="rgba(255,255,255,0.2)"/><rect x="6" y="16" width="12" height="10" fill="rgba(255,255,255,0.2)"/></svg>
+            <span>2 รูป (แนวตั้ง)</span>
+          </div>
+          <div class="card-option" data-format="v_triple" data-size="600 × 1800 px (2:6)">
+            <svg viewBox="0 0 24 30"><rect x="4" y="2" width="16" height="26" rx="2"/><rect x="6" y="4" width="12" height="6" fill="rgba(255,255,255,0.2)"/><rect x="6" y="11.5" width="12" height="6" fill="rgba(255,255,255,0.2)"/><rect x="6" y="19" width="12" height="6" fill="rgba(255,255,255,0.2)"/></svg>
+            <span>3 รูป (สตริป)</span>
+          </div>
+          <div class="card-option" data-format="strip4" data-size="600 × 1800 px (2:6)">
+            <svg viewBox="0 0 24 30"><rect x="4" y="2" width="16" height="26" rx="2"/><rect x="6" y="4" width="12" height="4.5" fill="rgba(255,255,255,0.2)"/><rect x="6" y="10" width="12" height="4.5" fill="rgba(255,255,255,0.2)"/><rect x="6" y="16" width="12" height="4.5" fill="rgba(255,255,255,0.2)"/><rect x="6" y="22" width="12" height="4.5" fill="rgba(255,255,255,0.2)"/></svg>
+            <span>4 รูป (สตริป 4)</span>
+          </div>
+          <div class="card-option" data-format="grid2x2" data-size="1200 × 1800 px (4:6)">
+            <svg viewBox="0 0 24 30"><rect x="2" y="2" width="20" height="26" rx="2"/><rect x="4" y="4" width="7.5" height="9" fill="rgba(255,255,255,0.2)"/><rect x="12.5" y="4" width="7.5" height="9" fill="rgba(255,255,255,0.2)"/><rect x="4" y="14" width="7.5" height="9" fill="rgba(255,255,255,0.2)"/><rect x="12.5" y="14" width="7.5" height="9" fill="rgba(255,255,255,0.2)"/></svg>
+            <span>4 รูป (ตาราง 2×2)</span>
+          </div>
+          <div class="card-option" data-format="polaroid4" data-size="1200 × 1800 px (4:6)">
+            <svg viewBox="0 0 24 30"><rect x="2" y="2" width="20" height="26" rx="2"/><rect x="4" y="4" width="7.5" height="8" fill="rgba(255,255,255,0.2)"/><rect x="12.5" y="4" width="7.5" height="8" fill="rgba(255,255,255,0.2)"/><rect x="4" y="13" width="7.5" height="8" fill="rgba(255,255,255,0.2)"/><rect x="12.5" y="13" width="7.5" height="8" fill="rgba(255,255,255,0.2)"/><rect x="4" y="22" width="16" height="4" fill="none"/></svg>
+            <span>4 รูป (โพลารอยด์)</span>
+          </div>
+          <div class="card-option" data-format="grid2x3" data-size="1200 × 1800 px (4:6)">
+            <svg viewBox="0 0 24 30"><rect x="2" y="2" width="20" height="26" rx="2"/><rect x="4" y="4" width="7.5" height="6.5" fill="rgba(255,255,255,0.2)"/><rect x="12.5" y="4" width="7.5" height="6.5" fill="rgba(255,255,255,0.2)"/><rect x="4" y="11.5" width="7.5" height="6.5" fill="rgba(255,255,255,0.2)"/><rect x="12.5" y="11.5" width="7.5" height="6.5" fill="rgba(255,255,255,0.2)"/><rect x="4" y="19" width="7.5" height="6.5" fill="rgba(255,255,255,0.2)"/><rect x="12.5" y="19" width="7.5" height="6.5" fill="rgba(255,255,255,0.2)"/></svg>
+            <span>6 รูป (ตาราง 2×3)</span>
           </div>
         </div>
       </div>
 
-      <!-- 2. สีกรอบภาพ -->
+      <!-- 2. DROPDOWN สีกรอบภาพ -->
       <div class="cfg-group">
-        <label class="cfg-label">สีกรอบภาพ (Frame Palette)</label>
-        <div class="matrix-swatches" id="frameSwatches"></div>
-        <div style="margin-top: 6px;">
-          <button class="btn-action" style="font-size: 11px; padding: 3px 8px; width: 100%; justify-content: center;" onclick="document.getElementById('frameInput').click()">+ นำเข้ากรอบรูป PNG</button>
+        <div class="cfg-header">
+          <label class="cfg-label">สีกรอบภาพ (FRAME COLOR)</label>
+          <button class="btn-action" style="font-size: 10.5px; padding: 1px 6px;" onclick="document.getElementById('frameInput').click()">+ อัปโหลด PNG</button>
           <input type="file" id="frameInput" accept="image/png">
         </div>
+        <select class="field-select" id="frameSelect">
+          <option value="sky" selected>🟦 ฟ้าครามสตูดิโอ</option>
+          <option value="white">⬜ ขาวมินิมอล</option>
+          <option value="slate">⬛ กรมท่าพรีเมียม</option>
+          <option value="noir">⬛ ดำสนิท (Noir)</option>
+        </select>
       </div>
 
-      <!-- 3. โทนสี Color Grading -->
+      <!-- 3. DROPDOWN โทนสี COLOR GRADING -->
       <div class="cfg-group">
-        <label class="cfg-label">โทนสี Color Grading</label>
-        <div class="matrix-swatches" id="toneSwatches"></div>
-        <div style="margin-top: 6px;">
-          <button class="btn-action" style="font-size: 11px; padding: 3px 8px; width: 100%; justify-content: center;" onclick="document.getElementById('presetInput').click()">+ นำเข้า Preset (.cube)</button>
-          <input type="file" id="presetInput" accept=".cube,.dng">
-        </div>
+        <label class="cfg-label">โทนสีภาพ (COLOR TONE)</label>
+        <select class="field-select" id="toneSelect">
+          <option value="natural" selected>🌿 ต้นฉบับธรรมชาติ (Natural)</option>
+          <option value="bright">✨ สว่างละมุน (Studio Soft Bright)</option>
+          <option value="cool">❄️ โทนเย็นตา (Cool Blue Film)</option>
+          <option value="bw">🎞️ ขาวดำสตูดิโอ (Classic B&amp;W)</option>
+          <option value="warm">☕ วินเทจอบอุ่น (Vintage Warm)</option>
+        </select>
       </div>
 
       <!-- 4. ข้อความกำกับและฟอนต์ -->
       <div class="cfg-group">
-        <label class="cfg-label">ข้อความกำกับภาพ (Caption)</label>
-        <input type="text" class="field-input" id="captionInput" value="TSK PHOTO STUDIO" maxlength="40">
+        <label class="cfg-label">ข้อความใต้ภาพ (CAPTION)</label>
+        <input type="text" class="field-input" id="captionInput" value="TSK PHOTO STUDIO" maxlength="35">
         
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 6px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 5px;">
           <div>
-            <label style="font-size: 10.5px; color: var(--ink-muted);">ฟอนต์:</label>
             <select class="field-select" id="fontSelect">
-              <option value="Prompt" selected>Prompt (โมเดิร์น)</option>
-              <option value="Kodchasan">Kodchasan (สตูดิโอ)</option>
-              <option value="Inter">Inter (สากล)</option>
-              <option value="Sarabun">Sarabun (ทางการ)</option>
+              <option value="Prompt" selected>Prompt</option>
+              <option value="Kodchasan">Kodchasan</option>
+              <option value="Inter">Inter</option>
+              <option value="Sarabun">Sarabun</option>
             </select>
           </div>
           <div>
-            <label style="font-size: 10.5px; color: var(--ink-muted);">ขนาดตัวอักษร:</label>
-            <input type="range" id="fontSizeRange" min="20" max="60" value="34" style="width: 100%; margin-top: 6px;">
+            <input type="range" id="fontSizeRange" min="20" max="50" value="32" style="width: 100%; margin-top: 6px;">
           </div>
         </div>
       </div>
@@ -417,7 +452,7 @@
       <!-- 5. ประทับวันที่ล็อกตามเวลาจริง -->
       <div class="cfg-group">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
-          <label class="cfg-label" style="margin-bottom: 0;">ประทับวันที่ (Realtime Date Badge)</label>
+          <label class="cfg-label" style="margin-bottom: 0;">ประทับวันที่ (DATE STAMP)</label>
           <label class="studio-switch">
             <input type="checkbox" id="dateChk" checked>
             <span class="switch-rail"><span class="switch-knob"></span></span>
@@ -441,17 +476,17 @@
   </div>
 </div>
 
-<!-- 2. DISPLAY APP (จอสอง) -->
+<!-- 2. DISPLAY APP (SECOND SCREEN) -->
 <div id="displayApp">
-  <div style="text-align: center; font-size: 15px; font-weight: 700; color: var(--primary-light); height: 26px;">
+  <div style="text-align: center; font-size: 14px; font-weight: 700; color: var(--primary-light); height: 24px;">
     TSK PHOTO STUDIO · LIVE DISPLAY
   </div>
   <div class="d-viewport">
     <div class="d-live-frame">
       <img id="dLiveImg" style="display:none;">
-      <div class="d-placeholder" id="dWaiting">
-        <svg style="width:40px;height:40px;stroke:currentColor;"><use href="#icon-shutter"></use></svg>
-        <span>รอเริ่มทำงานจากจอควบคุมหลัก</span>
+      <div class="view-placeholder" id="dWaiting">
+        <svg><use href="#icon-shutter"></use></svg>
+        <span>รอเริ่มทำงานจากจอควบคุม</span>
       </div>
       <div id="dCountdown" style="position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.4);"><span id="dCountdownNum" style="font-size:14vw;color:#fff;font-weight:700;">3</span></div>
       <div id="dFlash" style="position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;"></div>
@@ -461,15 +496,15 @@
       <div class="d-card-result">
         <span style="position:absolute;top:6px;left:6px;background:rgba(0,0,0,0.6);color:#fff;font-size:10px;padding:2px 6px;border-radius:4px;">ผลงานล่าสุด</span>
         <img id="dResultPic" alt="ผลงาน">
-        <span class="d-empty" id="dEmptyNotice">รอการถ่ายภาพ...</span>
+        <span style="color:var(--ink-muted);font-size:12px;" id="dEmptyNotice">รอการถ่ายภาพ...</span>
       </div>
 
       <div class="d-card-qr-box">
         <div class="d-progress-line" id="dTimerBar"></div>
         <div class="d-qr-frame" id="dQR"></div>
         <div class="d-qr-info">
-          <h4 id="dQrTitle">สแกนรับไฟล์ภาพ</h4>
-          <p id="dQrSub">สแกนเพื่อเปิดภาพบนมือถือของคุณ</p>
+          <h4>สแกนรับรูปภาพ</h4>
+          <p>เปิดกล้องสแกนเพื่อโหลดไฟล์ภาพ</p>
           <span class="auto-wipe-badge" id="dWipeNotice"></span>
         </div>
       </div>
@@ -486,7 +521,7 @@ const isDisplay = params.get('display') === '1';
 
 if (isDisplay) document.body.classList.add('display-mode');
 
-const channel = ('BroadcastChannel' in window) ? new BroadcastChannel('tsk_studio_network') : null;
+const channel = ('BroadcastChannel' in window) ? new BroadcastChannel('tsk_studio_pro_channel') : null;
 
 // GAS Web App URL
 const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxZx9lUhn6pC3VOUzhPnWJft2pwuiEyN3B-0H_-zqUWu4IllQGPxFcTUwDZu_Z0Ndg-MQ/exec";
@@ -513,26 +548,27 @@ if (themeBtn) {
   };
 }
 
-const STUDIO_FRAMES = [
-  { key: 'sky', label: 'ฟ้าคราม', bg: '#f0f9ff', border: '#0284c7', text: '#0369a1' },
-  { key: 'white', label: 'ขาวสตูดิโอ', bg: '#ffffff', border: '#cbd5e1', text: '#0f172a' },
-  { key: 'slate', label: 'สเลตเข้ม', bg: '#0f172a', border: '#38bdf8', text: '#f8fafc' },
-  { key: 'noir', label: 'นัวร์ดำ', bg: '#000000', border: '#334155', text: '#ffffff' }
-];
+const STUDIO_FRAMES = {
+  sky: { bg: '#f0f9ff', border: '#0284c7', text: '#0369a1' },
+  white: { bg: '#ffffff', border: '#cbd5e1', text: '#0f172a' },
+  slate: { bg: '#0f172a', border: '#38bdf8', text: '#f8fafc' },
+  noir: { bg: '#000000', border: '#334155', text: '#ffffff' }
+};
 
-const STUDIO_TONES = [
-  { key: 'natural', label: 'ต้นฉบับ', color: '#38bdf8', filter: 'none' },
-  { key: 'bright', label: 'สว่างนุ่ม', color: '#fed7aa', filter: 'brightness(1.08) contrast(1.02) saturate(1.05)' },
-  { key: 'cool', label: 'โทนเย็น', color: '#93c5fd', filter: 'saturate(0.95) hue-rotate(185deg) brightness(1.03)' },
-  { key: 'bw', label: 'ขาวดำ', color: '#64748b', filter: 'grayscale(1) contrast(1.2)' }
-];
+const STUDIO_TONES = {
+  natural: 'none',
+  bright: 'brightness(1.08) contrast(1.02) saturate(1.05)',
+  cool: 'saturate(0.95) hue-rotate(185deg) brightness(1.03)',
+  bw: 'grayscale(1) contrast(1.2)',
+  warm: 'sepia(0.25) saturate(1.2) contrast(1.05)'
+};
 
 const state = {
   step: 1, format: 'single', frameKey: 'sky', toneKey: 'natural',
-  mirrored: true, soundOn: true, countdownSeconds: 3, caption: 'TSK PHOTO STUDIO',
-  font: 'Prompt', fontSize: 34, showDate: true, dateFormat: 'en_num', datePos: 'bottom-center',
+  mirrored: true, soundOn: true, countdownSeconds: 3, shortcutKey: ' ',
+  caption: 'TSK PHOTO STUDIO', font: 'Prompt', fontSize: 32,
+  showDate: true, dateFormat: 'en_num', datePos: 'bottom-center',
   shots: [], roundNumber: 0,
-  lastPhotoData: null, lastGifData: null, lastDirectLink: null,
   customFrames: JSON.parse(localStorage.getItem('tsk_custom_frames') || '[]')
 };
 
@@ -544,9 +580,39 @@ if (!isDisplay) {
   initDisplayStudio();
 }
 
-/* --------------------------------------------------------------------------
-   CONTROL STUDIO
--------------------------------------------------------------------------- */
+function updateStepper(step) {
+  state.step = step;
+  const s1 = document.getElementById('step1');
+  const s2 = document.getElementById('step2');
+  const s3 = document.getElementById('step3');
+  const l1 = document.getElementById('line1');
+  const l2 = document.getElementById('line2');
+
+  const c1 = document.getElementById('circle1');
+  const c2 = document.getElementById('circle2');
+  const c3 = document.getElementById('circle3');
+
+  s1.className = 'step-item'; s2.className = 'step-item'; s3.className = 'step-item';
+  l1.className = 'step-line'; l2.className = 'step-line';
+  c1.textContent = '1'; c2.textContent = '2'; c3.textContent = '3';
+
+  if (step === 1) {
+    s1.classList.add('active');
+  } else if (step === 2) {
+    s1.classList.add('done'); c1.innerHTML = '✓';
+    l1.classList.add('done');
+    s2.classList.add('active');
+  } else if (step === 3) {
+    s1.classList.add('done'); c1.innerHTML = '✓';
+    s2.classList.add('done'); c2.innerHTML = '✓';
+    l1.classList.add('done'); l2.classList.add('done');
+    s3.classList.add('active');
+  }
+}
+
+/* -------------------------------------------------------------
+   CONTROL APP
+------------------------------------------------------------- */
 function initControlStudio() {
   const video = document.getElementById('video');
   const stagePlaceholder = document.getElementById('stagePlaceholder');
@@ -557,10 +623,10 @@ function initControlStudio() {
   const flashEffect = document.getElementById('flashEffect');
 
   const openCamBtn = document.getElementById('openCamBtn');
+  const closeCamBtn = document.getElementById('closeCamBtn');
   const startCaptureBtn = document.getElementById('startCaptureBtn');
   const retakeBtn = document.getElementById('retakeBtn');
   const downloadBtn = document.getElementById('downloadBtn');
-  const downloadGifBtn = document.getElementById('downloadGifBtn');
   const printBtn = document.getElementById('printBtn');
   const openDisplayBtn = document.getElementById('openDisplayBtn');
 
@@ -568,10 +634,13 @@ function initControlStudio() {
   const soundChk = document.getElementById('soundChk');
   const countdownSelect = document.getElementById('countdownSelect');
   const cameraSelect = document.getElementById('cameraSelect');
+  const changeKeyBtn = document.getElementById('changeKeyBtn');
+  const keyLabel = document.getElementById('keyLabel');
 
   const formatMatrix = document.getElementById('formatMatrix');
-  const frameSwatches = document.getElementById('frameSwatches');
-  const toneSwatches = document.getElementById('toneSwatches');
+  const tooltipText = document.getElementById('tooltipText');
+  const frameSelect = document.getElementById('frameSelect');
+  const toneSelect = document.getElementById('toneSelect');
 
   const captionInput = document.getElementById('captionInput');
   const fontSelect = document.getElementById('fontSelect');
@@ -581,36 +650,26 @@ function initControlStudio() {
   const datePosSelect = document.getElementById('datePosSelect');
 
   const frameInput = document.getElementById('frameInput');
-  const presetInput = document.getElementById('presetInput');
 
+  // FORMAT SELECTION & TOOLTIP
   formatMatrix.onclick = (e) => {
     const card = e.target.closest('.card-option');
     if (!card) return;
     [...formatMatrix.children].forEach(c => c.classList.toggle('active', c === card));
     state.format = card.dataset.format;
-    renderFrameSwatches();
+    tooltipText.textContent = `ขนาดที่แนะนำ: ${card.dataset.size}`;
     renderComposedPhoto();
   };
 
-  function renderFrameSwatches() {
-    frameSwatches.innerHTML = '';
-    const all = [...STUDIO_FRAMES, ...state.customFrames];
-    all.forEach(f => {
-      const box = document.createElement('div');
-      box.className = 'swatch-box' + (f.key === state.frameKey ? ' active' : '');
-      box.innerHTML = `
-        <div class="swatch-circle" style="background:${f.bg}; border-color:${f.border}"></div>
-        <span class="swatch-title">${f.label}</span>
-      `;
-      box.onclick = () => {
-        state.frameKey = f.key;
-        renderFrameSwatches();
-        renderComposedPhoto();
-      };
-      frameSwatches.appendChild(box);
-    });
-  }
-  renderFrameSwatches();
+  frameSelect.onchange = () => {
+    state.frameKey = frameSelect.value;
+    renderComposedPhoto();
+  };
+
+  toneSelect.onchange = () => {
+    state.toneKey = toneSelect.value;
+    renderComposedPhoto();
+  };
 
   frameInput.onchange = (e) => {
     const file = e.target.files[0];
@@ -619,42 +678,22 @@ function initControlStudio() {
     reader.onload = (evt) => {
       const newKey = 'custom_' + Date.now();
       state.customFrames.push({
-        key: newKey, label: file.name.substring(0, 6), src: evt.target.result, isCustom: true
+        key: newKey, label: file.name.substring(0, 10), src: evt.target.result, isCustom: true
       });
       localStorage.setItem('tsk_custom_frames', JSON.stringify(state.customFrames));
+      const opt = document.createElement('option');
+      opt.value = newKey;
+      opt.textContent = `📁 ${file.name.substring(0, 10)}`;
+      frameSelect.appendChild(opt);
+      frameSelect.value = newKey;
       state.frameKey = newKey;
-      renderFrameSwatches();
       renderComposedPhoto();
     };
     reader.readAsDataURL(file);
   };
 
-  function renderToneSwatches() {
-    toneSwatches.innerHTML = '';
-    STUDIO_TONES.forEach(t => {
-      const box = document.createElement('div');
-      box.className = 'swatch-box' + (t.key === state.toneKey ? ' active' : '');
-      box.innerHTML = `
-        <div class="swatch-circle" style="background:${t.color};"></div>
-        <span class="swatch-title">${t.label}</span>
-      `;
-      box.onclick = () => {
-        state.toneKey = t.key;
-        renderToneSwatches();
-        renderComposedPhoto();
-      };
-      toneSwatches.appendChild(box);
-    });
-  }
-  renderToneSwatches();
-
-  presetInput.onchange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    alert('นำเข้า Preset สำเร็จ');
-  };
-
-  async function setupCameras() {
+  // CAMERA ENGINE
+  async function listCameras() {
     try {
       const devices = await navigator.mediaDevices.enumerateDevices();
       const cams = devices.filter(d => d.kind === 'videoinput');
@@ -668,34 +707,43 @@ function initControlStudio() {
     } catch(e){}
   }
 
-  async function startCameraStream(deviceId = null) {
+  async function startCamera(deviceId = null) {
     if (stream) stream.getTracks().forEach(t => t.stop());
     const dev = deviceId || cameraSelect.value || undefined;
     const constraints = { video: dev ? { deviceId: { ideal: dev } } : { facingMode: 'user' }, audio: false };
     try {
       stream = await navigator.mediaDevices.getUserMedia(constraints);
       video.srcObject = stream;
-      await video.play();
+      video.style.display = 'block';
       stagePlaceholder.classList.add('hidden');
+      openCamBtn.classList.add('hidden');
+      closeCamBtn.classList.remove('hidden');
       startCaptureBtn.disabled = false;
-      await setupCameras();
-      startBroadcastMirror();
-    } catch(err) {
-      try {
-        stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-        video.srcObject = stream;
-        await video.play();
-        stagePlaceholder.classList.add('hidden');
-        startCaptureBtn.disabled = false;
-        startBroadcastMirror();
-      } catch(e) {
-        alert('กรุณาอนุญาตการเข้าถึงกล้องในเบราว์เซอร์');
-      }
+      await video.play();
+      await listCameras();
+      startLiveMirror();
+    } catch (err) {
+      alert('ไม่สามารถเปิดใช้งานกล้องได้ กรุณาตรวจสอบสิทธิ์การเข้าถึงอุปกรณ์');
     }
   }
 
-  openCamBtn.onclick = () => startCameraStream();
-  cameraSelect.onchange = () => startCameraStream(cameraSelect.value);
+  function stopCamera() {
+    if (stream) {
+      stream.getTracks().forEach(t => t.stop());
+      stream = null;
+    }
+    video.srcObject = null;
+    video.style.display = 'none';
+    stagePlaceholder.classList.remove('hidden');
+    openCamBtn.classList.remove('hidden');
+    closeCamBtn.classList.add('hidden');
+    startCaptureBtn.disabled = true;
+    if (channel) channel.postMessage({ type: 'cameraOff' });
+  }
+
+  openCamBtn.onclick = () => startCamera();
+  closeCamBtn.onclick = () => stopCamera();
+  cameraSelect.onchange = () => startCamera(cameraSelect.value);
 
   mirrorChk.onchange = () => {
     state.mirrored = mirrorChk.checked;
@@ -704,6 +752,26 @@ function initControlStudio() {
   soundChk.onchange = () => state.soundOn = soundChk.checked;
   countdownSelect.onchange = () => state.countdownSeconds = parseInt(countdownSelect.value, 10);
 
+  // KEY SHORTCUT SETUP
+  window.addEventListener('keydown', (e) => {
+    if (e.target.tagName === 'INPUT') return;
+    if (e.key === state.shortcutKey || (state.shortcutKey === ' ' && e.code === 'Space')) {
+      e.preventDefault();
+      if (!startCaptureBtn.disabled && stream) triggerCaptureWorkflow();
+    }
+  });
+
+  changeKeyBtn.onclick = () => {
+    keyLabel.textContent = 'กดปุ่มที่ต้องการ...';
+    const listenKey = (e) => {
+      e.preventDefault();
+      state.shortcutKey = e.key;
+      keyLabel.textContent = e.key === ' ' ? 'Space' : e.key.toUpperCase();
+      window.removeEventListener('keydown', listenKey);
+    };
+    window.addEventListener('keydown', listenKey);
+  };
+
   captionInput.oninput = () => { state.caption = captionInput.value; renderComposedPhoto(); };
   fontSelect.onchange = () => { state.font = fontSelect.value; renderComposedPhoto(); };
   fontSizeRange.oninput = () => { state.fontSize = parseInt(fontSizeRange.value, 10); renderComposedPhoto(); };
@@ -711,33 +779,21 @@ function initControlStudio() {
   dateFormatSelect.onchange = () => { state.dateFormat = dateFormatSelect.value; renderComposedPhoto(); };
   datePosSelect.onchange = () => { state.datePos = datePosSelect.value; renderComposedPhoto(); };
 
-  function setStep(n) {
-    state.step = n;
-    document.querySelectorAll('.step-node').forEach(node => {
-      const sn = parseInt(node.dataset.step, 10);
-      node.classList.toggle('active', sn === n);
-      node.classList.toggle('done', sn < n);
-    });
-    if (n === 3) {
-      document.getElementById('stage').classList.add('hidden');
-      composeWrap.classList.remove('hidden');
-    } else {
-      document.getElementById('stage').classList.remove('hidden');
-      composeWrap.classList.add('hidden');
-    }
-  }
-
+  // WORKFLOW
   async function triggerCaptureWorkflow() {
-    if (!stream) { alert('กรุณากดเปิดกล้องก่อน'); return; }
+    if (!stream) { alert('กรุณาเปิดกล้องก่อน'); return; }
     state.shots = [];
-    state.lastPhotoData = null;
-    state.lastGifData = null;
-
     if (channel) channel.postMessage({ type: 'clearRound' });
 
-    setStep(2);
+    updateStepper(2);
     startCaptureBtn.disabled = true;
-    const total = state.format === 'single' ? 1 : 4;
+
+    // จำนวนรูปตามรูปแบบ
+    let total = 1;
+    if (state.format === 'h_dual' || state.format === 'v_dual') total = 2;
+    else if (state.format === 'v_triple') total = 3;
+    else if (state.format === 'strip4' || state.format === 'grid2x2' || state.format === 'polaroid4') total = 4;
+    else if (state.format === 'grid2x3') total = 6;
 
     for (let i = 0; i < total; i++) {
       await executeCountdown();
@@ -747,12 +803,17 @@ function initControlStudio() {
 
     state.roundNumber += 1;
     startCaptureBtn.disabled = false;
-    setStep(3);
-    renderComposedPhoto();
-    revealExportControls();
+    updateStepper(3);
 
-    // บันทึกและส่งออกไฟล์
-    publishToDriveAndDisplay();
+    document.getElementById('stage').classList.add('hidden');
+    composeWrap.classList.remove('hidden');
+
+    renderComposedPhoto();
+    retakeBtn.classList.remove('hidden');
+    downloadBtn.classList.remove('hidden');
+    printBtn.classList.remove('hidden');
+
+    publishResults();
   }
   startCaptureBtn.onclick = triggerCaptureWorkflow;
 
@@ -794,29 +855,30 @@ function initControlStudio() {
 
   retakeBtn.onclick = () => {
     state.shots = [];
-    [retakeBtn, downloadBtn, downloadGifBtn, printBtn].forEach(b => b.classList.add('hidden'));
-    setStep(1);
+    [retakeBtn, downloadBtn, printBtn].forEach(b => b.classList.add('hidden'));
+    composeWrap.classList.add('hidden');
+    document.getElementById('stage').classList.remove('hidden');
+    updateStepper(1);
     if (channel) channel.postMessage({ type: 'clearRound' });
   };
 
-  function revealExportControls() {
-    retakeBtn.classList.remove('hidden');
-    downloadBtn.classList.remove('hidden');
-    printBtn.classList.remove('hidden');
-    if (state.format !== 'single') downloadGifBtn.classList.remove('hidden');
-  }
-
+  // RENDER COMPOSITE
   function renderComposedPhoto() {
     if (!state.shots.length) return;
-    const w = state.format === 'strip4' ? 600 : 1200;
-    const h = 1800;
+    const isHorizontal = state.format === 'h_dual';
+    const isSlimStrip = state.format === 'v_triple' || state.format === 'strip4';
+    
+    let w = 1200, h = 1800;
+    if (isHorizontal) { w = 1800; h = 1200; }
+    else if (isSlimStrip) { w = 600; h = 1800; }
+
     composeCanvas.width = w; composeCanvas.height = h;
     const ctx = composeCanvas.getContext('2d');
 
-    const all = [...STUDIO_FRAMES, ...state.customFrames];
-    const frame = all.find(f => f.key === state.frameKey) || STUDIO_FRAMES[0];
+    const custom = state.customFrames.find(f => f.key === state.frameKey);
+    const frame = custom || STUDIO_FRAMES[state.frameKey] || STUDIO_FRAMES.sky;
 
-    if (frame.isCustom) {
+    if (custom && custom.src) {
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, w, h);
     } else {
@@ -827,42 +889,60 @@ function initControlStudio() {
       ctx.strokeRect(ctx.lineWidth/2, ctx.lineWidth/2, w - ctx.lineWidth, h - ctx.lineWidth);
     }
 
-    const pad = frame.isCustom ? 0 : w * 0.055;
-    const captionH = frame.isCustom ? 0 : h * 0.10;
-    const photoH = h - captionH - (frame.isCustom ? 0 : pad * 0.3) - pad;
+    const pad = custom ? 0 : w * 0.055;
+    const captionH = custom ? 0 : h * 0.10;
+    const photoH = h - captionH - pad;
     const photoW = w - pad * 2;
 
-    function renderFilterShot(img, x, y, cw, ch) {
+    function drawTile(img, x, y, cw, ch) {
       ctx.save();
-      const tone = STUDIO_TONES.find(t => t.key === state.toneKey) || STUDIO_TONES[0];
-      ctx.filter = tone.filter;
+      ctx.filter = STUDIO_TONES[state.toneKey] || 'none';
       const scale = Math.max(cw / img.width, ch / img.height);
       const sw = cw / scale, sh = ch / scale;
       ctx.drawImage(img, (img.width - sw)/2, (img.height - sh)/2, sw, sh, x, y, cw, ch);
       ctx.restore();
     }
 
+    // เลย์เอาต์ตามรูปภาพที่ส่งมา
     if (state.format === 'single') {
-      renderFilterShot(state.shots[0], pad, pad, photoW, photoH);
+      drawTile(state.shots[0], pad, pad, photoW, photoH);
+    } else if (state.format === 'h_dual') {
+      const gap = w * 0.02;
+      const cellW = (photoW - gap) / 2;
+      drawTile(state.shots[0], pad, pad, cellW, photoH);
+      drawTile(state.shots[1] || state.shots[0], pad + cellW + gap, pad, cellW, photoH);
+    } else if (state.format === 'v_dual') {
+      const gap = h * 0.02;
+      const cellH = (photoH - gap) / 2;
+      drawTile(state.shots[0], pad, pad, photoW, cellH);
+      drawTile(state.shots[1] || state.shots[0], pad, pad + cellH + gap, photoW, cellH);
+    } else if (state.format === 'v_triple') {
+      const gap = h * 0.015;
+      const cellH = (photoH - gap * 2) / 3;
+      for (let i = 0; i < 3; i++) drawTile(state.shots[i] || state.shots[0], pad, pad + i * (cellH + gap), photoW, cellH);
     } else if (state.format === 'strip4') {
       const gap = h * 0.012;
       const cellH = (photoH - gap * 3) / 4;
-      for (let i = 0; i < 4; i++) {
-        renderFilterShot(state.shots[i] || state.shots[0], pad, pad + i * (cellH + gap), photoW, cellH);
-      }
-    } else {
+      for (let i = 0; i < 4; i++) drawTile(state.shots[i] || state.shots[0], pad, pad + i * (cellH + gap), photoW, cellH);
+    } else if (state.format === 'grid2x2' || state.format === 'polaroid4') {
       const gap = w * 0.025;
       const cellW = (photoW - gap) / 2, cellH = (photoH - gap) / 2;
       for (let i = 0; i < 4; i++) {
-        renderFilterShot(state.shots[i] || state.shots[0], pad + (i % 2) * (cellW + gap), pad + Math.floor(i / 2) * (cellH + gap), cellW, cellH);
+        drawTile(state.shots[i] || state.shots[0], pad + (i % 2) * (cellW + gap), pad + Math.floor(i / 2) * (cellH + gap), cellW, cellH);
+      }
+    } else if (state.format === 'grid2x3') {
+      const gap = w * 0.02;
+      const cellW = (photoW - gap) / 2, cellH = (photoH - gap * 2) / 3;
+      for (let i = 0; i < 6; i++) {
+        drawTile(state.shots[i] || state.shots[0], pad + (i % 2) * (cellW + gap), pad + Math.floor(i / 2) * (cellH + gap), cellW, cellH);
       }
     }
 
-    if (frame.isCustom && frame.src) {
-      const customImg = new Image();
-      customImg.src = frame.src;
-      customImg.onload = () => {
-        ctx.drawImage(customImg, 0, 0, w, h);
+    if (custom && custom.src) {
+      const img = new Image();
+      img.src = custom.src;
+      img.onload = () => {
+        ctx.drawImage(img, 0, 0, w, h);
         renderTypography(ctx, w, h, captionH, frame.text);
       };
       return;
@@ -876,7 +956,6 @@ function initControlStudio() {
     const thMonthsShort = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
     const thMonthsFull = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
     const enMonthsShort = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
     const toThaiNum = num => num.toString().replace(/\d/g, d => "๐๑๒๓๔๕๖๗๘๙"[d]);
 
     const day = d.getDate();
@@ -897,7 +976,7 @@ function initControlStudio() {
       ctx.font = `600 ${state.fontSize}px "${state.font}", sans-serif`;
       ctx.fillStyle = textColor || '#0284c7';
       ctx.textAlign = 'center';
-      ctx.fillText(state.caption, w / 2, h - captionH / 2 + 8);
+      ctx.fillText(state.caption, w / 2, h - captionH / 2 + 6);
     }
 
     if (state.showDate) {
@@ -905,9 +984,8 @@ function initControlStudio() {
       ctx.font = `500 ${Math.max(16, state.fontSize * 0.52)}px "${state.font}", sans-serif`;
       ctx.fillStyle = textColor || '#64748b';
 
-      let dx = w / 2, dy = h - 22;
+      let dx = w / 2, dy = h - 18;
       ctx.textAlign = 'center';
-
       if (state.datePos === 'bottom-left') { dx = w * 0.08; ctx.textAlign = 'left'; }
       else if (state.datePos === 'bottom-right') { dx = w * 0.92; ctx.textAlign = 'right'; }
 
@@ -915,16 +993,13 @@ function initControlStudio() {
     }
   }
 
-  // เผยแพร่ผลงานขึ้น Google Drive และส่งต่อจอแสดงผลทันที
-  async function publishToDriveAndDisplay() {
+  // PUBLISH TO DRIVE & SCREEN 2
+  function publishResults() {
     const uniqueId = "TSK_" + Date.now();
     const base64Png = composeCanvas.toDataURL('image/png', 0.85);
 
-    // ลิงก์ตรงของรูปภาพสำหรับสแกนดูบนมือถือ
     const directSearchLink = `https://drive.google.com/drive/u/0/search?q=${uniqueId}`;
-    state.lastDirectLink = directSearchLink;
 
-    // แสดงผลบนจอ 2 ทันที (ไม่มีการบล็อก)
     if (channel) {
       channel.postMessage({
         type: 'roundResult',
@@ -934,52 +1009,21 @@ function initControlStudio() {
       });
     }
 
-    // 1. ส่งไฟล์ภาพ PNG เข้า Google Drive
-    sendPayloadToAppsScript({
-      image: base64Png,
-      filename: `${uniqueId}.png`
-    });
-
-    // 2. สร้าง GIF แบบเบาและส่งเข้า Google Drive ตามหลัง
-    if (state.shots.length > 1) {
-      setTimeout(() => {
-        try {
-          const gifCanvas = document.createElement('canvas');
-          gifCanvas.width = 300;
-          gifCanvas.height = Math.round(300 * state.shots[0].height / state.shots[0].width);
-          const gctx = gifCanvas.getContext('2d');
-          
-          gctx.drawImage(state.shots[0], 0, 0, gifCanvas.width, gifCanvas.height);
-          const firstFrame = gifCanvas.toDataURL('image/png');
-          
-          sendPayloadToAppsScript({
-            gif: firstFrame,
-            gifFilename: `${uniqueId}.gif`
-          });
-        } catch(e) {}
-      }, 200);
-    }
-  }
-
-  function sendPayloadToAppsScript(payload) {
+    // ส่งไฟล์ภาพเข้า Apps Script
     fetch(GAS_WEB_APP_URL, {
       method: "POST",
       mode: "no-cors",
       headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify(payload)
+      body: JSON.stringify({
+        image: base64Png,
+        filename: `${uniqueId}.png`
+      })
     });
   }
 
   downloadBtn.onclick = () => {
     const a = document.createElement('a');
-    a.download = `TSK_Photo_${Date.now()}.png`;
-    a.href = composeCanvas.toDataURL('image/png');
-    a.click();
-  };
-
-  downloadGifBtn.onclick = () => {
-    const a = document.createElement('a');
-    a.download = `TSK_Motion_${Date.now()}.gif`;
+    a.download = `TSK_${Date.now()}.png`;
     a.href = composeCanvas.toDataURL('image/png');
     a.click();
   };
@@ -1002,7 +1046,7 @@ function initControlStudio() {
   };
 
   let mirrorTimer = null;
-  function startBroadcastMirror() {
+  function startLiveMirror() {
     if (mirrorTimer) clearInterval(mirrorTimer);
     const mCanvas = document.createElement('canvas');
     mirrorTimer = setInterval(() => {
@@ -1017,9 +1061,9 @@ function initControlStudio() {
   }
 }
 
-/* --------------------------------------------------------------------------
-   DISPLAY STUDIO (จอแสดงผลที่สอง)
--------------------------------------------------------------------------- */
+/* -------------------------------------------------------------
+   DISPLAY STUDIO (จอสอง + ระบบล้างค่า 60 วินาที)
+------------------------------------------------------------- */
 function initDisplayStudio() {
   const liveImg = document.getElementById('dLiveImg');
   const waiting = document.getElementById('dWaiting');
@@ -1034,7 +1078,7 @@ function initDisplayStudio() {
 
   let wipeTimer = null;
   let ticker = null;
-  let remainingSeconds = 40;
+  let remainingSeconds = 60;
 
   function resetDisplayState() {
     resultPic.style.display = 'none';
@@ -1064,6 +1108,11 @@ function initDisplayStudio() {
       liveImg.src = msg.src;
     }
 
+    if (msg.type === 'cameraOff') {
+      liveImg.style.display = 'none';
+      waiting.style.display = 'flex';
+    }
+
     if (msg.type === 'countdown') {
       if (msg.value) {
         countdownBox.style.display = 'flex';
@@ -1083,20 +1132,19 @@ function initDisplayStudio() {
       resultPic.src = msg.composedSrc;
       resultPic.style.display = 'block';
 
-      // แสดง QR Code
       qrFrame.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(msg.qrText)}" alt="QR Code">`;
 
-      // ตัวจับเวลานับถอยหลัง 40 วินาที
+      // 60-SECOND AUTO WIPE TIMER
       if (wipeTimer) clearTimeout(wipeTimer);
       if (ticker) clearInterval(ticker);
 
-      remainingSeconds = 40;
+      remainingSeconds = 60;
       wipeNotice.textContent = `ล้างข้อมูลอัตโนมัติใน ${remainingSeconds} วินาที`;
       timerBar.style.transition = 'none';
       timerBar.style.width = '100%';
 
       setTimeout(() => {
-        timerBar.style.transition = 'width 40s linear';
+        timerBar.style.transition = 'width 60s linear';
         timerBar.style.width = '0%';
       }, 50);
 
@@ -1111,7 +1159,7 @@ function initDisplayStudio() {
 
       wipeTimer = setTimeout(() => {
         resetDisplayState();
-      }, 40000);
+      }, 60000);
     }
 
     if (msg.type === 'clearRound') {
