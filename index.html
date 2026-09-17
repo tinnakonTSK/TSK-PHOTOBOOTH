@@ -7,7 +7,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Kodchasan:wght@500;600;700&family=Prompt:wght@300;400;500;600&family=Sarabun:wght@400;500;600&display=swap" rel="stylesheet">
-<!-- gifshot standalone library -->
 <script src="https://cdn.jsdelivr.net/npm/gifshot@0.3.2/dist/gifshot.min.js"></script>
 <style>
   :root {
@@ -69,7 +68,7 @@
   }
   .btn-action:hover { border-color: var(--border-focus); background: var(--panel-hover); }
 
-  /* STEPPER 1 - 2 - 3 */
+  /* STEPPER */
   .stepper-wrap {
     display: flex; align-items: center; justify-content: center; gap: 8px;
     height: 32px; margin-bottom: 6px; flex-shrink: 0;
@@ -102,9 +101,9 @@
     border: 1px solid var(--border);
   }
   
-  /* ตัว Canvas แสดงภาพสดกล้อง (การันตีขึ้น 100%) */
-  #mainCamCanvas { width: 100%; height: 100%; object-fit: contain; display: none; }
-  #videoHidden { position: absolute; opacity: 0; pointer-events: none; width: 1px; height: 1px; }
+  /* ตัววิดีโอกล้องสดตัวจริง */
+  #video { width: 100%; height: 100%; object-fit: cover; display: none; }
+  #video.mirror { transform: scaleX(-1); }
 
   .view-placeholder {
     position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -166,7 +165,6 @@
   }
   .btn-help:hover .tooltip-box { visibility: visible; opacity: 1; }
 
-  /* MATRICES */
   .matrix-layout {
     display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px;
     max-height: 160px; overflow-y: auto; padding-right: 2px;
@@ -185,16 +183,14 @@
     border: 1px solid var(--border); border-radius: var(--radius); padding: 5px 3px; background: var(--panel-hover);
     display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer;
   }
-  .swatch-item.active { border-color: var(--primary-light); background: rgba(56, 189, 248, 0.08); }
+  .swatch-item.active { border-color: var(--primary-light); }
   .swatch-dot { width: 20px; height: 20px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); }
   .swatch-name { font-size: 10px; }
 
   .field-input { width: 100%; padding: 5px 8px; border-radius: var(--radius); border: 1px solid var(--border); font-size: 11.5px; background: var(--panel); color: var(--ink); }
   .field-select { width: 100%; padding: 5px 8px; border-radius: var(--radius); border: 1px solid var(--border); font-size: 11.5px; background: var(--panel); color: var(--ink); }
 
-  /* ============================================================= */
-  /* CLIENT GALLERY PORTAL (หน้าเว็บแยกสำหรับผู้ใช้งาน)            */
-  /* ============================================================= */
+  /* CLIENT GALLERY PORTAL */
   #clientPortal {
     display: none; width: 100vw; min-height: 100vh; overflow-y: auto;
     padding: 24px 16px; background: #030712; color: #f8fafc;
@@ -229,9 +225,7 @@
   .portal-btn-dl { background: #0284c7; color: #fff; border: none; }
   .portal-btn-share { background: #111e38; color: #38bdf8; border: 1px solid #1e293b; }
 
-  /* ============================================================= */
-  /* DISPLAY APP (จอสอง)                                           */
-  /* ============================================================= */
+  /* SECOND SCREEN */
   body.display-mode { background: var(--bg-base) !important; width: 100vw; height: 100vh; overflow: hidden !important; }
   body.display-mode #app, body.display-mode #clientPortal { display: none !important; }
 
@@ -317,7 +311,6 @@
   </symbol>
 </svg>
 
-<!-- 1. STUDIO CONTROL APP -->
 <div id="app">
   <div class="topbar">
     <div class="brand">
@@ -353,9 +346,8 @@
     <!-- LEFT: STAGE -->
     <div class="stage-card">
       <div class="view-viewport" id="stage">
-        <!-- Canvas แสดงภาพสดกล้อง (ไม่ติดปัญหา video element) -->
-        <canvas id="mainCamCanvas" class="mirror"></canvas>
-        <video id="videoHidden" autoplay playsinline muted></video>
+        <!-- วิดีโอกล้องสดหลัก -->
+        <video id="video" autoplay playsinline muted></video>
 
         <div class="view-placeholder" id="stagePlaceholder">
           <svg><use href="#icon-shutter"></use></svg>
@@ -408,7 +400,6 @@
 
     <!-- RIGHT: SETTINGS -->
     <div class="settings-card">
-      <!-- 1. รูปแบบเฟรม พร้อมปุ่ม ? บอกขนาด -->
       <div class="cfg-group">
         <div class="cfg-header">
           <label class="cfg-label">รูปแบบเฟรมถ่ายภาพ (LAYOUT)</label>
@@ -453,7 +444,6 @@
         </div>
       </div>
 
-      <!-- 2. สีกรอบภาพ (Frame Swatches) -->
       <div class="cfg-group">
         <div class="cfg-header">
           <label class="cfg-label">สีกรอบภาพ (FRAME PALETTE)</label>
@@ -463,13 +453,11 @@
         <div class="matrix-swatches" id="frameSwatches"></div>
       </div>
 
-      <!-- 3. โทนสีภาพ (Tone Swatches) -->
       <div class="cfg-group">
         <label class="cfg-label">โทนสีภาพ (COLOR TONE)</label>
         <div class="matrix-swatches" id="toneSwatches"></div>
       </div>
 
-      <!-- 4. ข้อความกำกับและฟอนต์ -->
       <div class="cfg-group">
         <label class="cfg-label">ข้อความใต้ภาพ (CAPTION)</label>
         <input type="text" class="field-input" id="captionInput" value="TSK PHOTO STUDIO" maxlength="35">
@@ -489,7 +477,6 @@
         </div>
       </div>
 
-      <!-- 5. ประทับวันที่ล็อกตามเวลาจริง -->
       <div class="cfg-group">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
           <label class="cfg-label" style="margin-bottom: 0;">ประทับวันที่ (DATE STAMP)</label>
@@ -516,7 +503,7 @@
   </div>
 </div>
 
-<!-- 2. CLIENT GALLERY PORTAL (หน้าเว็บแยกสำหรับมือถือ) -->
+<!-- 2. CLIENT GALLERY PORTAL (หน้าสำหรับมือถือผู้ใช้งาน) -->
 <div id="clientPortal">
   <div class="portal-container">
     <div class="portal-head">
@@ -566,8 +553,8 @@
         <div class="d-progress-line" id="dTimerBar"></div>
         <div class="d-qr-frame" id="dQR"></div>
         <div class="d-qr-info">
-          <h4>สแกนรับผลงานส่วนตัว</h4>
-          <p>เปิดกล้องสแกนเพื่อโหลดภาพและ GIF</p>
+          <h4>สแกนรับผลงาน</h4>
+          <p>เปิดกล้องสแกนเพื่อเปิดภาพและ GIF</p>
           <span class="auto-wipe-badge" id="dWipeNotice"></span>
         </div>
       </div>
@@ -611,7 +598,7 @@ if (themeBtn) {
 }
 
 /* --------------------------------------------------------------------------
-   MODE: CLIENT GALLERY PORTAL (หน้าเว็บเปิดดูรูปมือถือ)
+   MODE: CLIENT GALLERY PORTAL (หน้ารับผลงานบนมือถือ)
 -------------------------------------------------------------------------- */
 if (viewToken) {
   const data = JSON.parse(sessionStorage.getItem('tsk_art_' + viewToken) || localStorage.getItem('tsk_art_' + viewToken) || '{}');
@@ -739,8 +726,7 @@ function updateStepper(step) {
    CONTROL STUDIO ENGINE
 ------------------------------------------------------------- */
 function initControlStudio() {
-  const videoHidden = document.getElementById('videoHidden');
-  const mainCamCanvas = document.getElementById('mainCamCanvas');
+  const video = document.getElementById('video');
   const stagePlaceholder = document.getElementById('stagePlaceholder');
   const composeWrap = document.getElementById('composeWrap');
   const composeCanvas = document.getElementById('composeCanvas');
@@ -777,7 +763,6 @@ function initControlStudio() {
 
   const frameInput = document.getElementById('frameInput');
 
-  // RENDER VISUAL FRAME SWATCHES
   function renderFrameSwatches() {
     frameSwatches.innerHTML = '';
     const all = [...STUDIO_FRAMES, ...state.customFrames];
@@ -815,7 +800,6 @@ function initControlStudio() {
     reader.readAsDataURL(file);
   };
 
-  // RENDER VISUAL TONE SWATCHES
   function renderToneSwatches() {
     toneSwatches.innerHTML = '';
     STUDIO_TONES.forEach(t => {
@@ -835,7 +819,6 @@ function initControlStudio() {
   }
   renderToneSwatches();
 
-  // FORMAT SELECTION
   formatMatrix.onclick = (e) => {
     const card = e.target.closest('.card-option');
     if (!card) return;
@@ -845,8 +828,8 @@ function initControlStudio() {
     renderComposedPhoto();
   };
 
-  // CAMERA ENGINE (CANVAS BASED STREAMING TO ELIMINATE BLACK SCREEN)
-  let liveCamTimer = null;
+  // CAMERA ENGINE (DIRECT VIDEO STREAMING WITH SYNC LOOP)
+  let liveBroadcastTimer = null;
   async function listCameras() {
     try {
       const devices = await navigator.mediaDevices.enumerateDevices();
@@ -867,52 +850,60 @@ function initControlStudio() {
     const constraints = { video: dev ? { deviceId: { ideal: dev } } : { facingMode: 'user' }, audio: false };
     try {
       stream = await navigator.mediaDevices.getUserMedia(constraints);
-      videoHidden.srcObject = stream;
-      await videoHidden.play();
-
+      video.srcObject = stream;
+      video.style.display = 'block';
       stagePlaceholder.classList.add('hidden');
-      mainCamCanvas.style.display = 'block';
       openCamBtn.classList.add('hidden');
       closeCamBtn.classList.remove('hidden');
       startCaptureBtn.disabled = false;
 
+      await video.play();
       await listCameras();
 
-      // เริ่มต้น Live Loop ไปยัง Canvas หน้าหลักและจอรอง
-      startLiveCanvasStream();
+      // เริ่มต้นส่งภาพสดไปยังจอรอง
+      startBroadcastLoop();
     } catch (err) {
-      alert('ไม่สามารถเปิดใช้งานกล้องได้ กรุณาตรวจสอบสิทธิ์การเข้าถึงอุปกรณ์');
+      alert('ไม่สามารถเปิดกล้องได้ กรุณาตรวจสอบสิทธิ์การเข้าถึงอุปกรณ์');
     }
   }
 
-  function startLiveCanvasStream() {
-    if (liveCamTimer) clearInterval(liveCamTimer);
-    const mctx = mainCamCanvas.getContext('2d');
+  function startBroadcastLoop() {
+    if (liveBroadcastTimer) clearInterval(liveBroadcastTimer);
+    const canvasTmp = document.createElement('canvas');
+    const ctxTmp = canvasTmp.getContext('2d');
 
-    liveCamTimer = setInterval(() => {
-      if (!videoHidden.videoWidth) return;
-      mainCamCanvas.width = videoHidden.videoWidth;
-      mainCamCanvas.height = videoHidden.videoHeight;
-      mctx.drawImage(videoHidden, 0, 0, mainCamCanvas.width, mainCamCanvas.height);
+    liveBroadcastTimer = setInterval(() => {
+      if (!video.videoWidth) return;
+      canvasTmp.width = 360;
+      canvasTmp.height = Math.round(360 * video.videoHeight / video.videoWidth);
 
-      // ส่งภาพสดไปยังจอรอง
+      if (state.mirrored) {
+        ctxTmp.translate(canvasTmp.width, 0);
+        ctxTmp.scale(-1, 1);
+      }
+      ctxTmp.drawImage(video, 0, 0, canvasTmp.width, canvasTmp.height);
+
       if (channel) {
         channel.postMessage({
           type: 'frame',
-          src: mainCamCanvas.toDataURL('image/jpeg', 0.4)
+          src: canvasTmp.toDataURL('image/jpeg', 0.4)
         });
+      }
+
+      if (state.mirrored) {
+        ctxTmp.setTransform(1, 0, 0, 1, 0, 0);
       }
     }, 100);
   }
 
   function stopCamera() {
-    if (liveCamTimer) clearInterval(liveCamTimer);
+    if (liveBroadcastTimer) clearInterval(liveBroadcastTimer);
     if (stream) {
       stream.getTracks().forEach(t => t.stop());
       stream = null;
     }
-    videoHidden.srcObject = null;
-    mainCamCanvas.style.display = 'none';
+    video.srcObject = null;
+    video.style.display = 'none';
     stagePlaceholder.classList.remove('hidden');
     openCamBtn.classList.remove('hidden');
     closeCamBtn.classList.add('hidden');
@@ -926,12 +917,12 @@ function initControlStudio() {
 
   mirrorChk.onchange = () => {
     state.mirrored = mirrorChk.checked;
-    mainCamCanvas.classList.toggle('mirror', state.mirrored);
+    video.classList.toggle('mirror', state.mirrored);
   };
   soundChk.onchange = () => state.soundOn = soundChk.checked;
   countdownSelect.onchange = () => state.countdownSeconds = parseInt(countdownSelect.value, 10);
 
-  // KEY SHORTCUT SETUP
+  // KEY SHORTCUT
   window.addEventListener('keydown', (e) => {
     if (e.target.tagName === 'INPUT') return;
     if (e.key === state.shortcutKey || (state.shortcutKey === ' ' && e.code === 'Space')) {
@@ -958,7 +949,7 @@ function initControlStudio() {
   dateFormatSelect.onchange = () => { state.dateFormat = dateFormatSelect.value; renderComposedPhoto(); };
   datePosSelect.onchange = () => { state.datePos = datePosSelect.value; renderComposedPhoto(); };
 
-  // WORKFLOW
+  // CAPTURE WORKFLOW
   async function triggerCaptureWorkflow() {
     if (!stream) { alert('กรุณาเปิดกล้องก่อน'); return; }
     state.shots = [];
@@ -991,7 +982,6 @@ function initControlStudio() {
     downloadBtn.classList.remove('hidden');
     printBtn.classList.remove('hidden');
 
-    // เผยแพร่ผลงานขึ้น Portal ส่วนตัว
     publishToPortalAndDisplay();
   }
   startCaptureBtn.onclick = triggerCaptureWorkflow;
@@ -1021,12 +1011,12 @@ function initControlStudio() {
   async function captureSnapshot() {
     flashEffect.style.opacity = '1';
     if (channel) channel.postMessage({ type: 'flash' });
-    const vw = videoHidden.videoWidth || 640, vh = videoHidden.videoHeight || 480;
+    const vw = video.videoWidth || 640, vh = video.videoHeight || 480;
     const cvs = document.createElement('canvas');
     cvs.width = vw; cvs.height = vh;
     const ctx = cvs.getContext('2d');
     if (state.mirrored) { ctx.translate(vw, 0); ctx.scale(-1, 1); }
-    ctx.drawImage(videoHidden, 0, 0, vw, vh);
+    ctx.drawImage(video, 0, 0, vw, vh);
     state.shots.push(cvs);
     await new Promise(r => setTimeout(r, 50));
     flashEffect.style.opacity = '0';
@@ -1173,16 +1163,16 @@ function initControlStudio() {
     }
   }
 
-  // เผยแพร่ภาพนิ่ง และสร้าง GIF เข้าสู่ Private Portal
+  // PUBLISH TO PRIVATE CLIENT PORTAL & SCREEN 2
   async function publishToPortalAndDisplay() {
     const sessionToken = "ART_" + Date.now();
     const base64Png = composeCanvas.toDataURL('image/png', 0.9);
     state.lastPhotoData = base64Png;
 
-    // สร้างลิงก์ Portal ส่วนตัวสำหรับผู้ใช้งาน
+    // สร้างลิงก์ Portal ส่วนตัวสำหรับมือถือ
     const portalUrl = `${window.location.origin}${window.location.pathname}?view=${sessionToken}`;
 
-    // ส่ง QR และผลงานไปยังจอแสดงผลที่ 2
+    // แสดงผลบนจอ 2 ทันที
     if (channel) {
       channel.postMessage({
         type: 'roundResult',
@@ -1192,19 +1182,19 @@ function initControlStudio() {
       });
     }
 
-    // สร้าง GIF อัตโนมัติด้วย gifshot (Standalone)
+    // สร้าง GIF อัตโนมัติด้วย gifshot
     if (state.shots.length > 0 && typeof gifshot !== 'undefined') {
       const frameImgs = state.shots.map(s => {
         const c = document.createElement('canvas');
-        c.width = 320; c.height = Math.round(320 * s.height / s.width);
+        c.width = 300; c.height = Math.round(300 * s.height / s.width);
         c.getContext('2d').drawImage(s, 0, 0, c.width, c.height);
         return c.toDataURL('image/jpeg', 0.7);
       });
 
       gifshot.createGIF({
         images: frameImgs,
-        gifWidth: 320,
-        gifHeight: Math.round(320 * state.shots[0].height / state.shots[0].width),
+        gifWidth: 300,
+        gifHeight: Math.round(300 * state.shots[0].height / state.shots[0].width),
         interval: 0.45,
         numWorkers: 0
       }, function(obj) {
@@ -1214,7 +1204,6 @@ function initControlStudio() {
           state.lastGifData = base64Gif;
         }
 
-        // เก็บผลงานไว้ใน Session
         const artPayload = { image: base64Png, gif: base64Gif };
         sessionStorage.setItem('tsk_art_' + sessionToken, JSON.stringify(artPayload));
         localStorage.setItem('tsk_art_' + sessionToken, JSON.stringify(artPayload));
@@ -1228,7 +1217,7 @@ function initControlStudio() {
 
   downloadBtn.onclick = () => {
     const a = document.createElement('a');
-    a.download = `TSK_Photo_${Date.now()}.png`;
+    a.download = `TSK_${Date.now()}.png`;
     a.href = composeCanvas.toDataURL('image/png');
     a.click();
   };
@@ -1322,7 +1311,7 @@ function initDisplayStudio() {
       resultPic.src = msg.composedSrc;
       resultPic.style.display = 'block';
 
-      // สแกนเพื่อเข้า Portal ส่วนตัว
+      // QR Code เข้าสู่ Client Portal ส่วนตัว
       qrFrame.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(msg.qrText)}" alt="QR Code">`;
 
       // 60-SECOND AUTO WIPE TIMER
