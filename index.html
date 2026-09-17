@@ -333,17 +333,17 @@
   <div class="stepper-wrap">
     <div class="step-item active" id="step1">
       <div class="step-circle" id="circle1">1</div>
-      <span>เลือกเทมเพลต</span>
+      <span>Select Template</span>
     </div>
     <div class="step-line" id="line1"></div>
     <div class="step-item" id="step2">
       <div class="step-circle" id="circle2">2</div>
-      <span>เพิ่มรูปภาพ</span>
+      <span>Add Shoot</span>
     </div>
     <div class="step-line" id="line2"></div>
     <div class="step-item" id="step3">
       <div class="step-circle" id="circle3">3</div>
-      <span>แก้ไขและดาวน์โหลด</span>
+      <span>Edit and Download</span>
     </div>
   </div>
 
@@ -356,7 +356,7 @@
 
         <div class="view-placeholder" id="stagePlaceholder">
           <svg><use href="#icon-shutter"></use></svg>
-          <span>กด "เปิดกล้อง" เพื่อเริ่มต้นระบบ</span>
+          <span>Starting... Cameras</span>
         </div>
         <div id="countdownOverlay"><span id="countdownNum">3</span></div>
         <div id="flashEffect"></div>
@@ -379,26 +379,26 @@
         <label class="studio-switch">
           <input type="checkbox" id="mirrorChk" checked>
           <span class="switch-rail"><span class="switch-knob"></span></span>
-          <span>กลับซ้าย-ขวา</span>
+          <span>Left-Right</span>
         </label>
         <label class="studio-switch">
           <input type="checkbox" id="soundChk" checked>
           <span class="switch-rail"><span class="switch-knob"></span></span>
-          <span>เสียงเตือน</span>
+          <span>Sound</span>
         </label>
-        <label>นับถอยหลัง:
+        <label>Time:
           <select class="field-select" style="width: auto; display: inline-block; padding: 2px 4px;" id="countdownSelect">
-            <option value="3" selected>3 วิ</option>
-            <option value="5">5 วิ</option>
-            <option value="8">8 วิ</option>
-            <option value="10">10 วิ</option>
+            <option value="3" selected>3 S</option>
+            <option value="5">5 S</option>
+            <option value="8">8 S</option>
+            <option value="10">10 S</option>
           </select>
         </label>
-        <label>ปุ่มลัด:
-          <button class="btn-action" style="padding: 1px 6px; height: 20px; font-size: 10.5px;" id="changeKeyBtn">เปลี่ยนปุ่ม</button>
+        <label>Shortcut keys:
+          <button class="btn-action" style="padding: 1px 6px; height: 20px; font-size: 10.5px;" id="changeKeyBtn">keys</button>
         </label>
-        <label>กล้อง:
-          <select class="field-select" style="width: 120px; display: inline-block; padding: 2px 4px;" id="cameraSelect"><option value="">ตรวจหา...</option></select>
+        <label>Select Camera:
+          <select class="field-select" style="width: 120px; display: inline-block; padding: 2px 4px;" id="cameraSelect"><option value="">Search...</option></select>
         </label>
       </div>
     </div>
@@ -494,8 +494,8 @@
           <select class="field-select" id="dateFormatSelect">
             <option value="en_num">17.09.2026</option>
             <option value="en_short">17 Sep 2026</option>
-            <option value="th_short">๑๗ ก.ย. ๒๕๖๙</option>
-            <option value="th_full">๑๗ กันยายน ๒๕๖๙</option>
+            <option value="th_short">17 ก.ย. 2569</option>
+            <option value="th_full">๑17 กันยายน 2569</option>
           </select>
           <select class="field-select" id="datePosSelect">
             <option value="bottom-center">กึ่งกลาง</option>
@@ -513,7 +513,7 @@
   <div class="portal-container">
     <div class="portal-head">
       <h2>TSK PHOTO STUDIO</h2>
-      <p>ผลงานภาพถ่ายความทรงจำของคุณ</p>
+      <p>Photo Gallery</p>
     </div>
 
     <div class="portal-card">
@@ -525,8 +525,8 @@
     </div>
 
     <div class="portal-btns">
-      <a class="portal-btn portal-btn-dl" id="portalDownloadBtn" download="TSK_Photo.png">⬇️ บันทึกไฟล์ลงเครื่อง (Download)</a>
-      <button class="portal-btn portal-btn-share" id="portalShareBtn">📤 แชร์ไปยังแอปอื่น (Share to Apps)</button>
+      <a class="portal-btn portal-btn-dl" id="portalDownloadBtn" download="TSK_Photo.png">บันทึกไฟล์ลงเครื่อง (Download)</a>
+      <button class="portal-btn portal-btn-share" id="portalShareBtn">แชร์ไปยังแอปอื่น (Share to Apps)</button>
     </div>
   </div>
 </div>
@@ -541,7 +541,7 @@
       <img id="dLiveImg" style="display:none;">
       <div class="view-placeholder" id="dWaiting">
         <svg><use href="#icon-shutter"></use></svg>
-        <span>รอเริ่มทำงานจากจอควบคุม</span>
+        <span>Please wait...</span>
       </div>
       <div id="dCountdown" style="position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.4);"><span id="dCountdownNum" style="font-size:14vw;color:#fff;font-weight:700;">3</span></div>
       <div id="dFlash" style="position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;"></div>
@@ -551,14 +551,14 @@
       <div class="d-card-result">
         <span style="position:absolute;top:6px;left:6px;background:rgba(0,0,0,0.6);color:#fff;font-size:10px;padding:2px 6px;border-radius:4px;">ผลงานล่าสุด</span>
         <img id="dResultPic" alt="ผลงาน">
-        <span style="color:var(--ink-muted);font-size:12px;" id="dEmptyNotice">รอการถ่ายภาพ...</span>
+        <span style="color:var(--ink-muted);font-size:12px;" id="dEmptyNotice">Waiting Image...</span>
       </div>
 
       <div class="d-card-qr-box">
         <div class="d-progress-line" id="dTimerBar"></div>
         <div class="d-qr-frame" id="dQR"></div>
         <div class="d-qr-info">
-          <h4>สแกนรับผลงาน</h4>
+          <h4>Scan QR Download</h4>
           <p>เปิดกล้องสแกนเพื่อเปิดภาพและ GIF</p>
           <span class="auto-wipe-badge" id="dWipeNotice"></span>
         </div>
@@ -1336,7 +1336,7 @@ function initDisplayStudio() {
       if (ticker) clearInterval(ticker);
 
       remainingSeconds = 60;
-      wipeNotice.textContent = `ล้างข้อมูลอัตโนมัติใน ${remainingSeconds} วินาที`;
+      wipeNotice.textContent = `Delete Data Automatic ${remainingSeconds} Second`;
       timerBar.style.transition = 'none';
       timerBar.style.width = '100%';
 
@@ -1348,7 +1348,7 @@ function initDisplayStudio() {
       ticker = setInterval(() => {
         remainingSeconds--;
         if (remainingSeconds > 0) {
-          wipeNotice.textContent = `ล้างข้อมูลอัตโนมัติใน ${remainingSeconds} วินาที`;
+          wipeNotice.textContent = `Delete Data Automatic ${remainingSeconds} Second`;
         } else {
           clearInterval(ticker);
         }
