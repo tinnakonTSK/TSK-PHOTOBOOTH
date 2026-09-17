@@ -85,7 +85,7 @@
   }
   .panel h3{font-size:15px;color:var(--pink-deep);margin-bottom:12px;}
 
-  /* ---------- stage ---------- */
+  /* ---------- stage (camera / capture / result) ---------- */
   .cam-warning{
     background:#fff3e0;border:1px solid #ffcf94;color:#7a4a12;font-size:13px;line-height:1.6;
     border-radius:14px;padding:12px 14px;margin-bottom:14px;
@@ -176,46 +176,75 @@
   #qrBox{display:flex;flex-direction:column;align-items:center;gap:10px;}
   #qrCanvasHolder{background:#fff;padding:10px;border-radius:14px;border:1px solid var(--line);}
 
-  /* ================= DISPLAY (second screen) MODE ================= */
-  body.display-mode{background:#140e17;color:#fff;overflow:hidden;}
-  #displayApp{display:none;min-height:100vh;flex-direction:column;align-items:center;justify-content:center;padding:20px;}
+  /* ============================================================= */
+  /* DISPLAY APP (NEW SIDE-BY-SIDE LAYOUT AS REQUESTED)            */
+  /* ============================================================= */
+  body.display-mode{background:#0d0a0f;color:#fff;overflow:hidden;height:100vh;}
+  #displayApp{
+    display:none;width:100vw;height:100vh;flex-direction:column;padding:16px 24px;
+    box-sizing:border-box;
+  }
   body.display-mode #displayApp{display:flex;}
   body.display-mode #app{display:none;}
-  #displayApp .dbrand{font-family:'Kodchasan',sans-serif;font-size:26px;font-weight:700;color:#ff9fc0;margin-bottom:14px;letter-spacing:.5px;}
-  #displayStage{
-    position:relative;width:min(80vh,88vw);aspect-ratio:3/4;background:#000;border-radius:26px;overflow:hidden;
-    box-shadow:0 20px 60px rgba(0,0,0,.6);border:4px solid #ff9fc0;
-  }
-  #displayStage img.live{width:100%;height:100%;object-fit:cover;display:block;}
-  #displayGrid{position:absolute;inset:0;display:grid;gap:4px;padding:4px;background:#111;}
-  #displayGrid img{width:100%;height:100%;object-fit:cover;border-radius:8px;background:#333;}
-  
-  /* DISPLAY RESULT: สวยงาม เห็นรูปเต็มตา พร้อม QR ด้านข้าง/ด้านล่าง */
-  #displayResult{
-    position:absolute;inset:0;background:#1e1724;display:none;
-    flex-direction:column;align-items:center;justify-content:space-evenly;padding:24px;
-  }
-  #displayResult img.final{
-    max-width:78%;max-height:62%;border-radius:16px;box-shadow:0 12px 28px rgba(0,0,0,.45);
-    object-fit:contain;
-  }
-  .display-qr-card{
-    background:#ffffff;padding:14px 20px;border-radius:20px;display:flex;align-items:center;gap:16px;
-    box-shadow:0 10px 25px rgba(0,0,0,.3);
-  }
-  .display-qr-info{display:flex;flex-direction:column;}
-  .display-qr-info .qrLabel{font-family:'Mali',cursive;font-size:18px;color:#4a3b42;font-weight:700;margin:0;}
-  .display-qr-info .qrSub{font-size:13px;color:#8a7580;}
-  #displayQR{background:#fff;display:inline-block;}
 
-  #displayCountdown{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(20,10,15,.35);z-index:5;}
-  #displayCountdown span{font-family:'Kodchasan',sans-serif;font-weight:700;font-size:180px;color:#fff;text-shadow:0 6px 20px rgba(0,0,0,.5);}
+  .dheader{
+    font-family:'Kodchasan',sans-serif;font-size:24px;font-weight:700;color:#ff9fc0;
+    margin-bottom:12px;letter-spacing:.5px;text-align:center;
+  }
+
+  .d-container{
+    flex:1;display:grid;grid-template-columns:1.2fr 0.8fr;gap:20px;height:calc(100vh - 65px);
+  }
+
+  /* ฝั่งซ้าย: กล้องสด */
+  .d-left{
+    position:relative;background:#000;border-radius:24px;overflow:hidden;
+    border:4px solid #ff7aa8;box-shadow:0 15px 40px rgba(255,122,168,.15);
+    display:flex;align-items:center;justify-content:center;height:100%;
+  }
+  .d-left img.live{width:100%;height:100%;object-fit:cover;display:block;}
+  .d-left .placeholder{color:#ff9fc0;font-family:'Mali',cursive;font-size:24px;text-align:center;padding:20px;}
+  #displayCountdown{
+    position:absolute;inset:0;display:none;align-items:center;justify-content:center;
+    background:rgba(20,10,15,.3);z-index:5;
+  }
+  #displayCountdown span{
+    font-family:'Kodchasan',sans-serif;font-weight:700;font-size:20vw;color:#fff;
+    text-shadow:0 8px 24px rgba(0,0,0,.6);
+  }
   #displayFlash{position:absolute;inset:0;background:#fff;opacity:0;z-index:6;pointer-events:none;}
-  #displayWaiting{color:#f4d9e5;font-family:'Mali',cursive;font-size:22px;text-align:center;padding:30px;}
+
+  /* ฝั่งขวา: พรีวิวรูป + QR Code */
+  .d-right{display:grid;grid-template-rows:1.4fr 1fr;gap:18px;height:100%;}
+  
+  .d-result-box{
+    background:#1c1622;border:2px solid #3c2a38;border-radius:20px;padding:12px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;
+    overflow:hidden;
+  }
+  .d-result-box .sec-title{
+    position:absolute;top:8px;left:14px;font-family:'Kodchasan',sans-serif;font-size:13px;color:#ff9fc0;
+    background:rgba(0,0,0,.5);padding:2px 10px;border-radius:8px;
+  }
+  .d-result-box img{
+    max-width:100%;max-height:90%;object-fit:contain;border-radius:12px;
+    box-shadow:0 8px 20px rgba(0,0,0,.4);display:none;
+  }
+  .d-result-box .empty-text{color:#7a6272;font-family:'Mali',cursive;font-size:16px;}
+
+  .d-qr-box{
+    background:#1c1622;border:2px solid #3c2a38;border-radius:20px;padding:14px;
+    display:flex;align-items:center;justify-content:center;gap:18px;
+  }
+  .d-qr-holder{background:#fff;padding:8px;border-radius:12px;display:flex;align-items:center;justify-content:center;}
+  .d-qr-text{display:flex;flex-direction:column;gap:6px;}
+  .d-qr-text h4{margin:0;font-family:'Kodchasan',sans-serif;font-size:18px;color:#ffb1cb;}
+  .d-qr-text p{margin:0;font-size:13px;color:#bcaab6;line-height:1.4;}
 </style>
 </head>
 <body>
 
+<!-- CONTROL APP -->
 <div id="app">
   <div class="topbar">
     <div class="brand">
@@ -339,7 +368,7 @@
 <div class="modal-backdrop hidden" id="settingsModal">
   <div class="modal">
     <h3>⚙️ ตั้งค่า Google Drive</h3>
-    <p class="hint">ใส่ OAuth Client ID ของคุณ เพื่อให้อัปโหลดรูปและสร้าง QR Code ให้อัตโนมัติหลังถ่ายเสร็จ</p>
+    <p class="hint">ใส่ OAuth Client ID เพื่อส่งรูปเข้า Google Drive อัตโนมัติและแสดง QR Code รับรูป</p>
     <div class="field">
       <label class="title">Client ID</label>
       <input type="text" id="clientIdInput" placeholder="xxxxx.apps.googleusercontent.com">
@@ -371,26 +400,35 @@
 <div id="printArea" style="display:none;"></div>
 
 <!-- ============================================================= -->
-<!-- DISPLAY (second screen) APP                                   -->
+<!-- DISPLAY APP (NEW TWO-COLUMN LAYOUT)                           -->
 <!-- ============================================================= -->
 <div id="displayApp">
-  <div class="dbrand">TSK PHOTOBOOTH · จอแสดงผล</div>
-  <div id="displayStage">
-    <img class="live" id="displayLive" style="display:none;">
-    <div id="displayGrid"></div>
-    <div id="displayCountdown"><span id="displayCountdownNum">3</span></div>
-    <div id="displayFlash"></div>
-    <div id="displayResult">
-      <img class="final" id="displayFinalImg">
-      <div class="display-qr-card">
-        <div id="displayQR"></div>
-        <div class="display-qr-info">
-          <p class="qrLabel" id="displayQrLabel">สแกนรับรูปทันที 📱</p>
-          <span class="qrSub" id="displayQrSub">ใช้กล้องมือถือส่องเพื่อโหลดรูป</span>
+  <div class="dheader">TSK PHOTOBOOTH · จอแสดงผล</div>
+  <div class="d-container">
+    <!-- ฝั่งซ้าย: กล้องสดตลอดเวลา -->
+    <div class="d-left">
+      <img class="live" id="displayLive" style="display:none;">
+      <div class="placeholder" id="displayWaiting">รอเปิดกล้องจากจอควบคุม... 🌸</div>
+      <div id="displayCountdown"><span id="displayCountdownNum">3</span></div>
+      <div id="displayFlash"></div>
+    </div>
+
+    <!-- ฝั่งขวา: ผลงานรูป + QR Code -->
+    <div class="d-right">
+      <div class="d-result-box">
+        <span class="sec-title">🖼️ ภาพที่ถ่ายแล้ว</span>
+        <img id="displayFinalImg" alt="ผลลัพธ์ภาพถ่าย">
+        <span class="empty-text" id="displayResultPlaceholder">ยังไม่มีภาพถ่ายรอบล่าสุด</span>
+      </div>
+
+      <div class="d-qr-box">
+        <div class="d-qr-holder" id="displayQR"></div>
+        <div class="d-qr-text">
+          <h4 id="displayQrTitle">คิวอาร์โค้ดสแกนรับภาพ</h4>
+          <p id="displayQrSub">ถ่ายรูปเพื่อรับคิวอาร์โค้ดดาวน์โหลดภาพและ GIF ออนไลน์</p>
         </div>
       </div>
     </div>
-    <div id="displayWaiting">รอจอควบคุมเริ่มถ่ายภาพ... 🌸<br><span style="font-size:14px;">(เปิดไฟล์นี้จากปุ่ม "เปิดจอแสดงผล" บนจอหลัก)</span></div>
   </div>
 </div>
 
@@ -785,7 +823,7 @@ function initControlApp(){
     renderComposite();
     revealStep3Buttons();
 
-    // อัปโหลดและสร้าง QR Code อัตโนมัติทันทีที่ถ่ายจบ
+    // อัปโหลดและสร้าง QR Code อัตโนมัติทันที
     autoUploadAndShowQr();
   }
   startCaptureBtn.addEventListener('click', startCapture);
@@ -1080,7 +1118,6 @@ function initControlApp(){
     }, 150);
   }
 
-  // อัปโหลดและสร้าง QR Code อัตโนมัติทันที
   async function autoUploadAndShowQr(){
     if (state.drive.clientId) {
       try {
@@ -1260,7 +1297,12 @@ function initControlApp(){
       new QRCode(qrInlineHolder, {text:link, width:140, height:140, correctLevel: QRCode.CorrectLevel.M});
       qrInlineBox.classList.remove('hidden');
     }
-    broadcast({type:'roundResult', composedSrc: composeCanvas.toDataURL('image/jpeg',0.85), roundNumber: state.roundNumber, qrText: link});
+    broadcast({
+      type: 'roundResult',
+      composedSrc: composeCanvas.toDataURL('image/jpeg', 0.85),
+      roundNumber: state.roundNumber,
+      qrText: link
+    });
   }
 
   qrBtn.addEventListener('click', ()=>{
@@ -1290,7 +1332,7 @@ function initControlApp(){
 
   openDisplayBtn.addEventListener('click', ()=>{
     const url = location.pathname + '?display=1';
-    state.displayWindow = window.open(url, 'tsk_display', 'width=900,height=1000');
+    state.displayWindow = window.open(url, 'tsk_display', 'width=1100,height=800');
   });
 
   let liveTimer = null;
@@ -1320,25 +1362,20 @@ function initControlApp(){
   function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
 }
 
+/* ============================================================= */
+/* DISPLAY APP LOGIC (TWO-COLUMN SYNC)                           */
+/* ============================================================= */
 function initDisplayApp(){
   const live = document.getElementById('displayLive');
-  const grid = document.getElementById('displayGrid');
   const countdownBox = document.getElementById('displayCountdown');
   const countdownNum = document.getElementById('displayCountdownNum');
   const flash = document.getElementById('displayFlash');
-  const result = document.getElementById('displayResult');
   const finalImg = document.getElementById('displayFinalImg');
-  const qrLabel = document.getElementById('displayQrLabel');
+  const resultPlaceholder = document.getElementById('displayResultPlaceholder');
+  const qrTitle = document.getElementById('displayQrTitle');
   const qrSub = document.getElementById('displayQrSub');
   const qrHolder = document.getElementById('displayQR');
   const waiting = document.getElementById('displayWaiting');
-
-  let currentTotal = 0;
-
-  function setGridCols(n){
-    grid.style.display = n>1 ? 'grid' : 'none';
-    if (n===4) { grid.style.gridTemplateColumns = '1fr 1fr'; grid.style.gridTemplateRows = '1fr 1fr'; }
-  }
 
   if (!channel){
     waiting.textContent = 'เบราว์เซอร์นี้ไม่รองรับการเชื่อมต่อสองจอ';
@@ -1350,25 +1387,21 @@ function initDisplayApp(){
 
   channel.onmessage = (e)=>{
     const msg = e.data; if (!msg) return;
-    waiting.style.display = 'none';
 
+    // 1. รับภาพกล้องสดตลอดเวลา (ฝั่งซ้าย)
     if (msg.type === 'frame'){
       clearInterval(helloTimer);
-      result.style.display = 'none';
-      grid.style.display = 'none';
+      waiting.style.display = 'none';
       live.style.display = 'block';
       live.src = msg.src;
     }
+
+    // 2. เริ่มถ่ายรอบใหม่ -> ล้างค่าเดิม
     if (msg.type === 'roundStart'){
-      currentTotal = msg.total;
-      grid.innerHTML = '';
-      for (let i=0;i<msg.total;i++){
-        const img = document.createElement('img');
-        img.id = 'dshot'+i;
-        grid.appendChild(img);
-      }
-      result.style.display = 'none';
+      // คงหน้าจอกล้องไว้ปกติ
     }
+
+    // 3. ตัวเลขนับถอยหลัง
     if (msg.type === 'countdown'){
       if (msg.value){
         countdownBox.style.display = 'flex';
@@ -1377,38 +1410,38 @@ function initDisplayApp(){
         countdownBox.style.display = 'none';
       }
     }
+
+    // 4. แฟลชกล้อง
     if (msg.type === 'flash'){
       flash.style.transition = 'none';
       flash.style.opacity = '1';
       setTimeout(()=>{ flash.style.transition='opacity .4s'; flash.style.opacity='0'; }, 40);
     }
-    if (msg.type === 'shot'){
-      live.style.display = 'none';
-      setGridCols(msg.total);
-      const el = document.getElementById('dshot'+msg.index);
-      if (el) el.src = msg.src;
-    }
+
+    // 5. แสดงผลลัพธ์ภาพที่ถ่ายแล้ว + QR Code (ฝั่งขวา)
     if (msg.type === 'roundResult'){
-      grid.style.display = 'none';
-      live.style.display = 'none';
+      if (resultPlaceholder) resultPlaceholder.style.display = 'none';
       finalImg.src = msg.composedSrc;
-      result.style.display = 'flex';
+      finalImg.style.display = 'block';
+
       qrHolder.innerHTML = '';
-      
       if (msg.qrText){
-        qrLabel.textContent = `สแกนรับรูปรอบที่ ${msg.roundNumber} 🌸`;
-        qrSub.textContent = 'เปิดกล้องมือถือเพื่อดาวน์โหลดรูปภาพ';
-        new QRCode(qrHolder, {text: msg.qrText, width:140, height:140, correctLevel: QRCode.CorrectLevel.M});
+        qrTitle.textContent = `สแกนรับภาพ รอบที่ ${msg.roundNumber} 🌸`;
+        qrSub.textContent = 'ใช้กล้องมือถือส่องเพื่อดาวน์โหลดรูปและ GIF ทันที';
+        new QRCode(qrHolder, {text: msg.qrText, width:115, height:115, correctLevel: QRCode.CorrectLevel.M});
       } else {
-        // กรณีถ่ายเสร็จใหม่ๆ และกำลังส่งข้อมูล
-        qrLabel.textContent = `รูปถ่ายรอบที่ ${msg.roundNumber}`;
-        qrSub.textContent = 'กำลังเตรียม QR Code รับรูป...';
+        qrTitle.textContent = `ภาพถ่ายรอบที่ ${msg.roundNumber}`;
+        qrSub.textContent = 'เชื่อมต่อ Google Drive เพื่อสร้าง QR Code โหลดรูปลงมือถือ';
       }
     }
+
+    // 6. กดถ่ายใหม่
     if (msg.type === 'clearRound'){
-      result.style.display = 'none';
-      grid.innerHTML = '';
-      live.style.display = 'block';
+      finalImg.style.display = 'none';
+      if (resultPlaceholder) resultPlaceholder.style.display = 'block';
+      qrHolder.innerHTML = '';
+      qrTitle.textContent = 'คิวอาร์โค้ดสแกนรับภาพ';
+      qrSub.textContent = 'ถ่ายรูปเพื่อรับคิวอาร์โค้ดดาวน์โหลดภาพและ GIF ออนไลน์';
     }
   };
 }
