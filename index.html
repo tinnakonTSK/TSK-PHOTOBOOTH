@@ -444,7 +444,10 @@ const TONES = [
   {key:'bw', label:'ขาวดำ', filter:'grayscale(1)'}
 ];
 const STICKERS = ['💖','✨','🌸','😎','🎉','🌈','🐻','⭐'];
-
+  
+// ใส่ URL Web App ที่ได้จาก Google Apps Script (ลงท้ายด้วย /exec)
+const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycb.../exec";
+  
 const state = {
   step: 1, format: 'single', frameKey: 'sakura', toneKey: 'natural',
   mirrored: true, soundOn: true, countdownSeconds: 3, caption: 'วันดี ๆ ของเรา',
