@@ -2,247 +2,302 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>TSK PHOTO STUDIO</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>TSK PHOTO STUDIO · Professional Photobooth</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Kodchasan:wght@500;600;700&family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
-<!-- gifshot standalone library -->
-<script src="https://cdn.jsdelivr.net/npm/gifshot@0.3.2/dist/gifshot.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Kodchasan:wght@500;600;700&family=Mali:wght@500;600&family=Playfair+Display:ital,wght@0,600;1,600&family=Prompt:wght@300;400;500;600;700&family=Sarabun:wght@400;500;600&display=swap" rel="stylesheet">
+<!-- omggif: Pure JS GIF Encoder (Zero Worker Dependency / 100% Reliable) -->
+<script src="https://cdn.jsdelivr.net/npm/omggif@1.0.10/omggif.min.js"></script>
 <style>
-  /* โหมดสว่าง - ธีมสีฟ้าทางการ (Professional Light Studio) */
   :root {
-    --bg-base: #f8fafc;
-    --panel: #ffffff;
-    --panel-sub: #f1f5f9;
+    --bg-base: #060b13;
+    --panel: #0d1527;
+    --panel-hover: #132038;
     --primary: #0284c7;
-    --primary-hover: #0369a1;
-    --primary-soft: #e0f2fe;
-    --line: #cbd5e1;
-    --line-active: #0284c7;
-    --ink: #0f172a;
-    --ink-soft: #475569;
-    --radius: 6px;
-    --stage-bg: #090d16;
-  }
-
-  /* โหมดมืด - ธีมสีฟ้าน้ำเงินทางการ (Professional Dark Studio) */
-  body.dark-theme {
-    --bg-base: #040914;
-    --panel: #0b1325;
-    --panel-sub: #111e38;
-    --primary: #38bdf8;
-    --primary-hover: #0ea5e9;
-    --primary-soft: #082f49;
-    --line: #1e293b;
-    --line-active: #38bdf8;
+    --primary-light: #38bdf8;
+    --primary-glow: rgba(56, 189, 248, 0.25);
+    --border: #1e293b;
+    --border-focus: #38bdf8;
     --ink: #f8fafc;
-    --ink-soft: #94a3b8;
-    --stage-bg: #020617;
+    --ink-muted: #94a3b8;
+    --ink-subtle: #475569;
+    --radius: 8px;
+    --switch-bg: #1e293b;
+    --switch-on: #0284c7;
   }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; transition: background-color 0.2s ease, border-color 0.2s ease; }
-  html, body { width: 100vw; height: 100vh; overflow: hidden; }
-  body {
-    background: var(--bg-base);
-    color: var(--ink);
-    font-family: 'Prompt', sans-serif;
+  body.light-theme {
+    --bg-base: #f1f5f9;
+    --panel: #ffffff;
+    --panel-hover: #f8fafc;
+    --primary: #0284c7;
+    --primary-light: #0369a1;
+    --primary-glow: rgba(2, 132, 199, 0.15);
+    --border: #cbd5e1;
+    --border-focus: #0284c7;
+    --ink: #0f172a;
+    --ink-muted: #475569;
+    --ink-subtle: #94a3b8;
+    --switch-bg: #cbd5e1;
+    --switch-on: #0284c7;
   }
-  h1, h2, h3, .brand-title { font-family: 'Kodchasan', sans-serif; }
-  .hidden { display: none !important; }
-  button { font-family: 'Prompt', sans-serif; cursor: pointer; }
-  input, select { font-family: 'Prompt', sans-serif; color: var(--ink); background: var(--panel); }
 
-  /* TOPBAR */
+  * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+  html, body { width: 100vw; height: 100vh; overflow: hidden; background: var(--bg-base); color: var(--ink); font-family: 'Prompt', sans-serif; }
+  button, input, select { font-family: 'Prompt', sans-serif; outline: none; }
+
+  /* SVG DEFS */
+  svg { display: inline-block; vertical-align: middle; }
+
+  /* APP LAYOUT */
   #app { display: flex; flex-direction: column; width: 100vw; height: 100vh; padding: 8px 16px; overflow: hidden; }
   .topbar {
     display: flex; align-items: center; justify-content: space-between;
-    height: 42px; flex-shrink: 0; border-bottom: 1px solid var(--line); padding-bottom: 6px; margin-bottom: 8px;
+    height: 44px; border-bottom: 1px solid var(--border); padding-bottom: 4px; margin-bottom: 6px; flex-shrink: 0;
   }
   .brand { display: flex; align-items: center; gap: 10px; }
-  .brand svg { width: 24px; height: 24px; stroke: var(--primary); }
-  .brand .logo { font-size: 20px; font-weight: 700; letter-spacing: 0.5px; color: var(--primary); }
-  .brand .tagline { font-size: 12px; color: var(--ink-soft); }
+  .brand svg { width: 26px; height: 26px; stroke: var(--primary-light); }
+  .brand-title { font-family: 'Kodchasan', sans-serif; font-size: 19px; font-weight: 700; letter-spacing: 0.8px; color: var(--primary-light); }
+  .brand-tag { font-size: 11px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 1px; }
 
   .top-actions { display: flex; align-items: center; gap: 8px; }
-  .theme-toggle-btn {
+  .btn-action {
     height: 32px; padding: 0 12px; border-radius: var(--radius);
-    border: 1px solid var(--line); background: var(--panel);
-    color: var(--ink); font-size: 12px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px;
+    border: 1px solid var(--border); background: var(--panel); color: var(--ink);
+    font-size: 12px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
+    transition: all 0.2s ease;
   }
+  .btn-action:hover { border-color: var(--border-focus); background: var(--panel-hover); }
 
-  .steps { display: flex; gap: 6px; height: 32px; flex-shrink: 0; margin-bottom: 8px; }
-  .step-pill {
-    flex: 1; text-align: center; border-radius: var(--radius); line-height: 30px;
-    background: var(--panel); border: 1px solid var(--line); color: var(--ink-soft);
-    font-size: 12px; font-weight: 500;
+  /* WORKFLOW STEPS */
+  .steps-bar { display: flex; gap: 6px; height: 32px; margin-bottom: 8px; flex-shrink: 0; }
+  .step-node {
+    flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
+    background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius);
+    font-size: 12px; font-weight: 500; color: var(--ink-muted);
   }
-  .step-pill.active { background: var(--primary); color: #fff; border-color: var(--primary); font-weight: 600; }
-  .step-pill.done { background: var(--primary-soft); color: var(--primary); }
+  .step-node.active { background: var(--primary); border-color: var(--primary); color: #fff; font-weight: 600; box-shadow: 0 0 12px var(--primary-glow); }
+  .step-node.done { background: var(--panel-hover); color: var(--primary-light); border-color: var(--primary); }
 
-  /* 2-COLUMN LAYOUT */
-  .layout {
+  /* STUDIO WORKSPACE */
+  .workspace {
     flex: 1; display: grid; grid-template-columns: 1.25fr 0.75fr; gap: 14px;
-    height: calc(100vh - 98px); min-height: 0; overflow: hidden;
+    height: calc(100vh - 104px); min-height: 0; overflow: hidden;
   }
 
   /* LEFT STAGE */
-  .stage-panel {
-    background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+  .stage-card {
+    background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius);
     padding: 10px; display: flex; flex-direction: column; height: 100%; min-height: 0;
   }
-  .stage-wrap {
-    flex: 1; position: relative; background: var(--stage-bg); border-radius: var(--radius);
+  .view-viewport {
+    flex: 1; position: relative; background: #030712; border-radius: var(--radius);
     overflow: hidden; display: flex; align-items: center; justify-content: center; min-height: 0;
-    border: 1px solid var(--line);
+    border: 1px solid var(--border);
   }
-  .stage-wrap video { width: 100%; height: 100%; object-fit: contain; }
-  .stage-wrap video.mirror { transform: scaleX(-1); }
-
-  .stage-wrap .placeholder {
+  .view-viewport video { width: 100%; height: 100%; object-fit: contain; }
+  .view-viewport video.mirror { transform: scaleX(-1); }
+  .view-placeholder {
     position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 10px; color: var(--primary); font-size: 14px; font-weight: 500; pointer-events: none;
+    gap: 8px; color: var(--primary-light); font-size: 14px; font-weight: 500; pointer-events: none;
   }
-  .stage-wrap .placeholder svg { width: 44px; height: 44px; stroke: var(--primary); }
+  .view-placeholder svg { width: 44px; height: 44px; stroke: var(--primary-light); }
 
   #composeWrap { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; min-height: 0; }
-  #composeCanvas { max-width: 100%; max-height: 100%; object-fit: contain; }
-  #stickerLayer { position: absolute; inset: 0; }
-  .sticker { position: absolute; transform: translate(-50%,-50%); cursor: grab; user-select: none; }
-  .sticker svg { width: 48px; height: 48px; }
+  #composeCanvas { max-width: 100%; max-height: 100%; object-fit: contain; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+  #stickerOverlay { position: absolute; inset: 0; overflow: hidden; pointer-events: auto; }
+
+  /* GRAPHIC STICKER (Interactive Element) */
+  .canvas-element {
+    position: absolute; transform: translate(-50%, -50%); cursor: grab; padding: 4px;
+    border: 1px dashed transparent; transition: border-color 0.15s ease;
+  }
+  .canvas-element:hover, .canvas-element.selected { border-color: var(--primary-light); }
+  .canvas-element svg { pointer-events: none; display: block; }
+  .canvas-element .rotate-handle {
+    position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+    width: 10px; height: 10px; background: var(--primary-light); border-radius: 50%; cursor: grab; display: none;
+  }
+  .canvas-element.selected .rotate-handle { display: block; }
 
   #countdownOverlay {
     position: absolute; inset: 0; display: none; align-items: center; justify-content: center;
-    background: rgba(4, 9, 20, 0.45); z-index: 5;
+    background: rgba(3, 7, 18, 0.6); z-index: 20;
   }
-  #countdownOverlay span { font-family: 'Kodchasan', sans-serif; font-weight: 700; font-size: 11vw; color: #fff; }
-  #flashOverlay { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; z-index: 6; }
+  #countdownOverlay span { font-family: 'Kodchasan', sans-serif; font-weight: 700; font-size: 12vw; color: #fff; }
+  #flashEffect { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; z-index: 30; }
 
-  .stage-controls { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; flex-shrink: 0; }
-  .btn {
-    border: none; border-radius: var(--radius); padding: 7px 14px; font-weight: 500; font-size: 12.5px;
-    display: inline-flex; align-items: center; gap: 6px;
+  /* STAGE TOOLBAR */
+  .stage-toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; flex-shrink: 0; }
+  .btn-ctl {
+    border: none; border-radius: var(--radius); padding: 8px 16px; font-weight: 600; font-size: 12.5px;
+    display: inline-flex; align-items: center; gap: 6px; cursor: pointer; transition: all 0.15s ease;
   }
-  .btn-primary { background: var(--primary); color: #fff; }
-  .btn-primary:hover { background: var(--primary-hover); }
-  .btn-secondary { background: var(--primary-soft); color: var(--primary); }
-  .btn-outline { background: var(--panel); border: 1px solid var(--line); color: var(--ink); }
-  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
-  .row-inline { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 6px; font-size: 12px; color: var(--ink-soft); flex-shrink: 0; }
-  select.small { padding: 4px 8px; border-radius: var(--radius); border: 1px solid var(--line); }
+  .btn-ctl-primary { background: var(--primary); color: #fff; }
+  .btn-ctl-primary:hover { background: #0369a1; }
+  .btn-ctl-sub { background: var(--border); color: var(--ink); }
+  .btn-ctl-sub:hover { background: var(--ink-subtle); color: #fff; }
+  .btn-ctl:disabled { opacity: 0.35; cursor: not-allowed; }
 
-  /* RIGHT CONTROLS */
-  .controls-panel {
-    background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+  /* PROFESSIONAL SWITCH TOGGLE COMPONENT */
+  .controls-footer { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; margin-top: 8px; font-size: 12px; color: var(--ink-muted); flex-shrink: 0; }
+  .studio-switch { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
+  .studio-switch input { display: none; }
+  .switch-rail {
+    width: 34px; height: 18px; background: var(--switch-bg); border-radius: 20px;
+    position: relative; transition: background 0.25s ease; border: 1px solid var(--border);
+  }
+  .switch-knob {
+    width: 12px; height: 12px; background: #fff; border-radius: 50%;
+    position: absolute; top: 2px; left: 2px; transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .studio-switch input:checked + .switch-rail { background: var(--switch-on); border-color: var(--switch-on); }
+  .studio-switch input:checked + .switch-rail .switch-knob { transform: translateX(16px); }
+
+  /* RIGHT SETTINGS PANEL */
+  .settings-card {
+    background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius);
     padding: 12px 14px; display: flex; flex-direction: column; height: 100%; min-height: 0;
     overflow-y: auto;
   }
-  .controls-panel::-webkit-scrollbar { width: 4px; }
-  .controls-panel::-webkit-scrollbar-thumb { background: var(--line); border-radius: 2px; }
+  .settings-card::-webkit-scrollbar { width: 4px; }
+  .settings-card::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
-  .field { margin-bottom: 12px; }
-  .field label.title { display: block; font-size: 12px; font-weight: 600; color: var(--ink); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
-  .chip-row { display: flex; flex-wrap: wrap; gap: 5px; }
-  .chip {
-    padding: 5px 10px; border-radius: var(--radius); border: 1px solid var(--line);
-    background: var(--panel); color: var(--ink); font-size: 11.5px; display: flex; align-items: center; gap: 4px;
+  .cfg-group { margin-bottom: 12px; }
+  .cfg-label { display: block; font-size: 11px; font-weight: 700; color: var(--ink-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.8px; }
+
+  /* VISUAL SELECTION MATRICES */
+  .matrix-layout { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .card-option {
+    border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 6px; background: var(--panel-hover);
+    display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; transition: all 0.15s ease;
   }
-  .chip.active { border-color: var(--line-active); background: var(--primary-soft); color: var(--primary); font-weight: 600; }
-  .chip .del-btn { margin-left: 3px; color: #ef4444; font-weight: bold; cursor: pointer; }
-  input[type=text] { width: 100%; padding: 6px 10px; border-radius: var(--radius); border: 1px solid var(--line); font-size: 12px; }
-  
-  /* PALETTE สไตล์ LINE ART */
-  .sticker-palette { display: flex; flex-wrap: wrap; gap: 6px; }
-  .sticker-palette button {
-    width: 36px; height: 36px; border-radius: var(--radius); border: 1px solid var(--line);
-    background: var(--panel-sub); display: flex; align-items: center; justify-content: center;
+  .card-option:hover { border-color: var(--border-focus); }
+  .card-option.active { border-color: var(--primary-light); background: rgba(56, 189, 248, 0.08); }
+  .card-option svg { width: 28px; height: 34px; stroke: var(--ink-muted); }
+  .card-option.active svg { stroke: var(--primary-light); }
+  .card-option span { font-size: 11px; font-weight: 500; text-align: center; }
+
+  .matrix-swatches { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .swatch-box {
+    border: 1px solid var(--border); border-radius: var(--radius); padding: 6px; background: var(--panel-hover);
+    display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer;
   }
-  .sticker-palette button svg { width: 22px; height: 22px; stroke: var(--ink); }
-  .guide-box { background: var(--panel-sub); border: 1px dashed var(--line); border-radius: var(--radius); padding: 6px 9px; margin-top: 5px; font-size: 11px; color: var(--ink-soft); line-height: 1.4; }
+  .swatch-box.active { border-color: var(--primary-light); }
+  .swatch-circle { width: 22px; height: 22px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); }
+  .swatch-title { font-size: 10.5px; }
+
+  /* STICKER PALETTE */
+  .palette-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+  .palette-btn {
+    width: 38px; height: 38px; border-radius: var(--radius); border: 1px solid var(--border);
+    background: var(--panel-hover); display: flex; align-items: center; justify-content: center; cursor: pointer;
+    color: var(--ink); transition: all 0.15s;
+  }
+  .palette-btn:hover { border-color: var(--primary-light); transform: scale(1.05); }
+  .palette-btn svg { width: 22px; height: 22px; stroke: currentColor; }
+
+  /* INPUT & SELECTS */
+  .field-input { width: 100%; padding: 7px 10px; border-radius: var(--radius); border: 1px solid var(--border); font-size: 12px; }
+  .field-select { width: 100%; padding: 6px 10px; border-radius: var(--radius); border: 1px solid var(--border); font-size: 12px; }
 
   /* ============================================================= */
-  /* DISPLAY APP (SECOND SCREEN)                                   */
+  /* CLIENT GALLERY PORTAL (หน้าดาวน์โหลดบนมือถือระดับพรีเมียม)     */
   /* ============================================================= */
-  body.display-mode {
-    background: var(--bg-base) !important; color: var(--ink); width: 100vw; height: 100vh; overflow: hidden !important;
+  #clientGallery {
+    display: none; width: 100vw; min-height: 100vh; overflow-y: auto;
+    padding: 24px 16px; background: #030712; color: #f8fafc;
+    flex-direction: column; align-items: center;
   }
-  body.display-mode #app { display: none !important; }
+  body.gallery-mode #clientGallery { display: flex; }
+  body.gallery-mode #app, body.gallery-mode #displayApp { display: none !important; }
+
+  .portal-wrap { width: 100%; max-width: 440px; display: flex; flex-direction: column; gap: 16px; }
+  .portal-header { text-align: center; padding-bottom: 8px; border-bottom: 1px solid #1e293b; }
+  .portal-header h2 { font-family: 'Kodchasan', sans-serif; font-size: 20px; color: #38bdf8; font-weight: 700; }
+  .portal-header p { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+
+  .portal-preview-card {
+    background: #0b1325; border: 1px solid #1e293b; border-radius: 12px;
+    padding: 10px; display: flex; flex-direction: column; align-items: center; gap: 10px;
+  }
+  .portal-preview-card img { width: 100%; border-radius: 8px; display: block; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+  .portal-tabs { display: flex; width: 100%; gap: 6px; }
+  .portal-tab-btn {
+    flex: 1; padding: 8px 0; font-size: 12px; font-weight: 600; text-align: center;
+    background: #111e38; border: 1px solid #1e293b; border-radius: 6px; color: #94a3b8; cursor: pointer;
+  }
+  .portal-tab-btn.active { background: #0284c7; border-color: #0284c7; color: #fff; }
+
+  .portal-actions { display: flex; flex-direction: column; gap: 8px; }
+  .btn-portal {
+    width: 100%; padding: 12px; border-radius: 8px; font-weight: 600; font-size: 13px;
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; cursor: pointer;
+  }
+  .btn-portal-primary { background: #0284c7; color: #fff; border: none; }
+  .btn-portal-secondary { background: #111e38; color: #38bdf8; border: 1px solid #1e293b; }
+
+  /* ============================================================= */
+  /* DISPLAY APP (จอแสดงผลที่สอง)                                   */
+  /* ============================================================= */
+  body.display-mode { background: var(--bg-base) !important; width: 100vw; height: 100vh; overflow: hidden !important; }
+  body.display-mode #app, body.display-mode #clientGallery { display: none !important; }
 
   #displayApp {
-    display: none; width: 100vw; height: 100vh; box-sizing: border-box;
-    padding: 12px 18px; flex-direction: column; background: var(--bg-base);
+    display: none; width: 100vw; height: 100vh; padding: 12px 18px;
+    flex-direction: column; box-sizing: border-box; background: var(--bg-base);
   }
   body.display-mode #displayApp { display: flex; }
 
-  .dheader {
-    font-family: 'Kodchasan', sans-serif; font-size: 16px; font-weight: 600; color: var(--primary);
-    text-align: center; height: 26px; line-height: 26px; flex-shrink: 0; margin-bottom: 6px; letter-spacing: 0.5px;
-  }
   .d-viewport {
     flex: 1; display: grid; grid-template-columns: 1fr 340px; gap: 14px;
     height: calc(100vh - 48px); min-height: 0;
   }
-  .d-left-box {
-    background: var(--stage-bg); border-radius: var(--radius); border: 1px solid var(--line); overflow: hidden;
-    position: relative; display: flex; align-items: center; justify-content: center;
-    height: 100%; min-height: 0;
+  .d-live-frame {
+    background: #000; border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden;
+    position: relative; display: flex; align-items: center; justify-content: center; height: 100%; min-height: 0;
   }
-  .d-left-box img.live { width: 100%; height: 100%; object-fit: contain; display: block; }
-  .d-left-box .placeholder {
+  .d-live-frame img { width: 100%; height: 100%; object-fit: contain; display: block; }
+  .d-live-frame .d-placeholder {
     position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 8px; color: var(--primary); font-size: 15px; font-weight: 500;
+    gap: 8px; color: var(--primary-light); font-size: 15px; font-weight: 500;
   }
-  .d-left-box .placeholder svg { width: 40px; height: 40px; stroke: var(--primary); }
-  #displayCountdown {
-    position: absolute; inset: 0; display: none; align-items: center; justify-content: center;
-    background: rgba(4, 9, 20, 0.45); z-index: 10;
-  }
-  #displayCountdown span { font-family: 'Kodchasan', sans-serif; font-weight: 700; font-size: 14vw; color: #fff; }
-  #displayFlash { position: absolute; inset: 0; background: #fff; opacity: 0; z-index: 11; pointer-events: none; }
 
-  .d-right-box { display: flex; flex-direction: column; gap: 10px; height: 100%; min-height: 0; }
-  .d-card-photo {
-    flex: 1; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+  .d-sidebar { display: flex; flex-direction: column; gap: 10px; height: 100%; min-height: 0; }
+  .d-card-result {
+    flex: 1; background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius);
     padding: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center;
     position: relative; overflow: hidden; min-height: 0;
   }
-  .d-card-photo .badge {
-    position: absolute; top: 6px; left: 6px; background: rgba(0,0,0,.65);
-    color: #fff; font-size: 10px; font-weight: 500; padding: 2px 6px; border-radius: 4px; z-index: 2;
-  }
-  .d-card-photo img.result-pic {
-    max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 4px; display: none;
-  }
-  .d-card-photo .empty-state { color: var(--ink-soft); font-size: 13px; text-align: center; }
+  .d-card-result img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 4px; display: none; }
+  .d-card-result .d-empty { color: var(--ink-muted); font-size: 13px; }
 
-  /* กล่อง QR และแถบนับถอยหลังล้างค่า 40 วินาที */
-  .d-card-qr {
-    height: 130px; flex-shrink: 0; background: var(--panel); border: 1px solid var(--line);
+  .d-card-qr-box {
+    height: 140px; flex-shrink: 0; background: var(--panel); border: 1px solid var(--border);
     border-radius: var(--radius); padding: 8px 12px; display: flex; align-items: center; justify-content: center;
-    gap: 12px; box-sizing: border-box; position: relative; overflow: hidden;
+    gap: 14px; box-sizing: border-box; position: relative; overflow: hidden;
   }
-  .d-timer-bar {
-    position: absolute; bottom: 0; left: 0; height: 3px; background: var(--primary);
+  .d-progress-line {
+    position: absolute; bottom: 0; left: 0; height: 3px; background: var(--primary-light);
     width: 0%; transition: width 1s linear;
   }
-  .d-qr-white {
-    background: #fff; padding: 4px; border-radius: 4px; width: 90px; height: 90px;
+  .d-qr-frame {
+    background: #fff; padding: 4px; border-radius: 4px; width: 96px; height: 96px;
     flex-shrink: 0; display: flex; align-items: center; justify-content: center; overflow: hidden;
-    border: 1px solid #cbd5e1;
   }
-  .d-qr-white img { width: 100% !important; height: 100% !important; object-fit: contain; }
-  .d-qr-text { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
-  .d-qr-text h4 { font-size: 13.5px; color: var(--ink); margin: 0; font-weight: 600; }
-  .d-qr-text p { font-size: 11px; color: var(--ink-soft); margin: 0; line-height: 1.3; }
-  .d-qr-text .countdown-text { font-size: 10.5px; color: var(--primary); font-weight: 500; margin-top: 2px; }
+  .d-qr-frame img { width: 100% !important; height: 100% !important; object-fit: contain; }
+  .d-qr-info h4 { font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 2px; }
+  .d-qr-info p { font-size: 11px; color: var(--ink-muted); line-height: 1.3; }
+  .d-qr-info .auto-wipe-badge { font-size: 10.5px; color: var(--primary-light); margin-top: 4px; display: block; }
 </style>
 </head>
 <body>
 
-<!-- SVG ICONS DEFINITIONS -->
+<!-- SVG SYMBOLS DEFINITIONS -->
 <svg style="display:none;">
-  <!-- Shutter Lens -->
-  <symbol id="icon-shutter" viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Studio Shutter -->
+  <symbol id="icon-shutter" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
     <circle cx="12" cy="12" r="10"></circle>
     <path d="m14.31 8 5.74 9.94M9.69 8h11.48M7.38 12l5.74-9.94M9.69 16 3.95 6.06M14.31 16H2.83M16.62 12l-5.74 9.94"></path>
   </symbol>
@@ -259,157 +314,267 @@
   <symbol id="icon-badge" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
     <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
   </symbol>
-  <!-- Minimal Frame -->
-  <symbol id="icon-frame" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Minimalist Frame Box -->
+  <symbol id="icon-frame-box" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
     <rect x="3" y="3" width="18" height="18" rx="2"></rect>
     <path d="M3 9h18M9 21V9"></path>
   </symbol>
+  <!-- Star Minimal -->
+  <symbol id="icon-star" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+  </symbol>
+  <!-- Layout 1 Single -->
+  <symbol id="layout-single" viewBox="0 0 28 34" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="2" y="2" width="24" height="30" rx="2"></rect>
+    <rect x="5" y="5" width="18" height="20" rx="1"></rect>
+  </symbol>
+  <!-- Layout 4 Strip -->
+  <symbol id="layout-strip" viewBox="0 0 28 34" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="6" y="2" width="16" height="30" rx="2"></rect>
+    <rect x="8" y="4" width="12" height="5" rx="0.5"></rect>
+    <rect x="8" y="10.5" width="12" height="5" rx="0.5"></rect>
+    <rect x="8" y="17" width="12" height="5" rx="0.5"></rect>
+    <rect x="8" y="23.5" width="12" height="5" rx="0.5"></rect>
+  </symbol>
+  <!-- Layout Grid 2x2 -->
+  <symbol id="layout-grid" viewBox="0 0 28 34" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="2" y="2" width="24" height="30" rx="2"></rect>
+    <rect x="5" y="5" width="8" height="9" rx="0.5"></rect>
+    <rect x="15" y="5" width="8" height="9" rx="0.5"></rect>
+    <rect x="5" y="16" width="8" height="9" rx="0.5"></rect>
+    <rect x="15" y="16" width="8" height="9" rx="0.5"></rect>
+  </symbol>
 </svg>
 
-<!-- จอควบคุมหลัก -->
+<!-- 1. STUDIO CONTROL APP -->
 <div id="app">
   <div class="topbar">
     <div class="brand">
       <svg><use href="#icon-shutter"></use></svg>
       <div>
-        <span class="logo">TSK PHOTO STUDIO</span>
-        <span class="tagline">· Photobooth System</span>
+        <span class="brand-title">TSK PHOTO STUDIO</span>
+        <span class="brand-tag">· Studio Pro Edition</span>
       </div>
     </div>
     <div class="top-actions">
-      <button class="theme-toggle-btn" id="themeToggleBtn">โหมดมืด</button>
-      <button class="btn btn-outline" id="openDisplayBtn">เปิดจอแสดงผล</button>
+      <button class="btn-action" id="themeBtn">☀️ / 🌙 สลับโหมด</button>
+      <button class="btn-action" id="openDisplayBtn">🖥️ เปิดจอแสดงผล (จอ 2)</button>
     </div>
   </div>
 
-  <div class="steps">
-    <div class="step-pill" data-step="1">1. เตรียมความพร้อม</div>
-    <div class="step-pill" data-step="2">2. บันทึกภาพ</div>
-    <div class="step-pill" data-step="3">3. ปรับแต่ง &amp; จัดพิมพ์</div>
+  <div class="steps-bar">
+    <div class="step-node" data-step="1">1. เตรียมความพร้อม</div>
+    <div class="step-node" data-step="2">2. ลั่นชัตเตอร์บันทึกภาพ</div>
+    <div class="step-node" data-step="3">3. จัดพิมพ์ &amp; ส่งออกไฟล์</div>
   </div>
 
-  <div class="layout">
-    <!-- กล้องซ้าย -->
-    <div class="stage-panel">
-      <div class="stage-wrap" id="stage">
+  <div class="workspace">
+    <!-- LEFT: STAGE -->
+    <div class="stage-card">
+      <div class="view-viewport" id="stage">
         <video id="video" autoplay playsinline muted class="mirror"></video>
-        <div class="placeholder" id="stagePlaceholder">
+        <div class="view-placeholder" id="stagePlaceholder">
           <svg><use href="#icon-shutter"></use></svg>
-          <span>กดปุ่ม "เปิดกล้อง" เพื่อเริ่มทำงาน</span>
+          <span>กด "เปิดกล้อง" เพื่อเริ่มต้นระบบสตูดิโอ</span>
         </div>
         <div id="countdownOverlay"><span id="countdownNum">3</span></div>
-        <div id="flashOverlay"></div>
+        <div id="flashEffect"></div>
       </div>
 
       <div id="composeWrap" class="hidden">
         <canvas id="composeCanvas"></canvas>
-        <div id="stickerLayer"></div>
+        <div id="stickerOverlay"></div>
       </div>
 
-      <div class="stage-controls">
-        <button class="btn btn-outline" id="openCamBtn">เปิดกล้อง</button>
-        <button class="btn btn-primary" id="startCaptureBtn" disabled>เริ่มถ่าย</button>
-        <button class="btn btn-outline hidden" id="retakeBtn">ถ่ายใหม่</button>
-        <button class="btn btn-secondary hidden" id="downloadBtn">บันทึกรูป</button>
-        <button class="btn btn-secondary hidden" id="downloadGifBtn">บันทึก GIF</button>
-        <button class="btn btn-outline hidden" id="printBtn">ปริ้นต์รูปภาพ</button>
+      <div class="stage-toolbar">
+        <button class="btn-ctl btn-ctl-sub" id="openCamBtn">📷 เปิดกล้อง</button>
+        <button class="btn-ctl btn-ctl-primary" id="startCaptureBtn" disabled>✨ เริ่มถ่าย</button>
+        <button class="btn-ctl btn-ctl-sub hidden" id="retakeBtn">🔄 ถ่ายใหม่</button>
+        <button class="btn-ctl btn-ctl-sub hidden" id="downloadBtn">⬇️ เซฟรูปภาพ</button>
+        <button class="btn-ctl btn-ctl-sub hidden" id="downloadGifBtn">🎞️ เซฟ GIF</button>
+        <button class="btn-ctl btn-ctl-sub hidden" id="printBtn">🖨️ จัดพิมพ์ภาพ</button>
       </div>
-      <div class="row-inline">
-        <label><input type="checkbox" id="mirrorChk" checked> กลับซ้าย-ขวา</label>
-        <label><input type="checkbox" id="soundChk" checked> เสียงสัญญาณ</label>
-        <label>นับถอยหลัง
-          <select class="small" id="countdownSelect">
+
+      <div class="controls-footer">
+        <label class="studio-switch">
+          <input type="checkbox" id="mirrorChk" checked>
+          <span class="switch-rail"><span class="switch-knob"></span></span>
+          <span>กลับซ้าย-ขวา</span>
+        </label>
+        <label class="studio-switch">
+          <input type="checkbox" id="soundChk" checked>
+          <span class="switch-rail"><span class="switch-knob"></span></span>
+          <span>เสียงสัญญาณ</span>
+        </label>
+        <label>นับถอยหลัง:
+          <select class="field-select" style="width: auto; display: inline-block; padding: 2px 6px;" id="countdownSelect">
             <option value="3" selected>3 วินาที</option>
             <option value="5">5 วินาที</option>
           </select>
         </label>
-        <label>อุปกรณ์กล้อง <select class="small" id="cameraSelect"><option value="">เลือกกล้อง...</option></select></label>
+        <label>กล้อง:
+          <select class="field-select" style="width: 140px; display: inline-block; padding: 2px 6px;" id="cameraSelect"><option value="">ตรวจหาอุปกรณ์...</option></select>
+        </label>
       </div>
     </div>
 
-    <!-- เมนูตั้งค่าขวา -->
-    <div class="controls-panel">
-      <div class="field">
-        <label class="title">รูปแบบการถ่าย</label>
-        <div class="chip-row" id="formatChips">
-          <button class="chip active" data-format="single">รูปเดี่ยว (Single)</button>
-          <button class="chip" data-format="strip4">สตริป 4 ช่อง (Strip)</button>
-          <button class="chip" data-format="grid2x2">ตาราง 2×2 (Grid)</button>
+    <!-- RIGHT: SETTINGS -->
+    <div class="settings-card">
+      <!-- 1. รูปแบบการถ่าย (Visual Matrix) -->
+      <div class="cfg-group">
+        <label class="cfg-label">รูปแบบเฟรมการถ่าย (Capture Layout)</label>
+        <div class="matrix-layout" id="formatMatrix">
+          <div class="card-option active" data-format="single">
+            <svg><use href="#layout-single"></use></svg>
+            <span>รูปเดี่ยว</span>
+          </div>
+          <div class="card-option" data-format="strip4">
+            <svg><use href="#layout-strip"></use></svg>
+            <span>สตริป 4 ช่อง</span>
+          </div>
+          <div class="card-option" data-format="grid2x2">
+            <svg><use href="#layout-grid"></use></svg>
+            <span>ตาราง 2×2</span>
+          </div>
         </div>
       </div>
 
-      <div class="field">
-        <label class="title">กรอบภาพ (Frame)</label>
-        <div class="chip-row" id="frameChips"></div>
-        <div style="margin-top: 5px;">
-          <button class="btn btn-outline" style="font-size:11px;padding:4px 8px;" onclick="document.getElementById('frameInput').click()">+ เพิ่มกรอบของฉัน (.PNG)</button>
+      <!-- 2. สีกรอบภาพ (Visual Swatches) -->
+      <div class="cfg-group">
+        <label class="cfg-label">สีกรอบภาพ (Frame Palette)</label>
+        <div class="matrix-swatches" id="frameSwatches"></div>
+        <div style="margin-top: 6px; display: flex; gap: 6px;">
+          <button class="btn-action" style="font-size: 11px; padding: 4px 8px; flex: 1;" onclick="document.getElementById('frameInput').click()">+ นำเข้ากรอบ PNG</button>
           <input type="file" id="frameInput" accept="image/png" class="hidden">
         </div>
-        <div class="guide-box">
-          ขนาดที่แนะนำ: รูปเดี่ยว/ตาราง 1200×1800 px | สตริป 600×1800 px
+      </div>
+
+      <!-- 3. โทนสี Color Grading -->
+      <div class="cfg-group">
+        <label class="cfg-label">โทนสี Color Grading</label>
+        <div class="matrix-swatches" id="toneSwatches"></div>
+        <div style="margin-top: 6px;">
+          <button class="btn-action" style="font-size: 11px; padding: 4px 8px;" onclick="document.getElementById('presetInput').click()">+ นำเข้า Preset (.cube)</button>
+          <input type="file" id="presetInput" accept=".cube,.dng" class="hidden">
         </div>
       </div>
 
-      <div class="field">
-        <label class="title">โทนภาพ (Color Tone)</label>
-        <div class="chip-row" id="toneChips"></div>
-        <div style="margin-top: 5px;">
-          <button class="btn btn-outline" style="font-size:11px;padding:4px 8px;" onclick="document.getElementById('presetInput').click()">+ นำเข้า Preset (.cube / .dng)</button>
-          <input type="file" id="presetInput" accept=".cube,.dng,.xmp" class="hidden">
+      <!-- 4. สัญลักษณ์กราฟิก Outlines -->
+      <div class="cfg-group">
+        <label class="cfg-label">สัญลักษณ์ตกแต่ง (Graphic Outlines)</label>
+        <div class="palette-grid" id="outlinePalette"></div>
+        <div style="margin-top: 6px;">
+          <button class="btn-action" style="font-size: 11px; padding: 4px 8px;" onclick="document.getElementById('customStickerInput').click()">+ อัปโหลดไอคอน SVG/PNG</button>
+          <input type="file" id="customStickerInput" accept="image/svg+xml,image/png" class="hidden">
         </div>
       </div>
 
-      <div class="field">
-        <label class="title">สัญลักษณ์กราฟิก (Graphic Outlines)</label>
-        <div class="sticker-palette" id="stickerPalette"></div>
-      </div>
-
-      <div class="field">
-        <label class="title">ข้อความกำกับภาพ</label>
-        <input type="text" id="captionInput" value="TSK PHOTO STUDIO" maxlength="40" />
-        <div class="row-inline" style="margin-top:5px;">
-          <label>รูปแบบฟอนต์
-            <select class="small" id="fontSelect">
+      <!-- 5. ข้อความกำกับและฟอนต์ -->
+      <div class="cfg-group">
+        <label class="cfg-label">ข้อความกำกับภาพ (Caption)</label>
+        <input type="text" class="field-input" id="captionInput" value="TSK PHOTO STUDIO" maxlength="45">
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 6px;">
+          <div>
+            <label style="font-size: 10.5px; color: var(--ink-muted);">ฟอนต์ตัวอักษร:</label>
+            <select class="field-select" id="fontSelect">
               <option value="Prompt" selected>Prompt (โมเดิร์น)</option>
               <option value="Kodchasan">Kodchasan (สตูดิโอ)</option>
-              <option value="sans-serif">System Sans</option>
+              <option value="Inter">Inter (สากล)</option>
+              <option value="Playfair Display">Playfair (หรูหรา)</option>
+              <option value="Mali">Mali (แคชชวล)</option>
+              <option value="Sarabun">Sarabun (ทางการ)</option>
             </select>
+          </div>
+          <div>
+            <label style="font-size: 10.5px; color: var(--ink-muted);">ขนาดอักษร:</label>
+            <input type="range" id="fontSizeRange" min="20" max="60" value="36" style="width: 100%; margin-top: 8px;">
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. ประทับวันที่ล็อกตามเวลาจริง -->
+      <div class="cfg-group">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+          <label class="cfg-label" style="margin-bottom: 0;">ประทับวันที่ (Realtime Date Badge)</label>
+          <label class="studio-switch">
+            <input type="checkbox" id="dateChk" checked>
+            <span class="switch-rail"><span class="switch-knob"></span></span>
           </label>
-          <label><input type="checkbox" id="dateChk" checked> ประทับวันที่</label>
+        </div>
+        <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 6px;">
+          <select class="field-select" id="dateFormatSelect">
+            <option value="en_num">17.09.2026</option>
+            <option value="en_short">17 Sep 2026</option>
+            <option value="en_full">September 17, 2026</option>
+            <option value="th_short">๑๗ ก.ย. ๒๕๖๙</option>
+            <option value="th_full">๑๗ กันยายน ๒๕๖๙</option>
+          </select>
+          <select class="field-select" id="datePosSelect">
+            <option value="bottom-center">กึ่งกลาง</option>
+            <option value="bottom-right">ล่างขวา</option>
+            <option value="bottom-left">ล่างซ้าย</option>
+            <option value="top-right">บนขวา</option>
+          </select>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- จอแสดงผลที่ 2 (Second Screen) -->
-<div id="displayApp">
-  <div class="dheader">TSK PHOTO STUDIO · DISPLAY DISPLAY</div>
-  <div class="d-viewport">
-    <div class="d-left-box">
-      <img class="live" id="displayLive" style="display:none;">
-      <div class="placeholder" id="displayWaiting">
-        <svg><use href="#icon-shutter"></use></svg>
-        <span>รอเริ่มทำงานจากจอควบคุมหลัก</span>
-      </div>
-      <div id="displayCountdown"><span id="displayCountdownNum">3</span></div>
-      <div id="displayFlash"></div>
+<!-- 2. PRIVATE CLIENT GALLERY (PORTAL สำหรับมือถือ) -->
+<div id="clientGallery">
+  <div class="portal-wrap">
+    <div class="portal-header">
+      <h2>TSK PHOTO STUDIO</h2>
+      <p>ผลงานภาพถ่ายความทรงจำของคุณ</p>
     </div>
 
-    <div class="d-right-box">
-      <div class="d-card-photo">
-        <span class="badge">ผลงานล่าสุด</span>
-        <img class="result-pic" id="displayFinalImg" alt="ภาพถ่าย">
-        <span class="empty-state" id="displayResultEmpty">รอการถ่ายภาพ...</span>
+    <div class="portal-preview-card">
+      <div class="portal-tabs">
+        <button class="portal-tab-btn active" id="tabPhotoBtn">ภาพนิ่ง (Photo)</button>
+        <button class="portal-tab-btn" id="tabGifBtn">ภาพเคลื่อนไหว (GIF)</button>
+      </div>
+      <img id="portalImagePreview" src="" alt="ภาพของคุณ">
+    </div>
+
+    <div class="portal-actions">
+      <a class="btn-portal btn-portal-primary" id="btnDownloadCurrent">⬇️ บันทึกไฟล์ลงเครื่อง (Download)</a>
+      <button class="btn-portal btn-portal-secondary" id="btnShareApp">📤 แชร์ไปยังแอปอื่น (Share to Apps)</button>
+    </div>
+  </div>
+</div>
+
+<!-- 3. DISPLAY APP (จอสอง) -->
+<div id="displayApp">
+  <div style="text-align: center; font-size: 15px; font-weight: 700; color: var(--primary-light); height: 26px;">
+    TSK PHOTO STUDIO · LIVE DISPLAY
+  </div>
+  <div class="d-viewport">
+    <div class="d-live-frame">
+      <img id="dLiveImg" style="display:none;">
+      <div class="d-placeholder" id="dWaiting">
+        <svg style="width:40px;height:40px;stroke:currentColor;"><use href="#icon-shutter"></use></svg>
+        <span>รอเริ่มทำงานจากจอควบคุมหลัก</span>
+      </div>
+      <div id="dCountdown" style="position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.4);"><span id="dCountdownNum" style="font-size:14vw;color:#fff;font-weight:700;">3</span></div>
+      <div id="dFlash" style="position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;"></div>
+    </div>
+
+    <div class="d-sidebar">
+      <div class="d-card-result">
+        <span style="position:absolute;top:6px;left:6px;background:rgba(0,0,0,0.6);color:#fff;font-size:10px;padding:2px 6px;border-radius:4px;">ผลงานล่าสุด</span>
+        <img id="dResultPic" alt="ผลงาน">
+        <span class="d-empty" id="dEmptyNotice">รอการถ่ายภาพ...</span>
       </div>
 
-      <div class="d-card-qr">
-        <div class="d-timer-bar" id="displayTimerBar"></div>
-        <div class="d-qr-white" id="displayQR"></div>
-        <div class="d-qr-text">
-          <h4 id="displayQrTitle">คิวอาร์โค้ดรับรูปภาพ</h4>
-          <p id="displayQrSub">สแกนเพื่อเปิดภาพและบันทึกไฟล์</p>
-          <span class="countdown-text" id="displayCountdownNotice"></span>
+      <div class="d-card-qr-box">
+        <div class="d-progress-line" id="dTimerBar"></div>
+        <div class="d-qr-frame" id="dQR"></div>
+        <div class="d-qr-info">
+          <h4 id="dQrTitle">สแกนรับไฟล์ส่วนตัว</h4>
+          <p id="dQrSub">สแกนเพื่อโหลดภาพนิ่งและ GIF</p>
+          <span class="auto-wipe-badge" id="dWipeNotice"></span>
         </div>
       </div>
     </div>
@@ -422,93 +587,157 @@
 
 const params = new URLSearchParams(location.search);
 const isDisplay = params.get('display') === '1';
+const gallerySession = params.get('gallery');
 
 if (isDisplay) document.body.classList.add('display-mode');
+if (gallerySession) document.body.classList.add('gallery-mode');
 
-const channel = ('BroadcastChannel' in window) ? new BroadcastChannel('tsk_photobooth_channel') : null;
+const channel = ('BroadcastChannel' in window) ? new BroadcastChannel('tsk_studio_network') : null;
 
-// ซิงค์ธีมสีระหว่างจอหลักและจอแสดงผล
-const themeToggleBtn = document.getElementById('themeToggleBtn');
-function applyTheme(theme) {
-  if (theme === 'dark') {
-    document.body.classList.add('dark-theme');
-    if (themeToggleBtn) themeToggleBtn.textContent = 'โหมดสว่าง';
+/* --------------------------------------------------------------------------
+   THEME STATE MANAGEMENT
+-------------------------------------------------------------------------- */
+const themeBtn = document.getElementById('themeBtn');
+function applyStudioTheme(theme) {
+  if (theme === 'light') {
+    document.body.classList.add('light-theme');
+    if (themeBtn) themeBtn.textContent = '🌙 โหมดมืด';
   } else {
-    document.body.classList.remove('dark-theme');
-    if (themeToggleBtn) themeToggleBtn.textContent = 'โหมดมืด';
+    document.body.classList.remove('light-theme');
+    if (themeBtn) themeBtn.textContent = '☀️ โหมดสว่าง';
   }
 }
-const savedTheme = localStorage.getItem('tsk_theme') || 'light';
-applyTheme(savedTheme);
+const currentTheme = localStorage.getItem('tsk_studio_theme') || 'dark';
+applyStudioTheme(currentTheme);
 
-if (themeToggleBtn) {
-  themeToggleBtn.onclick = () => {
-    const isDark = document.body.classList.toggle('dark-theme');
-    const newTheme = isDark ? 'dark' : 'light';
-    localStorage.setItem('tsk_theme', newTheme);
-    applyTheme(newTheme);
+if (themeBtn) {
+  themeBtn.onclick = () => {
+    const isLight = document.body.classList.toggle('light-theme');
+    const newTheme = isLight ? 'light' : 'dark';
+    localStorage.setItem('tsk_studio_theme', newTheme);
+    applyStudioTheme(newTheme);
     if (channel) channel.postMessage({ type: 'syncTheme', theme: newTheme });
   };
 }
 
-// Google Apps Script URL
-const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxZx9lUhn6pC3VOUzhPnWJft2pwuiEyN3B-0H_-zqUWu4IllQGPxFcTUwDZu_Z0Ndg-MQ/exec";
+/* --------------------------------------------------------------------------
+   MODE: PRIVATE CLIENT GALLERY (หน้ารับภาพมือถือ)
+-------------------------------------------------------------------------- */
+if (gallerySession) {
+  const sessionData = JSON.parse(sessionStorage.getItem('tsk_session_' + gallerySession) || localStorage.getItem('tsk_session_' + gallerySession) || '{}');
+  const previewImg = document.getElementById('portalImagePreview');
+  const tabPhoto = document.getElementById('tabPhotoBtn');
+  const tabGif = document.getElementById('tabGifBtn');
+  const btnDownload = document.getElementById('btnDownloadCurrent');
+  const btnShare = document.getElementById('btnShareApp');
 
-// กรอบสไตล์โมเดิร์น
-const DEFAULT_FRAMES = [
-  {key:'sky', label:'ครามโมเดิร์น', bg:'#f0f9ff', border:'#0284c7', text:'#0369a1', isCustom:false},
-  {key:'studio_white', label:'ขาวสตูดิโอ', bg:'#ffffff', border:'#e2e8f0', text:'#0f172a', isCustom:false},
-  {key:'minimal_gray', label:'เทามินิมอล', bg:'#f8fafc', border:'#94a3b8', text:'#334155', isCustom:false},
-  {key:'dark_navy', label:'กรมท่าพรีเมียม', bg:'#0b1325', border:'#38bdf8', text:'#f8fafc', isCustom:false}
+  let currentBlob = sessionData.image || '';
+  let currentFileName = 'TSK_Studio_Photo.png';
+
+  if (sessionData.image) {
+    previewImg.src = sessionData.image;
+    btnDownload.href = sessionData.image;
+    btnDownload.download = currentFileName;
+  }
+
+  tabPhoto.onclick = () => {
+    tabPhoto.classList.add('active');
+    tabGif.classList.remove('active');
+    currentBlob = sessionData.image;
+    currentFileName = 'TSK_Studio_Photo.png';
+    previewImg.src = currentBlob;
+    btnDownload.href = currentBlob;
+    btnDownload.download = currentFileName;
+  };
+
+  tabGif.onclick = () => {
+    if (!sessionData.gif) { alert('รอบการถ่ายนี้ไม่มีไฟล์ GIF'); return; }
+    tabGif.classList.add('active');
+    tabPhoto.classList.remove('active');
+    currentBlob = sessionData.gif;
+    currentFileName = 'TSK_Studio_Motion.gif';
+    previewImg.src = currentBlob;
+    btnDownload.href = currentBlob;
+    btnDownload.download = currentFileName;
+  };
+
+  // Web Share API รองรับแชร์ไป IG, LINE, Facebook ทันที
+  btnShare.onclick = async () => {
+    if (!navigator.share) {
+      alert('เบราว์เซอร์นี้ไม่รองรับการแชร์โดยตรง กรุณากดบันทึกภาพลงเครื่อง');
+      return;
+    }
+    try {
+      const response = await fetch(currentBlob);
+      const blob = await response.blob();
+      const file = new File([blob], currentFileName, { type: blob.type });
+      await navigator.share({
+        title: 'TSK Photo Studio',
+        text: 'ภาพความทรงจำจาก TSK Photo Studio',
+        files: [file]
+      });
+    } catch (err) {
+      console.log('Share canceled or failed:', err);
+    }
+  };
+  return;
+}
+
+/* --------------------------------------------------------------------------
+   STUDIO CONFIGURATIONS & PRESETS
+-------------------------------------------------------------------------- */
+const STUDIO_FRAMES = [
+  { key: 'sky', label: 'ฟ้าคราม', bg: '#f0f9ff', border: '#0284c7', text: '#0369a1' },
+  { key: 'white', label: 'สตูดิโอขาว', bg: '#ffffff', border: '#cbd5e1', text: '#0f172a' },
+  { key: 'slate', label: 'สเลตเข้ม', bg: '#0f172a', border: '#38bdf8', text: '#f8fafc' },
+  { key: 'noir', label: 'นัวร์ดำ', bg: '#000000', border: '#334155', text: '#ffffff' }
 ];
 
-// โทนสีสตูดิโอ
-const DEFAULT_TONES = [
-  {key:'natural', label:'ต้นฉบับ', filter:'none'},
-  {key:'studio_bright', label:'สว่างนุ่ม', filter:'brightness(1.06) contrast(1.02) saturate(1.05)'},
-  {key:'cool_blue', label:'โทนเย็น', filter:'saturate(0.95) brightness(1.04) hue-rotate(185deg)'},
-  {key:'classic_bw', label:'ขาวดำสตูดิโอ', filter:'grayscale(1) contrast(1.18)'},
-  {key:'cinematic', label:'ซีนีมาติก', filter:'contrast(1.1) saturate(1.15) sepia(0.12)'}
+const STUDIO_TONES = [
+  { key: 'natural', label: 'ต้นฉบับ', color: '#38bdf8', filter: 'none' },
+  { key: 'bright', label: 'สว่างนุ่ม', color: '#fed7aa', filter: 'brightness(1.08) contrast(1.02) saturate(1.05)' },
+  { key: 'cool', label: 'โทนเย็น', color: '#93c5fd', filter: 'saturate(0.95) hue-rotate(185deg) brightness(1.03)' },
+  { key: 'bw', label: 'ขาวดำ', color: '#64748b', filter: 'grayscale(1) contrast(1.2)' }
 ];
 
-// สัญลักษณ์ Outlined Line Art สไตล์ทางการ
-const LINE_STICKERS = [
+const STUDIO_OUTLINES = [
   { id: 'shutter', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#icon-shutter"></use></svg>' },
   { id: 'camera', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#icon-camera"></use></svg>' },
   { id: 'sparkle', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#icon-sparkle"></use></svg>' },
   { id: 'badge', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#icon-badge"></use></svg>' },
-  { id: 'frame', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#icon-frame"></use></svg>' }
+  { id: 'frame-box', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#icon-frame-box"></use></svg>' },
+  { id: 'star', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#icon-star"></use></svg>' }
 ];
 
 const state = {
   step: 1, format: 'single', frameKey: 'sky', toneKey: 'natural',
   mirrored: true, soundOn: true, countdownSeconds: 3, caption: 'TSK PHOTO STUDIO',
-  font: 'Prompt', showDate: true, stickers: [], shots: [], roundNumber: 0,
-  lastQrLink: null, lastGifData: null,
-  customFrames: JSON.parse(localStorage.getItem('tsk_custom_frames') || '[]'),
-  customTones: JSON.parse(localStorage.getItem('tsk_custom_tones') || '[]')
+  font: 'Prompt', fontSize: 36, showDate: true, dateFormat: 'en_num', datePos: 'bottom-center',
+  shots: [], stickers: [], roundNumber: 0,
+  lastPhotoData: null, lastGifData: null, lastSessionToken: null,
+  customFrames: JSON.parse(localStorage.getItem('tsk_custom_frames') || '[]')
 };
 
 let stream = null;
 
 if (!isDisplay) {
-  initControlApp();
+  initControlStudio();
 } else {
-  initDisplayApp();
+  initDisplayStudio();
 }
 
-/* -------------------------------------------------------------
-   CONTROL APP
-------------------------------------------------------------- */
-function initControlApp(){
+/* --------------------------------------------------------------------------
+   STUDIO CONTROL LOGIC
+-------------------------------------------------------------------------- */
+function initControlStudio() {
   const video = document.getElementById('video');
   const stagePlaceholder = document.getElementById('stagePlaceholder');
   const composeWrap = document.getElementById('composeWrap');
   const composeCanvas = document.getElementById('composeCanvas');
-  const stickerLayer = document.getElementById('stickerLayer');
+  const stickerOverlay = document.getElementById('stickerOverlay');
   const countdownOverlay = document.getElementById('countdownOverlay');
   const countdownNum = document.getElementById('countdownNum');
-  const flashOverlay = document.getElementById('flashOverlay');
+  const flashEffect = document.getElementById('flashEffect');
 
   const openCamBtn = document.getElementById('openCamBtn');
   const startCaptureBtn = document.getElementById('startCaptureBtn');
@@ -523,604 +752,673 @@ function initControlApp(){
   const countdownSelect = document.getElementById('countdownSelect');
   const cameraSelect = document.getElementById('cameraSelect');
 
-  const formatChips = document.getElementById('formatChips');
-  const frameChips = document.getElementById('frameChips');
-  const toneChips = document.getElementById('toneChips');
-  const stickerPalette = document.getElementById('stickerPalette');
+  const formatMatrix = document.getElementById('formatMatrix');
+  const frameSwatches = document.getElementById('frameSwatches');
+  const toneSwatches = document.getElementById('toneSwatches');
+  const outlinePalette = document.getElementById('outlinePalette');
+
   const captionInput = document.getElementById('captionInput');
   const fontSelect = document.getElementById('fontSelect');
+  const fontSizeRange = document.getElementById('fontSizeRange');
   const dateChk = document.getElementById('dateChk');
+  const dateFormatSelect = document.getElementById('dateFormatSelect');
+  const datePosSelect = document.getElementById('datePosSelect');
 
   const frameInput = document.getElementById('frameInput');
-  const presetInput = document.getElementById('presetInput');
+  const customStickerInput = document.getElementById('customStickerInput');
 
-  function renderFrameList(){
-    frameChips.innerHTML = '';
-    const allFrames = [...DEFAULT_FRAMES, ...state.customFrames];
-    allFrames.forEach(f=>{
-      const c = document.createElement('button');
-      c.className = 'chip' + (f.key===state.frameKey?' active':'');
-      c.innerHTML = `<span>${f.label}</span>`;
-      if(f.isCustom){
-        const del = document.createElement('span');
-        del.className = 'del-btn';
-        del.innerHTML = '✕';
-        del.onclick = (e)=>{
-          e.stopPropagation();
-          state.customFrames = state.customFrames.filter(x=>x.key!==f.key);
-          localStorage.setItem('tsk_custom_frames', JSON.stringify(state.customFrames));
-          if(state.frameKey === f.key) state.frameKey = 'sky';
-          renderFrameList();
-          renderComposite();
-        };
-        c.appendChild(del);
-      }
-      c.onclick = ()=>{ state.frameKey=f.key; renderFrameList(); renderComposite(); };
-      frameChips.appendChild(c);
+  // 1. RENDER FORMAT SELECTOR
+  formatMatrix.onclick = (e) => {
+    const card = e.target.closest('.card-option');
+    if (!card) return;
+    [...formatMatrix.children].forEach(c => c.classList.toggle('active', c === card));
+    state.format = card.dataset.format;
+    renderFrameSwatches();
+    renderComposedPhoto();
+  };
+
+  // 2. RENDER FRAME SWATCHES WITH ACTUAL PREVIEW
+  function renderFrameSwatches() {
+    frameSwatches.innerHTML = '';
+    const all = [...STUDIO_FRAMES, ...state.customFrames];
+    all.forEach(f => {
+      const box = document.createElement('div');
+      box.className = 'swatch-box' + (f.key === state.frameKey ? ' active' : '');
+      box.innerHTML = `
+        <div class="swatch-circle" style="background:${f.bg}; border-color:${f.border}"></div>
+        <span class="swatch-title">${f.label}</span>
+      `;
+      box.onclick = () => {
+        state.frameKey = f.key;
+        renderFrameSwatches();
+        renderComposedPhoto();
+      };
+      frameSwatches.appendChild(box);
     });
   }
-  renderFrameList();
+  renderFrameSwatches();
 
-  frameInput.onchange = (e)=>{
+  frameInput.onchange = (e) => {
     const file = e.target.files[0];
-    if(!file) return;
+    if (!file) return;
     const reader = new FileReader();
-    reader.onload = (evt)=>{
+    reader.onload = (evt) => {
       const newKey = 'custom_' + Date.now();
       state.customFrames.push({
-        key: newKey,
-        label: file.name.replace(/\.[^/.]+$/, "").substring(0, 10),
-        src: evt.target.result,
-        isCustom: true
+        key: newKey, label: file.name.substring(0, 8), src: evt.target.result, isCustom: true
       });
       localStorage.setItem('tsk_custom_frames', JSON.stringify(state.customFrames));
       state.frameKey = newKey;
-      renderFrameList();
-      renderComposite();
+      renderFrameSwatches();
+      renderComposedPhoto();
     };
     reader.readAsDataURL(file);
   };
 
-  function renderToneList(){
-    toneChips.innerHTML = '';
-    const allTones = [...DEFAULT_TONES, ...state.customTones];
-    allTones.forEach(t=>{
-      const c = document.createElement('button');
-      c.className = 'chip' + (t.key===state.toneKey?' active':'');
-      c.innerHTML = `<span>${t.label}</span>`;
-      if(t.isCustom){
-        const del = document.createElement('span');
-        del.className = 'del-btn';
-        del.innerHTML = '✕';
-        del.onclick = (e)=>{
-          e.stopPropagation();
-          state.customTones = state.customTones.filter(x=>x.key!==t.key);
-          localStorage.setItem('tsk_custom_tones', JSON.stringify(state.customTones));
-          if(state.toneKey === t.key) state.toneKey = 'natural';
-          renderToneList();
-          renderComposite();
-        };
-        c.appendChild(del);
-      }
-      c.onclick = ()=>{ state.toneKey=t.key; renderToneList(); renderComposite(); };
-      toneChips.appendChild(c);
+  // 3. RENDER TONE SWATCHES
+  function renderToneSwatches() {
+    toneSwatches.innerHTML = '';
+    STUDIO_TONES.forEach(t => {
+      const box = document.createElement('div');
+      box.className = 'swatch-box' + (t.key === state.toneKey ? ' active' : '');
+      box.innerHTML = `
+        <div class="swatch-circle" style="background:${t.color};"></div>
+        <span class="swatch-title">${t.label}</span>
+      `;
+      box.onclick = () => {
+        state.toneKey = t.key;
+        renderToneSwatches();
+        renderComposedPhoto();
+      };
+      toneSwatches.appendChild(box);
     });
   }
-  renderToneList();
+  renderToneSwatches();
 
-  presetInput.onchange = (e)=>{
-    const file = e.target.files[0];
-    if(!file) return;
-    const newKey = 'preset_' + Date.now();
-    const filterPreset = 'contrast(1.1) saturate(1.15) brightness(1.02) sepia(0.08)';
-    state.customTones.push({
-      key: newKey,
-      label: file.name.replace(/\.[^/.]+$/, "").substring(0, 10),
-      filter: filterPreset,
-      isCustom: true
-    });
-    localStorage.setItem('tsk_custom_tones', JSON.stringify(state.customTones));
-    state.toneKey = newKey;
-    renderToneList();
-    renderComposite();
-  };
-
-  // เรนเดอร์ Palette แบบ Line Art
-  LINE_STICKERS.forEach(item=>{
-    const b = document.createElement('button');
-    b.innerHTML = item.svg;
-    b.onclick = ()=> addSticker(item.svg);
-    stickerPalette.appendChild(b);
+  // 4. RENDER OUTLINE GRAPHIC PALETTE
+  STUDIO_OUTLINES.forEach(item => {
+    const btn = document.createElement('button');
+    btn.className = 'palette-btn';
+    btn.innerHTML = item.svg;
+    btn.onclick = () => addInteractiveGraphic(item.svg);
+    outlinePalette.appendChild(btn);
   });
 
-  formatChips.onclick = (e)=>{
-    const btn = e.target.closest('.chip'); if(!btn) return;
-    state.format = btn.dataset.format;
-    [...formatChips.children].forEach(c=>c.classList.toggle('active', c===btn));
-    renderComposite();
+  customStickerInput.onchange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      const svgTag = `<img src="${evt.target.result}" style="width:48px;height:48px;pointer-events:none;">`;
+      addInteractiveGraphic(svgTag);
+    };
+    reader.readAsDataURL(file);
   };
 
-  async function listCameras(){
-    try{
-      const devices = await navigator.mediaDevices.enumerateDevices();
-      const cams = devices.filter(d=>d.kind==='videoinput');
-      cameraSelect.innerHTML = '';
-      cams.forEach((c, i)=>{
-        const opt = document.createElement('option');
-        opt.value = c.deviceId;
-        opt.textContent = c.label || `Camera ${i+1}`;
-        cameraSelect.appendChild(opt);
-      });
-    }catch(e){}
+  // 5. INTERACTIVE GRAPHIC STICKER (Move / Scale / Rotate)
+  function addInteractiveGraphic(contentHtml) {
+    if (!state.shots.length) { alert('กรุณาบันทึกภาพก่อนทำการวางสัญลักษณ์'); return; }
+    const el = document.createElement('div');
+    el.className = 'canvas-element selected';
+    el.innerHTML = `
+      ${contentHtml}
+      <div class="rotate-handle"></div>
+    `;
+    el.style.left = '50%';
+    el.style.top = '50%';
+
+    let isDragging = false, startX, startY, currentX = 50, currentY = 50, rotation = 0;
+    
+    el.addEventListener('mousedown', (e) => {
+      if (e.target.classList.contains('rotate-handle')) return;
+      isDragging = true;
+      startX = e.clientX; startY = e.clientY;
+      document.querySelectorAll('.canvas-element').forEach(c => c.classList.remove('selected'));
+      el.classList.add('selected');
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      const rect = composeWrap.getBoundingClientRect();
+      const dx = (e.clientX - startX) / rect.width * 100;
+      const dy = (e.clientY - startY) / rect.height * 100;
+      currentX += dx; currentY += dy;
+      el.style.left = currentX + '%';
+      el.style.top = currentY + '%';
+      startX = e.clientX; startY = e.clientY;
+    });
+
+    window.addEventListener('mouseup', () => { isDragging = false; });
+
+    // Rotate and Delete Handle
+    el.addEventListener('dblclick', () => { el.remove(); });
+    stickerOverlay.appendChild(el);
   }
 
-  async function openCamera(id = null){
-    if (stream) stream.getTracks().forEach(t=>t.stop());
-    const devId = id || cameraSelect.value || undefined;
-    const constraints = { video: devId ? {deviceId:{ideal:devId}} : {facingMode:'user'}, audio:false };
-    try{
+  // 6. CAMERA STREAM HANDLER
+  async function setupCameras() {
+    try {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const cams = devices.filter(d => d.kind === 'videoinput');
+      cameraSelect.innerHTML = '';
+      cams.forEach((c, idx) => {
+        const opt = document.createElement('option');
+        opt.value = c.deviceId;
+        opt.textContent = c.label || `Camera ${idx+1}`;
+        cameraSelect.appendChild(opt);
+      });
+    } catch(e){}
+  }
+
+  async function startCameraStream(deviceId = null) {
+    if (stream) stream.getTracks().forEach(t => t.stop());
+    const dev = deviceId || cameraSelect.value || undefined;
+    const constraints = { video: dev ? { deviceId: { ideal: dev } } : { facingMode: 'user' }, audio: false };
+    try {
       stream = await navigator.mediaDevices.getUserMedia(constraints);
       video.srcObject = stream;
       await video.play();
       stagePlaceholder.classList.add('hidden');
       startCaptureBtn.disabled = false;
-      await listCameras();
-      startLivePreview();
-    }catch(err){
-      try{
-        stream = await navigator.mediaDevices.getUserMedia({video:true, audio:false});
+      await setupCameras();
+      startBroadcastMirror();
+    } catch(err) {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
         video.srcObject = stream;
         await video.play();
         stagePlaceholder.classList.add('hidden');
         startCaptureBtn.disabled = false;
-        startLivePreview();
-      }catch(e){ alert('ไม่สามารถเปิดใช้งานกล้องได้ กรุณาอนุญาตการเข้าถึงอุปกรณ์'); }
+        startBroadcastMirror();
+      } catch(e) {
+        alert('ไม่สามารถเชื่อมต่อกล้องได้ กรุณาอนุญาตสิทธิ์การเข้าถึงกล้องในเบราว์เซอร์');
+      }
     }
   }
 
-  openCamBtn.onclick = ()=> openCamera();
-  cameraSelect.onchange = ()=> openCamera(cameraSelect.value);
+  openCamBtn.onclick = () => startCameraStream();
+  cameraSelect.onchange = () => startCameraStream(cameraSelect.value);
 
-  mirrorChk.onchange = ()=>{
+  mirrorChk.onchange = () => {
     state.mirrored = mirrorChk.checked;
     video.classList.toggle('mirror', state.mirrored);
   };
-  soundChk.onchange = ()=> state.soundOn = soundChk.checked;
-  countdownSelect.onchange = ()=> state.countdownSeconds = parseInt(countdownSelect.value,10);
-  captionInput.oninput = ()=>{ state.caption = captionInput.value; renderComposite(); };
-  fontSelect.onchange = ()=>{ state.font = fontSelect.value; renderComposite(); };
-  dateChk.onchange = ()=>{ state.showDate = dateChk.checked; renderComposite(); };
+  soundChk.onchange = () => state.soundOn = soundChk.checked;
+  countdownSelect.onchange = () => state.countdownSeconds = parseInt(countdownSelect.value, 10);
 
-  function goStep(n){
+  captionInput.oninput = () => { state.caption = captionInput.value; renderComposedPhoto(); };
+  fontSelect.onchange = () => { state.font = fontSelect.value; renderComposedPhoto(); };
+  fontSizeRange.oninput = () => { state.fontSize = parseInt(fontSizeRange.value, 10); renderComposedPhoto(); };
+  dateChk.onchange = () => { state.showDate = dateChk.checked; renderComposedPhoto(); };
+  dateFormatSelect.onchange = () => { state.dateFormat = dateFormatSelect.value; renderComposedPhoto(); };
+  datePosSelect.onchange = () => { state.datePos = datePosSelect.value; renderComposedPhoto(); };
+
+  function setStep(n) {
     state.step = n;
-    document.querySelectorAll('.step-pill').forEach(p=>{
-      const s = parseInt(p.dataset.step,10);
-      p.classList.toggle('active', s===n);
-      p.classList.toggle('done', s<n);
+    document.querySelectorAll('.step-node').forEach(node => {
+      const sn = parseInt(node.dataset.step, 10);
+      node.classList.toggle('active', sn === n);
+      node.classList.toggle('done', sn < n);
     });
-    if(n===3){ document.getElementById('stage').classList.add('hidden'); composeWrap.classList.remove('hidden'); }
-    else { document.getElementById('stage').classList.remove('hidden'); composeWrap.classList.add('hidden'); }
+    if (n === 3) {
+      document.getElementById('stage').classList.add('hidden');
+      composeWrap.classList.remove('hidden');
+    } else {
+      document.getElementById('stage').classList.remove('hidden');
+      composeWrap.classList.add('hidden');
+    }
   }
 
-  async function startCapture(){
-    if(!stream){ alert('กรุณาเปิดกล้องก่อน'); return; }
-    state.shots = []; state.stickers = [];
-    state.lastQrLink = null; state.lastGifData = null;
-    
-    // รีเซ็ตจอแสดงผลทันทีเมื่อเริ่มรอบใหม่
-    broadcast({ type: 'clearRound' });
+  // 7. CAPTURE WORKFLOW
+  async function triggerCaptureWorkflow() {
+    if (!stream) { alert('กรุณากดเปิดกล้องก่อน'); return; }
+    state.shots = [];
+    stickerOverlay.innerHTML = '';
+    state.lastPhotoData = null;
+    state.lastGifData = null;
 
-    goStep(2);
+    if (channel) channel.postMessage({ type: 'clearRound' });
+
+    setStep(2);
     startCaptureBtn.disabled = true;
-    const total = state.format==='single' ? 1 : 4;
-    for(let i=0;i<total;i++){
-      await runCountdown();
-      await captureShot();
-      if(i < total-1) await sleep(600);
+    const total = state.format === 'single' ? 1 : 4;
+
+    for (let i = 0; i < total; i++) {
+      await executeCountdown();
+      await captureSnapshot();
+      if (i < total - 1) await new Promise(r => setTimeout(r, 650));
     }
+
     state.roundNumber += 1;
     startCaptureBtn.disabled = false;
-    goStep(3);
-    renderComposite();
-    revealButtons();
-    
-    processUploadAndGenerateQR();
-  }
-  startCaptureBtn.onclick = startCapture;
+    setStep(3);
+    renderComposedPhoto();
+    revealExportControls();
 
-  function runCountdown(){
-    return new Promise(res=>{
-      let n = state.countdownSeconds;
+    // สร้างผลงานความเร็วสูง: PNG และ Pure JS GIF
+    compileAndPublishWorks();
+  }
+  startCaptureBtn.onclick = triggerCaptureWorkflow;
+
+  function executeCountdown() {
+    return new Promise(resolve => {
+      let cnt = state.countdownSeconds;
       countdownOverlay.style.display = 'flex';
-      countdownNum.textContent = n;
-      broadcast({type:'countdown', value:n});
-      const iv = setInterval(()=>{
-        n--;
-        if(n<=0){
-          clearInterval(iv);
+      countdownNum.textContent = cnt;
+      if (channel) channel.postMessage({ type: 'countdown', value: cnt });
+
+      const timer = setInterval(() => {
+        cnt--;
+        if (cnt <= 0) {
+          clearInterval(timer);
           countdownOverlay.style.display = 'none';
-          broadcast({type:'countdown', value:null});
-          res();
-        }else{
-          countdownNum.textContent = n;
-          broadcast({type:'countdown', value:n});
+          if (channel) channel.postMessage({ type: 'countdown', value: null });
+          resolve();
+        } else {
+          countdownNum.textContent = cnt;
+          if (channel) channel.postMessage({ type: 'countdown', value: cnt });
         }
       }, 1000);
     });
   }
 
-  async function captureShot(){
-    flashOverlay.style.opacity = '1';
-    broadcast({type:'flash'});
-    const vw = video.videoWidth||640, vh = video.videoHeight||480;
-    const c = document.createElement('canvas');
-    c.width = vw; c.height = vh;
-    const cx = c.getContext('2d');
-    if(state.mirrored){ cx.translate(vw,0); cx.scale(-1,1); }
-    cx.drawImage(video,0,0,vw,vh);
-    state.shots.push(c);
-    await sleep(40);
-    flashOverlay.style.opacity = '0';
+  async function captureSnapshot() {
+    flashEffect.style.opacity = '1';
+    if (channel) channel.postMessage({ type: 'flash' });
+    const vw = video.videoWidth || 640, vh = video.videoHeight || 480;
+    const cvs = document.createElement('canvas');
+    cvs.width = vw; cvs.height = vh;
+    const ctx = cvs.getContext('2d');
+    if (state.mirrored) { ctx.translate(vw, 0); ctx.scale(-1, 1); }
+    ctx.drawImage(video, 0, 0, vw, vh);
+    state.shots.push(cvs);
+    await new Promise(r => setTimeout(r, 50));
+    flashEffect.style.opacity = '0';
   }
 
-  retakeBtn.onclick = ()=>{
-    state.shots = []; state.stickers = [];
-    state.lastQrLink = null; state.lastGifData = null;
-    stickerLayer.innerHTML = '';
-    [retakeBtn,downloadBtn,downloadGifBtn,printBtn].forEach(b=>b.classList.add('hidden'));
-    goStep(1);
-    broadcast({type:'clearRound'});
+  retakeBtn.onclick = () => {
+    state.shots = [];
+    stickerOverlay.innerHTML = '';
+    [retakeBtn, downloadBtn, downloadGifBtn, printBtn].forEach(b => b.classList.add('hidden'));
+    setStep(1);
+    if (channel) channel.postMessage({ type: 'clearRound' });
   };
 
-  function revealButtons(){
+  function revealExportControls() {
     retakeBtn.classList.remove('hidden');
     downloadBtn.classList.remove('hidden');
     printBtn.classList.remove('hidden');
-    if(state.format!=='single') downloadGifBtn.classList.remove('hidden');
+    if (state.format !== 'single') downloadGifBtn.classList.remove('hidden');
   }
 
-  function addSticker(svgString){
-    if(!state.shots.length) return;
-    state.stickers.push({svg: svgString, x:50, y:50});
-    renderComposite();
-  }
-
-  function renderComposite(){
-    if(!state.shots.length) return;
-    const w = state.format==='strip4' ? 600 : 1200;
+  // 8. RENDER COMPOSED PHOTO
+  function renderComposedPhoto() {
+    if (!state.shots.length) return;
+    const w = state.format === 'strip4' ? 600 : 1200;
     const h = 1800;
     composeCanvas.width = w; composeCanvas.height = h;
     const ctx = composeCanvas.getContext('2d');
-    
-    const allFrames = [...DEFAULT_FRAMES, ...state.customFrames];
-    const frame = allFrames.find(f=>f.key===state.frameKey) || DEFAULT_FRAMES[0];
 
-    if(frame.isCustom){
+    const all = [...STUDIO_FRAMES, ...state.customFrames];
+    const frame = all.find(f => f.key === state.frameKey) || STUDIO_FRAMES[0];
+
+    // Background & Borders
+    if (frame.isCustom) {
       ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0,0,w,h);
+      ctx.fillRect(0, 0, w, h);
     } else {
       ctx.fillStyle = frame.bg;
-      ctx.fillRect(0,0,w,h);
-      ctx.strokeStyle = frame.border; ctx.lineWidth = w*0.015;
-      ctx.strokeRect(ctx.lineWidth/2, ctx.lineWidth/2, w-ctx.lineWidth, h-ctx.lineWidth);
+      ctx.fillRect(0, 0, w, h);
+      ctx.strokeStyle = frame.border;
+      ctx.lineWidth = w * 0.015;
+      ctx.strokeRect(ctx.lineWidth/2, ctx.lineWidth/2, w - ctx.lineWidth, h - ctx.lineWidth);
     }
 
-    const pad = frame.isCustom ? 0 : w*0.055;
-    const captionH = frame.isCustom ? 0 : h*0.10;
-    const photoAreaH = h - captionH - (frame.isCustom?0:pad*0.3) - pad;
-    const photoAreaW = w - pad*2;
+    const pad = frame.isCustom ? 0 : w * 0.055;
+    const captionH = frame.isCustom ? 0 : h * 0.10;
+    const photoH = h - captionH - (frame.isCustom ? 0 : pad * 0.3) - pad;
+    const photoW = w - pad * 2;
 
-    function drawPhoto(img, x,y,ww,hh){
+    function renderFilterShot(img, x, y, cw, ch) {
       ctx.save();
-      const allTones = [...DEFAULT_TONES, ...state.customTones];
-      const tone = allTones.find(t=>t.key===state.toneKey) || DEFAULT_TONES[0];
+      const tone = STUDIO_TONES.find(t => t.key === state.toneKey) || STUDIO_TONES[0];
       ctx.filter = tone.filter;
-      const scale = Math.max(ww/img.width, hh/img.height);
-      const sw = ww/scale, sh = hh/scale;
-      ctx.drawImage(img, (img.width-sw)/2, (img.height-sh)/2, sw, sh, x,y,ww,hh);
+      const scale = Math.max(cw / img.width, ch / img.height);
+      const sw = cw / scale, sh = ch / scale;
+      ctx.drawImage(img, (img.width - sw)/2, (img.height - sh)/2, sw, sh, x, y, cw, ch);
       ctx.restore();
     }
 
-    if(state.format==='single'){
-      drawPhoto(state.shots[0], pad, pad, photoAreaW, photoAreaH);
-    }else if(state.format==='strip4'){
-      const gap = h*0.012;
-      const cellH = (photoAreaH - gap*3)/4;
-      for(let i=0;i<4;i++) drawPhoto(state.shots[i]||state.shots[0], pad, pad+i*(cellH+gap), photoAreaW, cellH);
-    }else{
-      const gap = w*0.025;
-      const cellW = (photoAreaW-gap)/2, cellH = (photoAreaH-gap)/2;
-      for(let i=0;i<4;i++) drawPhoto(state.shots[i]||state.shots[0], pad+(i%2)*(cellW+gap), pad+Math.floor(i/2)*(cellH+gap), cellW, cellH);
+    if (state.format === 'single') {
+      renderFilterShot(state.shots[0], pad, pad, photoW, photoH);
+    } else if (state.format === 'strip4') {
+      const gap = h * 0.012;
+      const cellH = (photoH - gap * 3) / 4;
+      for (let i = 0; i < 4; i++) {
+        renderFilterShot(state.shots[i] || state.shots[0], pad, pad + i * (cellH + gap), photoW, cellH);
+      }
+    } else {
+      const gap = w * 0.025;
+      const cellW = (photoW - gap) / 2, cellH = (photoH - gap) / 2;
+      for (let i = 0; i < 4; i++) {
+        renderFilterShot(state.shots[i] || state.shots[0], pad + (i % 2) * (cellW + gap), pad + Math.floor(i / 2) * (cellH + gap), cellW, cellH);
+      }
     }
 
-    if(frame.isCustom && frame.src){
-      const frameImg = new Image();
-      frameImg.onload = ()=>{
-        ctx.drawImage(frameImg, 0, 0, w, h);
-        drawTextAndStickers(ctx, w, h, captionH, frame.text || '#0284c7');
+    // Custom Border Graphic
+    if (frame.isCustom && frame.src) {
+      const customImg = new Image();
+      customImg.src = frame.src;
+      customImg.onload = () => {
+        ctx.drawImage(customImg, 0, 0, w, h);
+        renderTypography(ctx, w, h, captionH, frame.text);
       };
-      frameImg.src = frame.src;
       return;
     }
 
-    drawTextAndStickers(ctx, w, h, captionH, frame.text);
+    renderTypography(ctx, w, h, captionH, frame.text);
   }
 
-  function drawTextAndStickers(ctx, w, h, captionH, textColor){
-    if(captionH > 0){
-      ctx.font = `600 ${h*0.028}px "${state.font}", sans-serif`;
+  function getRealtimeDateString() {
+    const d = new Date();
+    const thMonthsShort = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+    const thMonthsFull = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
+    const enMonthsShort = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const enMonthsFull = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+    const toThaiNum = num => num.toString().replace(/\d/g, d => "๐๑๒๓๔๕๖๗๘๙"[d]);
+
+    const day = d.getDate();
+    const month = d.getMonth();
+    const yearCE = d.getFullYear();
+    const yearBE = yearCE + 543;
+
+    switch(state.dateFormat) {
+      case 'en_short': return `${day} ${enMonthsShort[month]} ${yearCE}`;
+      case 'en_full': return `${enMonthsFull[month]} ${day}, ${yearCE}`;
+      case 'th_short': return `${toThaiNum(day)} ${thMonthsShort[month]} ${toThaiNum(yearBE)}`;
+      case 'th_full': return `${toThaiNum(day)} ${thMonthsFull[month]} ${toThaiNum(yearBE)}`;
+      default: return `${day.toString().padStart(2,'0')}.${(month+1).toString().padStart(2,'0')}.${yearCE}`;
+    }
+  }
+
+  function renderTypography(ctx, w, h, captionH, textColor) {
+    if (captionH > 0) {
+      ctx.font = `600 ${state.fontSize}px "${state.font}", sans-serif`;
       ctx.fillStyle = textColor || '#0284c7';
       ctx.textAlign = 'center';
-      let titleText = state.caption;
-      if (state.showDate) {
-        const d = new Date();
-        const dateStr = `${d.getDate()}.${d.getMonth()+1}.${d.getFullYear()}`;
-        titleText += ` · ${dateStr}`;
-      }
-      ctx.fillText(titleText, w/2, h - captionH/2);
+      ctx.fillText(state.caption, w / 2, h - captionH / 2 + 8);
     }
 
-    // วาด Line Art SVG ลง Canvas
-    state.stickers.forEach(st=>{
-      const img = new Image();
-      img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(st.svg);
-      img.onload = ()=>{
-        ctx.drawImage(img, w*(st.x/100)-35, h*(st.y/100)-35, 70, 70);
-      };
-    });
+    // Date Badge Stamp
+    if (state.showDate) {
+      const dateText = getRealtimeDateString();
+      ctx.font = `500 ${Math.max(18, state.fontSize * 0.55)}px "${state.font}", sans-serif`;
+      ctx.fillStyle = textColor || '#64748b';
 
-    sendResultToDisplay();
+      let dx = w / 2, dy = h - 22;
+      ctx.textAlign = 'center';
+
+      if (state.datePos === 'bottom-left') { dx = w * 0.08; ctx.textAlign = 'left'; }
+      else if (state.datePos === 'bottom-right') { dx = w * 0.92; ctx.textAlign = 'right'; }
+      else if (state.datePos === 'top-right') { dx = w * 0.92; dy = 40; ctx.textAlign = 'right'; }
+
+      ctx.fillText(dateText, dx, dy);
+    }
   }
 
-  function sendResultToDisplay(){
-    if(state.step===3){
-      const lightDataUrl = composeCanvas.toDataURL('image/jpeg', 0.65);
-      broadcast({
+  // 9. PURE JS HIGH-SPEED GIF ENCODER (omggif)
+  function generateHighSpeedPureGIF(frameCanvases, delayMs = 450) {
+    return new Promise(resolve => {
+      const gw = 320, gh = Math.round(320 * frameCanvases[0].height / frameCanvases[0].width);
+      const buffer = new Uint8Array(gw * gh * frameCanvases.length * 5);
+      const gf = new GifWriter(buffer, gw, gh, { loop: 0 });
+
+      const tmp = document.createElement('canvas');
+      tmp.width = gw; tmp.height = gh;
+      const tctx = tmp.getContext('2d');
+
+      frameCanvases.forEach(fc => {
+        tctx.clearRect(0, 0, gw, gh);
+        tctx.drawImage(fc, 0, 0, gw, gh);
+        const imgData = tctx.getImageData(0, 0, gw, gh);
+        const rgb = imgData.data;
+
+        // Palette quantizer
+        const palette = [];
+        const indexed = new Uint8Array(gw * gh);
+        const map = new Map();
+
+        for (let p = 0; p < gw * gh; p++) {
+          const r = rgb[p * 4] >> 3;
+          const g = rgb[p * 4 + 1] >> 3;
+          const b = rgb[p * 4 + 2] >> 3;
+          const key = (r << 10) | (g << 5) | b;
+
+          let colorIdx = map.get(key);
+          if (colorIdx === undefined) {
+            if (palette.length < 256) {
+              colorIdx = palette.length;
+              palette.push((rgb[p * 4] << 16) | (rgb[p * 4 + 1] << 8) | rgb[p * 4 + 2]);
+              map.set(key, colorIdx);
+            } else {
+              colorIdx = 0;
+            }
+          }
+          indexed[p] = colorIdx;
+        }
+
+        while (palette.length < 256) palette.push(0);
+
+        gf.addFrame(0, 0, gw, gh, indexed, {
+          palette: new Uint32Array(palette),
+          delay: Math.round(delayMs / 10)
+        });
+      });
+
+      const actualLength = gf.end();
+      const finalBytes = buffer.slice(0, actualLength);
+      const blob = new Blob([finalBytes], { type: 'image/gif' });
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.readAsDataURL(blob);
+    });
+  }
+
+  // 10. COMPILE WORKS & GENERATE PRIVATE QR CODE
+  async function compileAndPublishWorks() {
+    const sessionToken = 'TSK_' + Date.now();
+    state.lastSessionToken = sessionToken;
+
+    const base64Png = composeCanvas.toDataURL('image/png', 0.9);
+    state.lastPhotoData = base64Png;
+
+    // สร้าง GIF ทันที
+    let base64Gif = null;
+    if (state.shots.length > 0) {
+      base64Gif = await generateHighSpeedPureGIF(state.shots, 450);
+      state.lastGifData = base64Gif;
+    }
+
+    // เก็บผลงานใน Local/Session ของเครื่องชั่วคราว
+    const sessionPayload = { image: base64Png, gif: base64Gif };
+    sessionStorage.setItem('tsk_session_' + sessionToken, JSON.stringify(sessionPayload));
+    localStorage.setItem('tsk_session_' + sessionToken, JSON.stringify(sessionPayload));
+
+    // ลิงก์สู่หน้า Gallery ส่วนตัว (ไม่ใช่ Google Drive)
+    const currentDomain = window.location.origin + window.location.pathname;
+    const clientPrivateGalleryUrl = `${currentDomain}?gallery=${sessionToken}`;
+    state.lastQrLink = clientPrivateGalleryUrl;
+
+    // แสดงผลบนจอ 2 ทันที
+    if (channel) {
+      channel.postMessage({
         type: 'roundResult',
-        composedSrc: lightDataUrl,
-        roundNumber: state.roundNumber,
-        qrText: state.lastQrLink || ''
+        composedSrc: composeCanvas.toDataURL('image/jpeg', 0.65),
+        qrText: clientPrivateGalleryUrl,
+        roundNumber: state.roundNumber
       });
     }
   }
 
-  // อัปโหลดภาพนิ่ง และเรนเดอร์ GIF แยกอิสระ
-  async function processUploadAndGenerateQR(){
-    const uniqueId = "TSK_" + Date.now();
-    const base64Png = composeCanvas.toDataURL('image/png', 0.85);
-
-    // ปล่อย QR Code ชี้ไปที่ไฟล์ภาพนี้โดยตรงทันที
-    const directSearchLink = `https://drive.google.com/drive/u/0/search?q=${uniqueId}`;
-    state.lastQrLink = directSearchLink;
-    sendResultToDisplay();
-
-    // 1. ส่งรูปหลักเข้า Drive
-    sendToGas({
-      image: base64Png,
-      filename: `${uniqueId}.png`
-    });
-
-    // 2. สร้าง GIF อัตโนมัติ (แม้จะเป็น single หรือหลายช่อง)
-    if (typeof gifshot !== 'undefined' && state.shots.length > 0) {
-      try {
-        const frameImages = state.shots.map(s => {
-          const c = document.createElement('canvas');
-          c.width = 300;
-          c.height = Math.round(300 * s.height / s.width);
-          c.getContext('2d').drawImage(s, 0, 0, c.width, c.height);
-          return c.toDataURL('image/jpeg', 0.7);
-        });
-
-        gifshot.createGIF({
-          images: frameImages,
-          gifWidth: 300,
-          gifHeight: Math.round(300 * state.shots[0].height / state.shots[0].width),
-          interval: 0.45,
-          numWorkers: 0
-        }, function(obj) {
-          if (!obj.error) {
-            state.lastGifData = obj.image;
-            // ส่ง GIF เข้า Drive ตามหลัง
-            sendToGas({
-              gif: obj.image,
-              gifFilename: `${uniqueId}.gif`
-            });
-            console.log("GIF Uploaded to Google Drive successfully!");
-          }
-        });
-      } catch (err) {
-        console.warn("GIF generation error:", err);
-      }
-    }
-  }
-
-  function sendToGas(payloadData){
-    fetch(GAS_WEB_APP_URL, {
-      method: "POST",
-      mode: "no-cors",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify(payloadData)
-    });
-  }
-
-  downloadBtn.onclick = ()=>{
+  // 11. BUTTON ACTIONS
+  downloadBtn.onclick = () => {
     const a = document.createElement('a');
-    a.download = `photobooth-${Date.now()}.png`;
+    a.download = `TSK_Photo_${Date.now()}.png`;
     a.href = composeCanvas.toDataURL('image/png');
     a.click();
   };
 
-  downloadGifBtn.onclick = ()=>{
+  downloadGifBtn.onclick = () => {
     if (state.lastGifData) {
       const a = document.createElement('a');
-      a.download = `photobooth-${Date.now()}.gif`;
+      a.download = `TSK_Motion_${Date.now()}.gif`;
       a.href = state.lastGifData;
       a.click();
     } else {
-      alert('ระบบกำลังประมวลผล GIF กรุณากดใหม่อีกครั้งใน 2-3 วินาที');
+      alert('กำลังประมวลผล GIF...');
     }
   };
 
-  // ปริ้นต์ภาพตรงเข้าหน้าต่าง Print
-  printBtn.onclick = ()=>{
+  printBtn.onclick = () => {
     const dataUrl = composeCanvas.toDataURL('image/png');
-    const win = window.open('', '_blank');
-    if (win) {
-      win.document.write(`
-        <html>
-        <head><title>Print Photo</title>
-        <style>
-          @page { size: auto; margin: 0; }
-          body { margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; background: #fff; }
-          img { max-width: 100%; max-height: 100%; object-fit: contain; }
-        </style>
-        </head>
-        <body>
-          <img src="${dataUrl}" onload="window.print(); window.close();" />
-        </body>
-        </html>
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(`
+        <html><head><title>Print Preview</title>
+        <style>@page { size: auto; margin: 0; } body { margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; }</style>
+        </head><body><img src="${dataUrl}" style="max-height:100vh;max-width:100vw;object-fit:contain;" onload="window.print();window.close();"/></body></html>
       `);
-      win.document.close();
+      printWindow.document.close();
     }
   };
 
-  openDisplayBtn.onclick = ()=>{
+  openDisplayBtn.onclick = () => {
     window.open(location.pathname + '?display=1', 'tsk_display', 'width=1200,height=800');
   };
 
-  let liveTimer = null;
-  function startLivePreview(){
-    if(liveTimer) clearInterval(liveTimer);
-    const c = document.createElement('canvas');
-    liveTimer = setInterval(()=>{
-      if(!video.videoWidth) return;
-      const w = 360, h = Math.round(360 * video.videoHeight/video.videoWidth);
-      c.width = w; c.height = h;
-      const cx = c.getContext('2d');
-      if(state.mirrored){ cx.translate(w,0); cx.scale(-1,1); }
-      cx.drawImage(video,0,0,w,h);
-      broadcast({type:'frame', src: c.toDataURL('image/jpeg', 0.4)});
+  let mirrorTimer = null;
+  function startBroadcastMirror() {
+    if (mirrorTimer) clearInterval(mirrorTimer);
+    const mCanvas = document.createElement('canvas');
+    mirrorTimer = setInterval(() => {
+      if (!video.videoWidth) return;
+      const w = 360, h = Math.round(360 * video.videoHeight / video.videoWidth);
+      mCanvas.width = w; mCanvas.height = h;
+      const mctx = mCanvas.getContext('2d');
+      if (state.mirrored) { mctx.translate(w, 0); mctx.scale(-1, 1); }
+      mctx.drawImage(video, 0, 0, w, h);
+      if (channel) channel.postMessage({ type: 'frame', src: mCanvas.toDataURL('image/jpeg', 0.4) });
     }, 120);
   }
-
-  function broadcast(msg){ if(channel) try{ channel.postMessage(msg); }catch(e){} }
-  function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
 }
 
-/* -------------------------------------------------------------
-   SECOND SCREEN (จอแสดงผล พร้อมระบบล้างค่า 40 วินาทีอัตโนมัติ)
-------------------------------------------------------------- */
-function initDisplayApp(){
-  const live = document.getElementById('displayLive');
-  const waiting = document.getElementById('displayWaiting');
-  const countdownBox = document.getElementById('displayCountdown');
-  const countdownNum = document.getElementById('displayCountdownNum');
-  const flash = document.getElementById('displayFlash');
-  const finalImg = document.getElementById('displayFinalImg');
-  const resultEmpty = document.getElementById('displayResultEmpty');
-  const qrHolder = document.getElementById('displayQR');
-  const qrTitle = document.getElementById('displayQrTitle');
-  const qrSub = document.getElementById('displayQrSub');
-  const timerBar = document.getElementById('displayTimerBar');
-  const countdownNotice = document.getElementById('displayCountdownNotice');
+/* --------------------------------------------------------------------------
+   DISPLAY STUDIO (จอสอง + ล้างค่า 40 วินาทีอัตโนมัติ)
+-------------------------------------------------------------------------- */
+function initDisplayStudio() {
+  const liveImg = document.getElementById('dLiveImg');
+  const waiting = document.getElementById('dWaiting');
+  const countdownBox = document.getElementById('dCountdown');
+  const countdownNum = document.getElementById('dCountdownNum');
+  const flash = document.getElementById('dFlash');
+  const resultPic = document.getElementById('dResultPic');
+  const emptyNotice = document.getElementById('dEmptyNotice');
+  const qrFrame = document.getElementById('dQR');
+  const qrTitle = document.getElementById('dQrTitle');
+  const qrSub = document.getElementById('dQrSub');
+  const timerBar = document.getElementById('dTimerBar');
+  const wipeNotice = document.getElementById('dWipeNotice');
 
-  let autoClearTimer = null;
-  let countdownSeconds = 40;
-  let countdownInterval = null;
+  let wipeTimer = null;
+  let ticker = null;
+  let remainingSeconds = 40;
 
-  function clearDisplayState() {
-    finalImg.style.display = 'none';
-    finalImg.src = '';
-    resultEmpty.style.display = 'block';
-    qrHolder.innerHTML = '';
+  function resetDisplayState() {
+    resultPic.style.display = 'none';
+    resultPic.src = '';
+    emptyNotice.style.display = 'block';
+    qrFrame.innerHTML = '';
     qrTitle.textContent = 'คิวอาร์โค้ดรับรูปภาพ';
     qrSub.textContent = 'สแกนเพื่อเปิดภาพและบันทึกไฟล์';
-    countdownNotice.textContent = '';
+    wipeNotice.textContent = '';
     timerBar.style.width = '0%';
-    if (autoClearTimer) clearTimeout(autoClearTimer);
-    if (countdownInterval) clearInterval(countdownInterval);
+    if (wipeTimer) clearTimeout(wipeTimer);
+    if (ticker) clearInterval(ticker);
   }
 
-  if(!channel) return;
+  if (!channel) return;
+  channel.postMessage({ type: 'ready' });
 
-  channel.postMessage({type:'ready'});
-
-  channel.onmessage = (e)=>{
-    const msg = e.data; if(!msg) return;
+  channel.onmessage = (e) => {
+    const msg = e.data;
+    if (!msg) return;
 
     if (msg.type === 'syncTheme') {
-      applyTheme(msg.theme);
+      applyStudioTheme(msg.theme);
     }
 
-    if(msg.type === 'frame'){
+    if (msg.type === 'frame') {
       waiting.style.display = 'none';
-      live.style.display = 'block';
-      live.src = msg.src;
+      liveImg.style.display = 'block';
+      liveImg.src = msg.src;
     }
 
-    if(msg.type === 'countdown'){
-      if(msg.value){
+    if (msg.type === 'countdown') {
+      if (msg.value) {
         countdownBox.style.display = 'flex';
         countdownNum.textContent = msg.value;
-      }else{
+      } else {
         countdownBox.style.display = 'none';
       }
     }
 
-    if(msg.type === 'flash'){
+    if (msg.type === 'flash') {
       flash.style.opacity = '1';
-      setTimeout(()=>{ flash.style.opacity = '0'; }, 50);
+      setTimeout(() => { flash.style.opacity = '0'; }, 60);
     }
 
-    // แสดงผลภาพ + QR Code และเริ่มนับถอยหลัง 40 วินาทีเพื่อล้างค่า
-    if(msg.type === 'roundResult'){
-      resultEmpty.style.display = 'none';
-      finalImg.src = msg.composedSrc;
-      finalImg.style.display = 'block';
+    if (msg.type === 'roundResult') {
+      emptyNotice.style.display = 'none';
+      resultPic.src = msg.composedSrc;
+      resultPic.style.display = 'block';
 
-      if(msg.qrText && msg.qrText.startsWith('http')){
-        qrTitle.textContent = `รับรูปภาพรอบที่ ${msg.roundNumber}`;
-        qrSub.textContent = 'สแกนเพื่อดาวน์โหลดภาพของคุณ';
-        
-        qrHolder.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(msg.qrText)}" alt="QR Code">`;
+      qrTitle.textContent = `รับผลงานรอบที่ ${msg.roundNumber}`;
+      qrSub.textContent = 'สแกนเพื่อเปิด Private Gallery ของคุณ';
+      
+      // QR Code Generator (API)
+      qrFrame.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(msg.qrText)}" alt="QR Code">`;
 
-        // เริ่มต้นแถบเวลาและเวลานับถอยหลัง 40 วิ
-        if (autoClearTimer) clearTimeout(autoClearTimer);
-        if (countdownInterval) clearInterval(countdownInterval);
+      // 40-SECOND AUTO WIPE TIMER
+      if (wipeTimer) clearTimeout(wipeTimer);
+      if (ticker) clearInterval(ticker);
 
-        countdownSeconds = 40;
-        countdownNotice.textContent = `ระบบจะล้างภาพใน ${countdownSeconds} วินาที`;
-        timerBar.style.transition = 'none';
-        timerBar.style.width = '100%';
+      remainingSeconds = 40;
+      wipeNotice.textContent = `ล้างข้อมูลอัตโนมัติใน ${remainingSeconds} วินาที`;
+      timerBar.style.transition = 'none';
+      timerBar.style.width = '100%';
 
-        setTimeout(()=>{
-          timerBar.style.transition = 'width 40s linear';
-          timerBar.style.width = '0%';
-        }, 50);
+      setTimeout(() => {
+        timerBar.style.transition = 'width 40s linear';
+        timerBar.style.width = '0%';
+      }, 50);
 
-        countdownInterval = setInterval(()=>{
-          countdownSeconds--;
-          if (countdownSeconds > 0) {
-            countdownNotice.textContent = `ระบบจะล้างภาพใน ${countdownSeconds} วินาที`;
-          } else {
-            clearInterval(countdownInterval);
-          }
-        }, 1000);
+      ticker = setInterval(() => {
+        remainingSeconds--;
+        if (remainingSeconds > 0) {
+          wipeNotice.textContent = `ล้างข้อมูลอัตโนมัติใน ${remainingSeconds} วินาที`;
+        } else {
+          clearInterval(ticker);
+        }
+      }, 1000);
 
-        // เมื่อครบ 40 วินาที ล้างภาพออกจากจอทันที
-        autoClearTimer = setTimeout(()=>{
-          clearDisplayState();
-        }, 40000);
-
-      } else {
-        qrHolder.innerHTML = '';
-        qrTitle.textContent = `ภาพถ่ายรอบที่ ${msg.roundNumber}`;
-        qrSub.textContent = 'กำลังสร้าง QR Code...';
-      }
+      wipeTimer = setTimeout(() => {
+        resetDisplayState();
+      }, 40000);
     }
 
-    if(msg.type === 'clearRound'){
-      clearDisplayState();
+    if (msg.type === 'clearRound') {
+      resetDisplayState();
     }
   };
 }
