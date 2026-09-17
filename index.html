@@ -7,179 +7,227 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Kodchasan:wght@400;600;700&family=Mali:wght@400;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<!-- ใช้ gifshot แบบ Pure JS หมดปัญหา Web Worker โดนบล็อก 100% -->
+<!-- gifshot สำหรับสร้าง GIF คุณภาพสูง -->
 <script src="https://cdn.jsdelivr.net/npm/gifshot@0.3.2/dist/gifshot.min.js"></script>
 <style>
-  :root{
-    --cream:#fff8f1;
-    --panel:#ffffff;
-    --pink:#ff7aa8;
-    --pink-deep:#e85c8c;
-    --pink-soft:#ffe3ec;
-    --peach:#ffb199;
-    --mint:#7fd9bd;
-    --ink:#4a3b42;
-    --ink-soft:#8a7580;
-    --line:#f3ddE6;
-    --radius:16px;
+  /* โหมดสว่าง - ธีมสีฟ้า (Light Sky Theme) */
+  :root {
+    --bg-gradient-1: #e0f2fe;
+    --bg-gradient-2: #bae6fd;
+    --bg-base: #f0f9ff;
+    --panel: #ffffff;
+    --primary: #0284c7;
+    --primary-deep: #0369a1;
+    --primary-soft: #e0f2fe;
+    --mint: #38bdf8;
+    --ink: #0f172a;
+    --ink-soft: #64748b;
+    --line: #bae6fd;
+    --radius: 16px;
+    --stage-bg: #0c1524;
   }
-  *{box-sizing:border-box;margin:0;padding:0;}
-  html, body{width:100vw;height:100vh;overflow:hidden;}
-  body{
+
+  /* โหมดมืด - ธีมสีฟ้าน้ำทะเลลึก (Dark Ocean Theme) */
+  body.dark-theme {
+    --bg-gradient-1: #091322;
+    --bg-gradient-2: #050b14;
+    --bg-base: #030712;
+    --panel: #0b1528;
+    --primary: #38bdf8;
+    --primary-deep: #0284c7;
+    --primary-soft: #082f49;
+    --mint: #0ea5e9;
+    --ink: #f8fafc;
+    --ink-soft: #94a3b8;
+    --line: #1e3a5f;
+    --stage-bg: #020617;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; transition: background-color 0.25s ease, color 0.2s ease, border-color 0.2s ease; }
+  html, body { width: 100vw; height: 100vh; overflow: hidden; }
+  body {
     background:
-      radial-gradient(circle at 8% 12%, #ffe9d6 0%, transparent 40%),
-      radial-gradient(circle at 92% 85%, #ffe0ec 0%, transparent 45%),
-      var(--cream);
-    color:var(--ink);
-    font-family:'Prompt', sans-serif;
+      radial-gradient(circle at 10% 15%, var(--bg-gradient-1) 0%, transparent 45%),
+      radial-gradient(circle at 90% 85%, var(--bg-gradient-2) 0%, transparent 45%),
+      var(--bg-base);
+    color: var(--ink);
+    font-family: 'Prompt', sans-serif;
   }
-  h1,h2,h3{font-family:'Kodchasan',sans-serif;}
-  .hidden{display:none !important;}
-  button{font-family:'Prompt',sans-serif;cursor:pointer;}
-  input,select{font-family:'Prompt',sans-serif;}
+  h1, h2, h3 { font-family: 'Kodchasan', sans-serif; }
+  .hidden { display: none !important; }
+  button { font-family: 'Prompt', sans-serif; cursor: pointer; }
+  input, select { font-family: 'Prompt', sans-serif; color: var(--ink); background: var(--panel); }
 
-  /* MAIN CONTROL APP */
-  #app{
-    display:flex;flex-direction:column;width:100vw;height:100vh;
-    padding:6px 14px;box-sizing:border-box;overflow:hidden;
+  /* MAIN WRAPPER */
+  #app {
+    display: flex;
+    flex-direction: column;
+    width: 100vw;
+    height: 100vh;
+    padding: 8px 16px;
+    box-sizing: border-box;
+    overflow: hidden;
   }
-  .topbar{
-    display:flex;align-items:center;justify-content:space-between;
-    height:34px;flex-shrink:0;margin-bottom:2px;
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 40px;
+    flex-shrink: 0;
+    margin-bottom: 4px;
   }
-  .brand{display:flex;align-items:baseline;gap:8px;}
-  .brand .logo{font-size:20px;font-weight:700;color:var(--pink-deep);}
-  .brand .tagline{font-family:'Mali',cursive;font-size:12px;color:var(--ink-soft);}
+  .brand { display: flex; align-items: baseline; gap: 8px; }
+  .brand .logo { font-size: 22px; font-weight: 700; color: var(--primary); }
+  .brand .tagline { font-family: 'Mali', cursive; font-size: 13px; color: var(--ink-soft); }
 
-  .steps{display:flex;gap:6px;height:28px;flex-shrink:0;margin-bottom:6px;}
-  .step-pill{
-    flex:1;text-align:center;border-radius:8px;line-height:26px;
-    background:var(--panel);border:1px solid var(--line);color:var(--ink-soft);
-    font-size:11.5px;font-weight:600;
-  }
-  .step-pill.active{background:var(--pink);color:#fff;border-color:var(--pink);}
-  .step-pill.done{background:var(--pink-soft);color:var(--pink-deep);}
-
-  .layout{
-    flex:1;display:grid;grid-template-columns:1.2fr 0.8fr;gap:12px;
-    height:calc(100vh - 78px);min-height:0;overflow:hidden;
+  .top-actions { display: flex; align-items: center; gap: 8px; }
+  .theme-toggle-btn {
+    width: 36px; height: 36px; border-radius: 10px;
+    border: 1px solid var(--line); background: var(--panel);
+    color: var(--ink); font-size: 18px; display: flex; align-items: center; justify-content: center;
   }
 
-  .stage-panel{
-    background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
-    padding:8px 10px;display:flex;flex-direction:column;height:100%;min-height:0;
-    overflow:hidden;
+  .steps { display: flex; gap: 8px; height: 32px; flex-shrink: 0; margin-bottom: 8px; }
+  .step-pill {
+    flex: 1; text-align: center; border-radius: 10px; line-height: 30px;
+    background: var(--panel); border: 1px solid var(--line); color: var(--ink-soft);
+    font-size: 12px; font-weight: 600;
   }
-  .stage-wrap{
-    flex:1;position:relative;background:#2c2430;border-radius:12px;
-    overflow:hidden;display:flex;align-items:center;justify-content:center;
-    min-height:0;
-  }
-  .stage-wrap video{width:100%;height:100%;object-fit:contain;}
-  .stage-wrap video.mirror{transform:scaleX(-1);}
-  .stage-wrap .placeholder{color:#f4d9e5;font-size:14px;text-align:center;padding:12px;font-family:'Mali',cursive;}
+  .step-pill.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .step-pill.done { background: var(--primary-soft); color: var(--primary); }
 
-  #composeWrap{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center;min-height:0;}
-  #composeCanvas{max-width:100%;max-height:100%;object-fit:contain;border-radius:10px;}
-  #stickerLayer{position:absolute;inset:0;}
-  .sticker{position:absolute;font-size:36px;transform:translate(-50%,-50%);cursor:grab;user-select:none;}
+  /* 2-COLUMN LAYOUT */
+  .layout {
+    flex: 1; display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 14px;
+    height: calc(100vh - 92px); min-height: 0; overflow: hidden;
+  }
 
-  #countdownOverlay{
-    position:absolute;inset:0;display:none;align-items:center;justify-content:center;
-    background:rgba(30,20,25,.25);z-index:5;
+  /* LEFT PANEL */
+  .stage-panel {
+    background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 10px; display: flex; flex-direction: column; height: 100%; min-height: 0;
+    overflow: hidden;
   }
-  #countdownOverlay span{font-family:'Kodchasan',sans-serif;font-weight:700;font-size:12vw;color:#fff;}
-  #flashOverlay{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:6;}
+  .stage-wrap {
+    flex: 1; position: relative; background: var(--stage-bg); border-radius: 12px;
+    overflow: hidden; display: flex; align-items: center; justify-content: center;
+    min-height: 0;
+  }
+  .stage-wrap video { width: 100%; height: 100%; object-fit: contain; }
+  .stage-wrap video.mirror { transform: scaleX(-1); }
 
-  .stage-controls{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;flex-shrink:0;}
-  .btn{border:none;border-radius:8px;padding:6px 12px;font-weight:600;font-size:12px;display:inline-flex;align-items:center;gap:6px;}
-  .btn-primary{background:linear-gradient(135deg,var(--pink),var(--pink-deep));color:#fff;}
-  .btn-secondary{background:var(--pink-soft);color:var(--pink-deep);}
-  .btn-outline{background:#fff;border:1px solid var(--line);color:var(--ink);}
-  .btn:disabled{opacity:.45;cursor:not-allowed;}
-  .row-inline{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:4px;font-size:11px;color:var(--ink-soft);flex-shrink:0;}
-  select.small{padding:2px 5px;border-radius:6px;border:1px solid var(--line);background:#fff;}
+  /* แก้ไข: จัด Placeholder ให้อยู่ตรงกลางเป๊ะ */
+  .stage-wrap .placeholder {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    color: #bae6fd; font-size: 16px; text-align: center; padding: 20px; font-family: 'Mali', cursive;
+    pointer-events: none; z-index: 2;
+  }
 
-  .controls-panel{
-    background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
-    padding:10px 12px;display:flex;flex-direction:column;height:100%;min-height:0;
-    overflow-y:auto;
-  }
-  .controls-panel::-webkit-scrollbar{width:5px;}
-  .controls-panel::-webkit-scrollbar-thumb{background:#ffccd9;border-radius:4px;}
+  #composeWrap { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; min-height: 0; }
+  #composeCanvas { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 10px; }
+  #stickerLayer { position: absolute; inset: 0; }
+  .sticker { position: absolute; font-size: 36px; transform: translate(-50%,-50%); cursor: grab; user-select: none; }
 
-  .field{margin-bottom:8px;}
-  .field label.title{display:block;font-size:11.5px;font-weight:600;color:var(--ink);margin-bottom:3px;}
-  .chip-row{display:flex;flex-wrap:wrap;gap:4px;}
-  .chip{padding:4px 8px;border-radius:7px;border:1.5px solid var(--line);background:#fff;font-size:11px;display:flex;align-items:center;gap:4px;}
-  .chip.active{border-color:var(--pink);background:var(--pink-soft);color:var(--pink-deep);font-weight:600;}
-  .chip .del-btn{margin-left:3px;color:#e85c8c;font-weight:bold;cursor:pointer;}
-  input[type=text]{width:100%;padding:5px 8px;border-radius:7px;border:1.5px solid var(--line);font-size:11.5px;}
-  .sticker-palette{display:flex;flex-wrap:wrap;gap:3px;}
-  .sticker-palette button{width:28px;height:28px;border-radius:6px;border:1px solid var(--line);background:#fff;font-size:14px;}
-  .guide-box{background:#fff6f9;border:1px dashed #ffb1cb;border-radius:6px;padding:5px 7px;margin-top:4px;font-size:10.5px;color:#7a4a5a;line-height:1.3;}
+  #countdownOverlay {
+    position: absolute; inset: 0; display: none; align-items: center; justify-content: center;
+    background: rgba(12, 21, 36, 0.4); z-index: 5;
+  }
+  #countdownOverlay span { font-family: 'Kodchasan', sans-serif; font-weight: 700; font-size: 12vw; color: #fff; text-shadow: 0 4px 16px rgba(0,0,0,.6); }
+  #flashOverlay { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; z-index: 6; }
 
-  /* SECOND SCREEN (DISPLAY) */
-  body.display-mode{background:#0d0a0f !important;color:#fff;width:100vw;height:100vh;overflow:hidden !important;}
-  body.display-mode #app{display:none !important;}
+  .stage-controls { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; flex-shrink: 0; }
+  .btn { border: none; border-radius: 10px; padding: 7px 14px; font-weight: 600; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; }
+  .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-deep)); color: #fff; }
+  .btn-secondary { background: var(--primary-soft); color: var(--primary); }
+  .btn-outline { background: var(--panel); border: 1px solid var(--line); color: var(--ink); }
+  .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+  .row-inline { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 6px; font-size: 12px; color: var(--ink-soft); flex-shrink: 0; }
+  select.small { padding: 4px 8px; border-radius: 6px; border: 1px solid var(--line); }
 
-  #displayApp{
-    display:none;width:100vw;height:100vh;box-sizing:border-box;
-    padding:10px 16px;flex-direction:column;
+  /* RIGHT PANEL */
+  .controls-panel {
+    background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 12px 14px; display: flex; flex-direction: column; height: 100%; min-height: 0;
+    overflow-y: auto;
   }
-  body.display-mode #displayApp{display:flex;}
+  .controls-panel::-webkit-scrollbar { width: 5px; }
+  .controls-panel::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }
 
-  .dheader{
-    font-family:'Kodchasan',sans-serif;font-size:18px;font-weight:700;color:#ff9fc0;
-    text-align:center;height:26px;line-height:26px;flex-shrink:0;margin:0 0 6px 0;
-  }
-  .d-viewport{
-    flex:1;display:grid;grid-template-columns:1fr 340px;gap:16px;
-    height:calc(100vh - 48px);min-height:0;
-  }
-  .d-left-box{
-    background:#000;border-radius:18px;border:3px solid #ff7aa8;overflow:hidden;
-    position:relative;display:flex;align-items:center;justify-content:center;
-    height:100%;min-height:0;
-  }
-  .d-left-box img.live{width:100%;height:100%;object-fit:contain;background:#111;display:block;}
-  .d-left-box .placeholder{color:#ff9fc0;font-family:'Mali',cursive;font-size:18px;text-align:center;}
-  #displayCountdown{
-    position:absolute;inset:0;display:none;align-items:center;justify-content:center;
-    background:rgba(0,0,0,.35);z-index:10;
-  }
-  #displayCountdown span{font-family:'Kodchasan',sans-serif;font-weight:700;font-size:15vw;color:#fff;}
-  #displayFlash{position:absolute;inset:0;background:#fff;opacity:0;z-index:11;pointer-events:none;}
+  .field { margin-bottom: 10px; }
+  .field label.title { display: block; font-size: 12px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+  .chip-row { display: flex; flex-wrap: wrap; gap: 5px; }
+  .chip { padding: 5px 10px; border-radius: 8px; border: 1.5px solid var(--line); background: var(--panel); color: var(--ink); font-size: 11.5px; display: flex; align-items: center; gap: 4px; }
+  .chip.active { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); font-weight: 600; }
+  .chip .del-btn { margin-left: 3px; color: #ef4444; font-weight: bold; cursor: pointer; }
+  input[type=text] { width: 100%; padding: 6px 10px; border-radius: 8px; border: 1.5px solid var(--line); font-size: 12px; }
+  .sticker-palette { display: flex; flex-wrap: wrap; gap: 4px; }
+  .sticker-palette button { width: 30px; height: 30px; border-radius: 6px; border: 1px solid var(--line); background: var(--panel); font-size: 15px; }
+  .guide-box { background: var(--primary-soft); border: 1px dashed var(--line); border-radius: 8px; padding: 6px 9px; margin-top: 5px; font-size: 11px; color: var(--ink-soft); line-height: 1.4; }
 
-  .d-right-box{display:flex;flex-direction:column;gap:10px;height:100%;min-height:0;}
-  .d-card-photo{
-    flex:1;background:#1b1522;border:2px solid #3d2b3a;border-radius:16px;
-    padding:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;
-    position:relative;overflow:hidden;min-height:0;
-  }
-  .d-card-photo .badge{
-    position:absolute;top:6px;left:6px;background:rgba(0,0,0,.7);
-    color:#ff9fc0;font-family:'Kodchasan',sans-serif;font-size:10px;
-    padding:2px 6px;border-radius:5px;z-index:2;
-  }
-  .d-card-photo img.result-pic{
-    max-width:100%;max-height:100%;object-fit:contain;border-radius:8px;display:none;
-  }
-  .d-card-photo .empty-state{color:#6c5767;font-family:'Mali',cursive;font-size:13px;text-align:center;}
+  /* SECOND SCREEN */
+  body.display-mode { background: #020617 !important; color: #fff; width: 100vw; height: 100vh; overflow: hidden !important; }
+  body.display-mode #app { display: none !important; }
 
-  .d-card-qr{
-    height:120px;flex-shrink:0;background:#1b1522;border:2px solid #3d2b3a;
-    border-radius:16px;padding:8px 12px;display:flex;align-items:center;justify-content:center;
-    gap:12px;box-sizing:border-box;
+  #displayApp {
+    display: none; width: 100vw; height: 100vh; box-sizing: border-box;
+    padding: 10px 16px; flex-direction: column;
   }
-  .d-qr-white{
-    background:#fff;padding:4px;border-radius:8px;width:90px;height:90px;
-    flex-shrink:0;display:flex;align-items:center;justify-content:center;overflow:hidden;
+  body.display-mode #displayApp { display: flex; }
+
+  .dheader {
+    font-family: 'Kodchasan', sans-serif; font-size: 18px; font-weight: 700; color: #38bdf8;
+    text-align: center; height: 26px; line-height: 26px; flex-shrink: 0; margin: 0 0 6px 0;
   }
-  .d-qr-white img{width:100% !important;height:100% !important;object-fit:contain;}
-  .d-qr-text{display:flex;flex-direction:column;gap:2px;min-width:0;}
-  .d-qr-text h4{font-family:'Kodchasan',sans-serif;font-size:14px;color:#ffb1cb;margin:0;}
-  .d-qr-text p{font-size:11px;color:#b4a2af;margin:0;line-height:1.2;}
+  .d-viewport {
+    flex: 1; display: grid; grid-template-columns: 1fr 340px; gap: 16px;
+    height: calc(100vh - 48px); min-height: 0;
+  }
+  .d-left-box {
+    background: #000; border-radius: 18px; border: 3px solid #0284c7; overflow: hidden;
+    position: relative; display: flex; align-items: center; justify-content: center;
+    height: 100%; min-height: 0;
+  }
+  .d-left-box img.live { width: 100%; height: 100%; object-fit: contain; background: #000; display: block; }
+  .d-left-box .placeholder {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    color: #38bdf8; font-family: 'Mali', cursive; font-size: 18px; text-align: center; padding: 20px;
+  }
+  #displayCountdown {
+    position: absolute; inset: 0; display: none; align-items: center; justify-content: center;
+    background: rgba(0,0,0,.4); z-index: 10;
+  }
+  #displayCountdown span { font-family: 'Kodchasan', sans-serif; font-weight: 700; font-size: 15vw; color: #fff; }
+  #displayFlash { position: absolute; inset: 0; background: #fff; opacity: 0; z-index: 11; pointer-events: none; }
+
+  .d-right-box { display: flex; flex-direction: column; gap: 10px; height: 100%; min-height: 0; }
+  .d-card-photo {
+    flex: 1; background: #081120; border: 2px solid #1e3a5f; border-radius: 16px;
+    padding: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    position: relative; overflow: hidden; min-height: 0;
+  }
+  .d-card-photo .badge {
+    position: absolute; top: 6px; left: 6px; background: rgba(0,0,0,.7);
+    color: #38bdf8; font-family: 'Kodchasan', sans-serif; font-size: 10px;
+    padding: 2px 6px; border-radius: 5px; z-index: 2;
+  }
+  .d-card-photo img.result-pic {
+    max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px; display: none;
+  }
+  .d-card-photo .empty-state { color: #64748b; font-family: 'Mali', cursive; font-size: 13px; text-align: center; }
+
+  .d-card-qr {
+    height: 120px; flex-shrink: 0; background: #081120; border: 2px solid #1e3a5f;
+    border-radius: 16px; padding: 8px 12px; display: flex; align-items: center; justify-content: center;
+    gap: 12px; box-sizing: border-box;
+  }
+  .d-qr-white {
+    background: #fff; padding: 4px; border-radius: 8px; width: 90px; height: 90px;
+    flex-shrink: 0; display: flex; align-items: center; justify-content: center; overflow: hidden;
+  }
+  .d-qr-white img { width: 100% !important; height: 100% !important; object-fit: contain; }
+  .d-qr-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .d-qr-text h4 { font-family: 'Kodchasan', sans-serif; font-size: 14px; color: #7dd3fc; margin: 0; }
+  .d-qr-text p { font-size: 11px; color: #94a3b8; margin: 0; line-height: 1.2; }
 </style>
 </head>
 <body>
@@ -189,9 +237,13 @@
   <div class="topbar">
     <div class="brand">
       <span class="logo">TSK PHOTOBOOTH</span>
-      <span class="tagline">เปิดกล้อง เลือกกรอบ ยิ้มสามจังหวะ แล้วเซฟหรือปริ้นต์ได้เลย</span>
+      <span class="tagline">เปิดกล้อง เลือกกรอบ ยิ้มสามจังหวะ แล้วเซฟหรือปริ้นต์ได้เลย 🩵</span>
     </div>
-    <button class="btn btn-outline" id="openDisplayBtn">🖥️ เปิดจอแสดงผล</button>
+    <div class="top-actions">
+      <!-- ปุ่มสลับธีม สว่าง / มืด -->
+      <button class="theme-toggle-btn" id="themeToggleBtn" title="สลับโหมดสว่าง/มืด">🌙</button>
+      <button class="btn btn-outline" id="openDisplayBtn">🖥️ เปิดจอแสดงผล</button>
+    </div>
   </div>
 
   <div class="steps">
@@ -204,7 +256,7 @@
     <div class="stage-panel">
       <div class="stage-wrap" id="stage">
         <video id="video" autoplay playsinline muted class="mirror"></video>
-        <div class="placeholder" id="stagePlaceholder">กดปุ่ม "เปิดกล้อง" เพื่อเริ่มต้น 🌸</div>
+        <div class="placeholder" id="stagePlaceholder">กดปุ่ม "เปิดกล้อง" เพื่อเริ่มต้น 🩵</div>
         <div id="countdownOverlay"><span id="countdownNum">3</span></div>
         <div id="flashOverlay"></div>
       </div>
@@ -220,6 +272,7 @@
         <button class="btn btn-outline hidden" id="retakeBtn">🔄 ถ่ายใหม่</button>
         <button class="btn btn-secondary hidden" id="downloadBtn">⬇️ บันทึกรูป</button>
         <button class="btn btn-secondary hidden" id="downloadGifBtn">🎞️ บันทึก GIF</button>
+        <!-- ปุ่มปริ้นต์ -->
         <button class="btn btn-outline hidden" id="printBtn">🖨️ ปริ้นต์</button>
       </div>
       <div class="row-inline">
@@ -289,15 +342,13 @@
   </div>
 </div>
 
-<div id="printArea" style="display:none;"></div>
-
 <!-- จอแสดงผลที่ 2 -->
 <div id="displayApp">
   <div class="dheader">TSK PHOTOBOOTH · จอแสดงผล</div>
   <div class="d-viewport">
     <div class="d-left-box">
       <img class="live" id="displayLive" style="display:none;">
-      <div class="placeholder" id="displayWaiting">รอเปิดกล้องจากจอควบคุม... 🌸</div>
+      <div class="placeholder" id="displayWaiting">รอเปิดกล้องจากจอควบคุม... 🩵</div>
       <div id="displayCountdown"><span id="displayCountdownNum">3</span></div>
       <div id="displayFlash"></div>
     </div>
@@ -329,16 +380,32 @@ const isDisplay = params.get('display') === '1';
 
 if (isDisplay) document.body.classList.add('display-mode');
 
+// ระบบสลับโหมดสว่าง / มืด
+const themeToggleBtn = document.getElementById('themeToggleBtn');
+const savedTheme = localStorage.getItem('tsk_theme') || 'light';
+if (savedTheme === 'dark') {
+  document.body.classList.add('dark-theme');
+  if (themeToggleBtn) themeToggleBtn.textContent = '☀️';
+}
+if (themeToggleBtn) {
+  themeToggleBtn.onclick = () => {
+    const isDark = document.body.classList.toggle('dark-theme');
+    themeToggleBtn.textContent = isDark ? '☀️' : '🌙';
+    localStorage.setItem('tsk_theme', isDark ? 'dark' : 'light');
+  };
+}
+
 const channel = ('BroadcastChannel' in window) ? new BroadcastChannel('tsk_photobooth_channel') : null;
 
-// URL ของ Google Apps Script Web App
+// GAS Web App URL
 const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxZx9lUhn6pC3VOUzhPnWJft2pwuiEyN3B-0H_-zqUWu4IllQGPxFcTUwDZu_Z0Ndg-MQ/exec";
 
 const DEFAULT_FRAMES = [
+  {key:'sky', label:'ฟ้าคราม', bg:'#e0f2fe', border:'#38bdf8', text:'#0369a1', isCustom:false},
   {key:'sakura', label:'ซากุระ', bg:'#ffe4ec', border:'#ff9fbe', text:'#7a3b55', isCustom:false},
   {key:'mint', label:'มินต์', bg:'#e3fbf3', border:'#7fddbb', text:'#1f5c48', isCustom:false},
   {key:'polaroid', label:'โพลารอยด์', bg:'#ffffff', border:'#e7e2da', text:'#4a3b42', isCustom:false},
-  {key:'night', label:'ค่ำคืน', bg:'#2c3350', border:'#5865a6', text:'#ffffff', isCustom:false}
+  {key:'night', label:'ค่ำคืน', bg:'#0f172a', border:'#38bdf8', text:'#ffffff', isCustom:false}
 ];
 
 const DEFAULT_TONES = [
@@ -353,7 +420,7 @@ const DEFAULT_TONES = [
 const STICKERS = ['💖','✨','🌸','😎','🎉','🌈','🐻','⭐'];
 
 const state = {
-  step: 1, format: 'single', frameKey: 'sakura', toneKey: 'natural',
+  step: 1, format: 'single', frameKey: 'sky', toneKey: 'natural',
   mirrored: true, soundOn: true, countdownSeconds: 3, caption: 'วันดี ๆ ของเรา',
   font: 'Mali', showDate: false, stickers: [], shots: [], roundNumber: 0,
   lastQrLink: null, lastGifData: null,
@@ -418,7 +485,7 @@ function initControlApp(){
           e.stopPropagation();
           state.customFrames = state.customFrames.filter(x=>x.key!==f.key);
           localStorage.setItem('tsk_custom_frames', JSON.stringify(state.customFrames));
-          if(state.frameKey === f.key) state.frameKey = 'sakura';
+          if(state.frameKey === f.key) state.frameKey = 'sky';
           renderFrameList();
           renderComposite();
         };
@@ -542,7 +609,7 @@ function initControlApp(){
         stagePlaceholder.classList.add('hidden');
         startCaptureBtn.disabled = false;
         startLivePreview();
-      }catch(e){ alert('เปิดกล้องไม่สำเร็จ'); }
+      }catch(e){ alert('เปิดกล้องไม่สำเร็จ กรุณาอนุญาตการเข้าถึงกล้อง'); }
     }
   }
 
@@ -577,7 +644,6 @@ function initControlApp(){
     state.lastQrLink = null;
     state.lastGifData = null;
     
-    // เคลียร์รอบเก่าทิ้งจากจอแสดงผลทันที เพื่อความเป็นส่วนตัว
     broadcast({ type: 'clearRound' });
 
     goStep(2);
@@ -594,7 +660,7 @@ function initControlApp(){
     renderComposite();
     revealButtons();
     
-    // อัปโหลดเข้า Drive และสร้าง QR ทันที
+    // อัปโหลดเข้า Drive และสร้าง GIF
     processUploadAndGenerateQR();
   }
   startCaptureBtn.onclick = startCapture;
@@ -709,19 +775,19 @@ function initControlApp(){
       const frameImg = new Image();
       frameImg.onload = ()=>{
         ctx.drawImage(frameImg, 0, 0, w, h);
-        drawTextAndStickers(ctx, w, h, captionH);
+        drawTextAndStickers(ctx, w, h, captionH, frame.text || '#0369a1');
       };
       frameImg.src = frame.src;
       return;
     }
 
-    drawTextAndStickers(ctx, w, h, captionH);
+    drawTextAndStickers(ctx, w, h, captionH, frame.text);
   }
 
-  function drawTextAndStickers(ctx, w, h, captionH){
+  function drawTextAndStickers(ctx, w, h, captionH, textColor){
     if(captionH > 0){
       ctx.font = `600 ${h*0.04}px "${state.font}", sans-serif`;
-      ctx.fillStyle = '#4a3b42';
+      ctx.fillStyle = textColor || '#0369a1';
       ctx.textAlign = 'center';
       ctx.fillText(state.caption, w/2, h - captionH/2);
     }
@@ -746,12 +812,12 @@ function initControlApp(){
     }
   }
 
-  // ส่งขึ้น Drive และสร้าง QR ทันที
+  // อัปโหลดเข้า Google Drive พร้อมประมวลผล GIF แน่นอน 100%
   async function processUploadAndGenerateQR(){
     const uniqueId = "TSK_" + Date.now();
     const base64Png = composeCanvas.toDataURL('image/png', 0.85);
 
-    // 1. นำลิงก์ค้นหาเฉพาะไฟล์รูปใบนี้ใน Google Drive ไปสร้าง QR Code ทันที
+    // 1. ปล่อย QR Code เฉพาะรูปภาพรอบนี้ขึ้นจอทันที
     const directSearchLink = `https://drive.google.com/drive/u/0/search?q=${uniqueId}`;
     state.lastQrLink = directSearchLink;
     sendResultToDisplay();
@@ -762,34 +828,34 @@ function initControlApp(){
       filename: `${uniqueId}.png`
     });
 
-    // 3. ถ้าเป็นแบบสตริปหรือ 2x2 ให้สร้าง GIF ด้วย gifshot (ไม่ใช้ Web Worker ข้ามโดเมน)
+    // 3. ถ้าเป็นแบบสตริป 4 หรือ ตาราง 2x2 สั่งสร้าง GIF แน่นอน
     if (state.format !== 'single' && typeof gifshot !== 'undefined') {
       try {
         const frameImages = state.shots.map(s => {
           const c = document.createElement('canvas');
-          c.width = 320;
-          c.height = Math.round(320 * s.height / s.width);
+          c.width = 300;
+          c.height = Math.round(300 * s.height / s.width);
           c.getContext('2d').drawImage(s, 0, 0, c.width, c.height);
           return c.toDataURL('image/jpeg', 0.7);
         });
 
         gifshot.createGIF({
           images: frameImages,
-          gifWidth: 320,
-          gifHeight: Math.round(320 * state.shots[0].height / state.shots[0].width),
+          gifWidth: 300,
+          gifHeight: Math.round(300 * state.shots[0].height / state.shots[0].width),
           interval: 0.45,
-          numWorkers: 0 // ปิด Worker ป้องกันปัญหาความปลอดภัยบนเบราว์เซอร์
+          numWorkers: 0
         }, function(obj) {
           if (!obj.error) {
             state.lastGifData = obj.image;
-            // ส่ง GIF เข้า Google Drive ด้วยชื่อ Timestamp เดียวกัน
+            // ส่งไฟล์ GIF เข้า Google Drive ทันที
             sendToGas({
               gif: obj.image,
               gifFilename: `${uniqueId}.gif`
             });
             console.log("GIF Uploaded to Google Drive successfully!");
           } else {
-            console.warn("GIF create error:", obj.error);
+            console.warn("GIF shot error:", obj.error);
           }
         });
       } catch (err) {
@@ -821,7 +887,30 @@ function initControlApp(){
       a.href = state.lastGifData;
       a.click();
     } else {
-      alert('ระบบกำลังประมวลผล GIF สักครู่ กรุณากดใหม่อีกครั้ง');
+      alert('ระบบกำลังประมวลผลภาพเคลื่อนไหว กรุณาลองใหม่อีกครั้งใน 2-3 วินาที');
+    }
+  };
+
+  // แก้ไข: เพิ่มคำสั่ง Print Canvas ให้กดใช้งานได้จริง
+  printBtn.onclick = ()=>{
+    const dataUrl = composeCanvas.toDataURL('image/png');
+    const win = window.open('', '_blank');
+    if (win) {
+      win.document.write(`
+        <html>
+        <head><title>Print Photobooth</title>
+        <style>
+          @page { size: auto; margin: 0; }
+          body { margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; background: #fff; }
+          img { max-width: 100%; max-height: 100%; object-fit: contain; }
+        </style>
+        </head>
+        <body>
+          <img src="${dataUrl}" onload="window.print(); window.close();" />
+        </body>
+        </html>
+      `);
+      win.document.close();
     }
   };
 
@@ -890,14 +979,13 @@ function initDisplayApp(){
       setTimeout(()=>{ flash.style.opacity = '0'; }, 50);
     }
 
-    // แสดงผลงานรูปถ่าย + ปล่อย QR Code ทันที
     if(msg.type === 'roundResult'){
       resultEmpty.style.display = 'none';
       finalImg.src = msg.composedSrc;
       finalImg.style.display = 'block';
 
       if(msg.qrText && msg.qrText.startsWith('http')){
-        qrTitle.textContent = `สแกนรับภาพรอบที่ ${msg.roundNumber} 🌸`;
+        qrTitle.textContent = `สแกนรับภาพรอบที่ ${msg.roundNumber} 🩵`;
         qrSub.textContent = 'สแกนเพื่อเปิดภาพและบันทึกลงมือถือ';
         
         qrHolder.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(msg.qrText)}" alt="QR Code">`;
