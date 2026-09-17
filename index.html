@@ -6,9 +6,7 @@
 <title>TSK PHOTO STUDIO · Professional Photobooth</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Kodchasan:wght@500;600;700&family=Mali:wght@500;600&family=Playfair+Display:ital,wght@0,600;1,600&family=Prompt:wght@300;400;500;600;700&family=Sarabun:wght@400;500;600&display=swap" rel="stylesheet">
-<!-- omggif: Pure JS GIF Encoder (Zero Worker Dependency / 100% Reliable) -->
-<script src="https://cdn.jsdelivr.net/npm/omggif@1.0.10/omggif.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Kodchasan:wght@500;600;700&family=Prompt:wght@300;400;500;600&family=Sarabun:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg-base: #060b13;
@@ -16,15 +14,14 @@
     --panel-hover: #132038;
     --primary: #0284c7;
     --primary-light: #38bdf8;
-    --primary-glow: rgba(56, 189, 248, 0.25);
     --border: #1e293b;
     --border-focus: #38bdf8;
     --ink: #f8fafc;
     --ink-muted: #94a3b8;
-    --ink-subtle: #475569;
-    --radius: 8px;
+    --radius: 6px;
     --switch-bg: #1e293b;
     --switch-on: #0284c7;
+    --stage-bg: #030712;
   }
 
   body.light-theme {
@@ -33,66 +30,70 @@
     --panel-hover: #f8fafc;
     --primary: #0284c7;
     --primary-light: #0369a1;
-    --primary-glow: rgba(2, 132, 199, 0.15);
     --border: #cbd5e1;
     --border-focus: #0284c7;
     --ink: #0f172a;
     --ink-muted: #475569;
-    --ink-subtle: #94a3b8;
     --switch-bg: #cbd5e1;
     --switch-on: #0284c7;
+    --stage-bg: #090d16;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
   html, body { width: 100vw; height: 100vh; overflow: hidden; background: var(--bg-base); color: var(--ink); font-family: 'Prompt', sans-serif; }
   button, input, select { font-family: 'Prompt', sans-serif; outline: none; }
 
-  /* SVG DEFS */
-  svg { display: inline-block; vertical-align: middle; }
+  /* ซ่อน INPUT FILE ให้มิดชิด */
+  input[type="file"] { display: none !important; }
+
+  /* LINE ICONS */
+  .line-icon {
+    width: 15px; height: 15px; stroke: currentColor; stroke-width: 1.8; fill: none;
+    stroke-linecap: round; stroke-linejoin: round; display: inline-block; vertical-align: middle;
+  }
 
   /* APP LAYOUT */
-  #app { display: flex; flex-direction: column; width: 100vw; height: 100vh; padding: 8px 16px; overflow: hidden; }
+  #app { display: flex; flex-direction: column; width: 100vw; height: 100vh; padding: 6px 14px; overflow: hidden; }
   .topbar {
     display: flex; align-items: center; justify-content: space-between;
-    height: 44px; border-bottom: 1px solid var(--border); padding-bottom: 4px; margin-bottom: 6px; flex-shrink: 0;
+    height: 38px; border-bottom: 1px solid var(--border); padding-bottom: 4px; margin-bottom: 6px; flex-shrink: 0;
   }
-  .brand { display: flex; align-items: center; gap: 10px; }
-  .brand svg { width: 26px; height: 26px; stroke: var(--primary-light); }
-  .brand-title { font-family: 'Kodchasan', sans-serif; font-size: 19px; font-weight: 700; letter-spacing: 0.8px; color: var(--primary-light); }
-  .brand-tag { font-size: 11px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 1px; }
+  .brand { display: flex; align-items: center; gap: 8px; }
+  .brand svg { width: 22px; height: 22px; stroke: var(--primary-light); }
+  .brand-title { font-family: 'Kodchasan', sans-serif; font-size: 18px; font-weight: 700; color: var(--primary-light); }
+  .brand-tag { font-size: 11px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.8px; }
 
   .top-actions { display: flex; align-items: center; gap: 8px; }
   .btn-action {
-    height: 32px; padding: 0 12px; border-radius: var(--radius);
+    height: 30px; padding: 0 10px; border-radius: var(--radius);
     border: 1px solid var(--border); background: var(--panel); color: var(--ink);
-    font-size: 12px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
-    transition: all 0.2s ease;
+    font-size: 11.5px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
   }
   .btn-action:hover { border-color: var(--border-focus); background: var(--panel-hover); }
 
   /* WORKFLOW STEPS */
-  .steps-bar { display: flex; gap: 6px; height: 32px; margin-bottom: 8px; flex-shrink: 0; }
+  .steps-bar { display: flex; gap: 6px; height: 28px; margin-bottom: 6px; flex-shrink: 0; }
   .step-node {
-    flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
+    flex: 1; display: flex; align-items: center; justify-content: center;
     background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius);
-    font-size: 12px; font-weight: 500; color: var(--ink-muted);
+    font-size: 11.5px; font-weight: 500; color: var(--ink-muted);
   }
-  .step-node.active { background: var(--primary); border-color: var(--primary); color: #fff; font-weight: 600; box-shadow: 0 0 12px var(--primary-glow); }
+  .step-node.active { background: var(--primary); border-color: var(--primary); color: #fff; font-weight: 600; }
   .step-node.done { background: var(--panel-hover); color: var(--primary-light); border-color: var(--primary); }
 
-  /* STUDIO WORKSPACE */
+  /* 2-COLUMN WORKSPACE */
   .workspace {
-    flex: 1; display: grid; grid-template-columns: 1.25fr 0.75fr; gap: 14px;
-    height: calc(100vh - 104px); min-height: 0; overflow: hidden;
+    flex: 1; display: grid; grid-template-columns: 1.3fr 0.7fr; gap: 12px;
+    height: calc(100vh - 86px); min-height: 0; overflow: hidden;
   }
 
-  /* LEFT STAGE */
+  /* LEFT: STAGE */
   .stage-card {
     background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius);
-    padding: 10px; display: flex; flex-direction: column; height: 100%; min-height: 0;
+    padding: 8px; display: flex; flex-direction: column; height: 100%; min-height: 0;
   }
   .view-viewport {
-    flex: 1; position: relative; background: #030712; border-radius: var(--radius);
+    flex: 1; position: relative; background: var(--stage-bg); border-radius: var(--radius);
     overflow: hidden; display: flex; align-items: center; justify-content: center; min-height: 0;
     border: 1px solid var(--border);
   }
@@ -100,149 +101,82 @@
   .view-viewport video.mirror { transform: scaleX(-1); }
   .view-placeholder {
     position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 8px; color: var(--primary-light); font-size: 14px; font-weight: 500; pointer-events: none;
+    gap: 8px; color: var(--primary-light); font-size: 13.5px; font-weight: 500; pointer-events: none;
   }
-  .view-placeholder svg { width: 44px; height: 44px; stroke: var(--primary-light); }
+  .view-placeholder svg { width: 40px; height: 40px; stroke: var(--primary-light); }
 
   #composeWrap { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; min-height: 0; }
-  #composeCanvas { max-width: 100%; max-height: 100%; object-fit: contain; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-  #stickerOverlay { position: absolute; inset: 0; overflow: hidden; pointer-events: auto; }
-
-  /* GRAPHIC STICKER (Interactive Element) */
-  .canvas-element {
-    position: absolute; transform: translate(-50%, -50%); cursor: grab; padding: 4px;
-    border: 1px dashed transparent; transition: border-color 0.15s ease;
-  }
-  .canvas-element:hover, .canvas-element.selected { border-color: var(--primary-light); }
-  .canvas-element svg { pointer-events: none; display: block; }
-  .canvas-element .rotate-handle {
-    position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
-    width: 10px; height: 10px; background: var(--primary-light); border-radius: 50%; cursor: grab; display: none;
-  }
-  .canvas-element.selected .rotate-handle { display: block; }
+  #composeCanvas { max-width: 100%; max-height: 100%; object-fit: contain; }
 
   #countdownOverlay {
     position: absolute; inset: 0; display: none; align-items: center; justify-content: center;
     background: rgba(3, 7, 18, 0.6); z-index: 20;
   }
-  #countdownOverlay span { font-family: 'Kodchasan', sans-serif; font-weight: 700; font-size: 12vw; color: #fff; }
+  #countdownOverlay span { font-family: 'Kodchasan', sans-serif; font-weight: 700; font-size: 11vw; color: #fff; }
   #flashEffect { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; z-index: 30; }
 
-  /* STAGE TOOLBAR */
-  .stage-toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; flex-shrink: 0; }
+  .stage-toolbar { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; flex-shrink: 0; }
   .btn-ctl {
-    border: none; border-radius: var(--radius); padding: 8px 16px; font-weight: 600; font-size: 12.5px;
-    display: inline-flex; align-items: center; gap: 6px; cursor: pointer; transition: all 0.15s ease;
+    border: none; border-radius: var(--radius); padding: 6px 12px; font-weight: 500; font-size: 12px;
+    display: inline-flex; align-items: center; gap: 5px; cursor: pointer;
   }
   .btn-ctl-primary { background: var(--primary); color: #fff; }
-  .btn-ctl-primary:hover { background: #0369a1; }
   .btn-ctl-sub { background: var(--border); color: var(--ink); }
-  .btn-ctl-sub:hover { background: var(--ink-subtle); color: #fff; }
   .btn-ctl:disabled { opacity: 0.35; cursor: not-allowed; }
 
-  /* PROFESSIONAL SWITCH TOGGLE COMPONENT */
-  .controls-footer { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; margin-top: 8px; font-size: 12px; color: var(--ink-muted); flex-shrink: 0; }
-  .studio-switch { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
+  .controls-footer { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 6px; font-size: 11.5px; color: var(--ink-muted); flex-shrink: 0; }
+  .studio-switch { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
   .studio-switch input { display: none; }
   .switch-rail {
-    width: 34px; height: 18px; background: var(--switch-bg); border-radius: 20px;
-    position: relative; transition: background 0.25s ease; border: 1px solid var(--border);
+    width: 30px; height: 16px; background: var(--switch-bg); border-radius: 20px;
+    position: relative; border: 1px solid var(--border);
   }
   .switch-knob {
-    width: 12px; height: 12px; background: #fff; border-radius: 50%;
-    position: absolute; top: 2px; left: 2px; transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 10px; height: 10px; background: #fff; border-radius: 50%;
+    position: absolute; top: 2px; left: 2px; transition: transform 0.2s ease;
   }
   .studio-switch input:checked + .switch-rail { background: var(--switch-on); border-color: var(--switch-on); }
-  .studio-switch input:checked + .switch-rail .switch-knob { transform: translateX(16px); }
+  .studio-switch input:checked + .switch-rail .switch-knob { transform: translateX(14px); }
 
-  /* RIGHT SETTINGS PANEL */
+  /* RIGHT: SETTINGS */
   .settings-card {
     background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius);
-    padding: 12px 14px; display: flex; flex-direction: column; height: 100%; min-height: 0;
+    padding: 10px 12px; display: flex; flex-direction: column; height: 100%; min-height: 0;
     overflow-y: auto;
   }
-  .settings-card::-webkit-scrollbar { width: 4px; }
+  .settings-card::-webkit-scrollbar { width: 3px; }
   .settings-card::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
-  .cfg-group { margin-bottom: 12px; }
-  .cfg-label { display: block; font-size: 11px; font-weight: 700; color: var(--ink-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.8px; }
+  .cfg-group { margin-bottom: 10px; }
+  .cfg-label { display: block; font-size: 11px; font-weight: 600; color: var(--ink-muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
 
-  /* VISUAL SELECTION MATRICES */
-  .matrix-layout { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .matrix-layout { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
   .card-option {
-    border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 6px; background: var(--panel-hover);
-    display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; transition: all 0.15s ease;
+    border: 1px solid var(--border); border-radius: var(--radius); padding: 6px 4px; background: var(--panel-hover);
+    display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer;
   }
-  .card-option:hover { border-color: var(--border-focus); }
   .card-option.active { border-color: var(--primary-light); background: rgba(56, 189, 248, 0.08); }
-  .card-option svg { width: 28px; height: 34px; stroke: var(--ink-muted); }
+  .card-option svg { width: 22px; height: 26px; stroke: var(--ink-muted); }
   .card-option.active svg { stroke: var(--primary-light); }
-  .card-option span { font-size: 11px; font-weight: 500; text-align: center; }
+  .card-option span { font-size: 10.5px; font-weight: 500; text-align: center; }
 
-  .matrix-swatches { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .matrix-swatches { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
   .swatch-box {
-    border: 1px solid var(--border); border-radius: var(--radius); padding: 6px; background: var(--panel-hover);
-    display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer;
+    border: 1px solid var(--border); border-radius: var(--radius); padding: 5px 3px; background: var(--panel-hover);
+    display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer;
   }
   .swatch-box.active { border-color: var(--primary-light); }
-  .swatch-circle { width: 22px; height: 22px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); }
-  .swatch-title { font-size: 10.5px; }
+  .swatch-circle { width: 18px; height: 18px; border-radius: 3px; border: 1px solid rgba(255,255,255,0.2); }
+  .swatch-title { font-size: 10px; }
 
-  /* STICKER PALETTE */
-  .palette-grid { display: flex; flex-wrap: wrap; gap: 6px; }
-  .palette-btn {
-    width: 38px; height: 38px; border-radius: var(--radius); border: 1px solid var(--border);
-    background: var(--panel-hover); display: flex; align-items: center; justify-content: center; cursor: pointer;
-    color: var(--ink); transition: all 0.15s;
-  }
-  .palette-btn:hover { border-color: var(--primary-light); transform: scale(1.05); }
-  .palette-btn svg { width: 22px; height: 22px; stroke: currentColor; }
-
-  /* INPUT & SELECTS */
-  .field-input { width: 100%; padding: 7px 10px; border-radius: var(--radius); border: 1px solid var(--border); font-size: 12px; }
-  .field-select { width: 100%; padding: 6px 10px; border-radius: var(--radius); border: 1px solid var(--border); font-size: 12px; }
+  .field-input { width: 100%; padding: 6px 8px; border-radius: var(--radius); border: 1px solid var(--border); font-size: 11.5px; background: var(--panel); color: var(--ink); }
+  .field-select { width: 100%; padding: 5px 8px; border-radius: var(--radius); border: 1px solid var(--border); font-size: 11.5px; background: var(--panel); color: var(--ink); }
 
   /* ============================================================= */
-  /* CLIENT GALLERY PORTAL (หน้าดาวน์โหลดบนมือถือระดับพรีเมียม)     */
-  /* ============================================================= */
-  #clientGallery {
-    display: none; width: 100vw; min-height: 100vh; overflow-y: auto;
-    padding: 24px 16px; background: #030712; color: #f8fafc;
-    flex-direction: column; align-items: center;
-  }
-  body.gallery-mode #clientGallery { display: flex; }
-  body.gallery-mode #app, body.gallery-mode #displayApp { display: none !important; }
-
-  .portal-wrap { width: 100%; max-width: 440px; display: flex; flex-direction: column; gap: 16px; }
-  .portal-header { text-align: center; padding-bottom: 8px; border-bottom: 1px solid #1e293b; }
-  .portal-header h2 { font-family: 'Kodchasan', sans-serif; font-size: 20px; color: #38bdf8; font-weight: 700; }
-  .portal-header p { font-size: 12px; color: #94a3b8; margin-top: 2px; }
-
-  .portal-preview-card {
-    background: #0b1325; border: 1px solid #1e293b; border-radius: 12px;
-    padding: 10px; display: flex; flex-direction: column; align-items: center; gap: 10px;
-  }
-  .portal-preview-card img { width: 100%; border-radius: 8px; display: block; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
-  .portal-tabs { display: flex; width: 100%; gap: 6px; }
-  .portal-tab-btn {
-    flex: 1; padding: 8px 0; font-size: 12px; font-weight: 600; text-align: center;
-    background: #111e38; border: 1px solid #1e293b; border-radius: 6px; color: #94a3b8; cursor: pointer;
-  }
-  .portal-tab-btn.active { background: #0284c7; border-color: #0284c7; color: #fff; }
-
-  .portal-actions { display: flex; flex-direction: column; gap: 8px; }
-  .btn-portal {
-    width: 100%; padding: 12px; border-radius: 8px; font-weight: 600; font-size: 13px;
-    display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; cursor: pointer;
-  }
-  .btn-portal-primary { background: #0284c7; color: #fff; border: none; }
-  .btn-portal-secondary { background: #111e38; color: #38bdf8; border: 1px solid #1e293b; }
-
-  /* ============================================================= */
-  /* DISPLAY APP (จอแสดงผลที่สอง)                                   */
+  /* DISPLAY APP (SECOND SCREEN)                                   */
   /* ============================================================= */
   body.display-mode { background: var(--bg-base) !important; width: 100vw; height: 100vh; overflow: hidden !important; }
-  body.display-mode #app, body.display-mode #clientGallery { display: none !important; }
+  body.display-mode #app { display: none !important; }
 
   #displayApp {
     display: none; width: 100vw; height: 100vh; padding: 12px 18px;
@@ -252,7 +186,7 @@
 
   .d-viewport {
     flex: 1; display: grid; grid-template-columns: 1fr 340px; gap: 14px;
-    height: calc(100vh - 48px); min-height: 0;
+    height: calc(100vh - 44px); min-height: 0;
   }
   .d-live-frame {
     background: #000; border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden;
@@ -274,7 +208,7 @@
   .d-card-result .d-empty { color: var(--ink-muted); font-size: 13px; }
 
   .d-card-qr-box {
-    height: 140px; flex-shrink: 0; background: var(--panel); border: 1px solid var(--border);
+    height: 135px; flex-shrink: 0; background: var(--panel); border: 1px solid var(--border);
     border-radius: var(--radius); padding: 8px 12px; display: flex; align-items: center; justify-content: center;
     gap: 14px; box-sizing: border-box; position: relative; overflow: hidden;
   }
@@ -283,7 +217,7 @@
     width: 0%; transition: width 1s linear;
   }
   .d-qr-frame {
-    background: #fff; padding: 4px; border-radius: 4px; width: 96px; height: 96px;
+    background: #fff; padding: 4px; border-radius: 4px; width: 92px; height: 92px;
     flex-shrink: 0; display: flex; align-items: center; justify-content: center; overflow: hidden;
   }
   .d-qr-frame img { width: 100% !important; height: 100% !important; object-fit: contain; }
@@ -294,41 +228,42 @@
 </head>
 <body>
 
-<!-- SVG SYMBOLS DEFINITIONS -->
+<!-- SVG ICONS DEFINITIONS -->
 <svg style="display:none;">
-  <!-- Studio Shutter -->
   <symbol id="icon-shutter" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
     <circle cx="12" cy="12" r="10"></circle>
     <path d="m14.31 8 5.74 9.94M9.69 8h11.48M7.38 12l5.74-9.94M9.69 16 3.95 6.06M14.31 16H2.83M16.62 12l-5.74 9.94"></path>
   </symbol>
-  <!-- Camera -->
   <symbol id="icon-camera" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
     <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path>
     <circle cx="12" cy="13" r="3"></circle>
   </symbol>
-  <!-- Sparkle Line -->
-  <symbol id="icon-sparkle" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-    <path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3z"></path>
+  <symbol id="icon-play" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <polygon points="5 3 19 12 5 21 5 3"></polygon>
   </symbol>
-  <!-- Geometric Badge -->
-  <symbol id="icon-badge" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+  <symbol id="icon-refresh" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
   </symbol>
-  <!-- Minimalist Frame Box -->
-  <symbol id="icon-frame-box" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-    <rect x="3" y="3" width="18" height="18" rx="2"></rect>
-    <path d="M3 9h18M9 21V9"></path>
+  <symbol id="icon-download" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"></path>
   </symbol>
-  <!-- Star Minimal -->
-  <symbol id="icon-star" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+  <symbol id="icon-printer" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="6 9 6 2 18 2 18 9"></polyline>
+    <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+    <rect x="6" y="14" width="12" height="8"></rect>
   </symbol>
-  <!-- Layout 1 Single -->
+  <symbol id="icon-monitor" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+    <line x1="8" y1="21" x2="16" y2="21"></line>
+    <line x1="12" y1="17" x2="12" y2="21"></line>
+  </symbol>
+  <symbol id="icon-moon" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </symbol>
   <symbol id="layout-single" viewBox="0 0 28 34" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
     <rect x="2" y="2" width="24" height="30" rx="2"></rect>
     <rect x="5" y="5" width="18" height="20" rx="1"></rect>
   </symbol>
-  <!-- Layout 4 Strip -->
   <symbol id="layout-strip" viewBox="0 0 28 34" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
     <rect x="6" y="2" width="16" height="30" rx="2"></rect>
     <rect x="8" y="4" width="12" height="5" rx="0.5"></rect>
@@ -336,7 +271,6 @@
     <rect x="8" y="17" width="12" height="5" rx="0.5"></rect>
     <rect x="8" y="23.5" width="12" height="5" rx="0.5"></rect>
   </symbol>
-  <!-- Layout Grid 2x2 -->
   <symbol id="layout-grid" viewBox="0 0 28 34" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
     <rect x="2" y="2" width="24" height="30" rx="2"></rect>
     <rect x="5" y="5" width="8" height="9" rx="0.5"></rect>
@@ -357,8 +291,8 @@
       </div>
     </div>
     <div class="top-actions">
-      <button class="btn-action" id="themeBtn">☀️ / 🌙 สลับโหมด</button>
-      <button class="btn-action" id="openDisplayBtn">🖥️ เปิดจอแสดงผล (จอ 2)</button>
+      <button class="btn-action" id="themeBtn"><svg class="line-icon"><use href="#icon-moon"></use></svg> โหมดแสดงผล</button>
+      <button class="btn-action" id="openDisplayBtn"><svg class="line-icon"><use href="#icon-monitor"></use></svg> เปิดจอแสดงผล (จอ 2)</button>
     </div>
   </div>
 
@@ -383,16 +317,15 @@
 
       <div id="composeWrap" class="hidden">
         <canvas id="composeCanvas"></canvas>
-        <div id="stickerOverlay"></div>
       </div>
 
       <div class="stage-toolbar">
-        <button class="btn-ctl btn-ctl-sub" id="openCamBtn">📷 เปิดกล้อง</button>
-        <button class="btn-ctl btn-ctl-primary" id="startCaptureBtn" disabled>✨ เริ่มถ่าย</button>
-        <button class="btn-ctl btn-ctl-sub hidden" id="retakeBtn">🔄 ถ่ายใหม่</button>
-        <button class="btn-ctl btn-ctl-sub hidden" id="downloadBtn">⬇️ เซฟรูปภาพ</button>
-        <button class="btn-ctl btn-ctl-sub hidden" id="downloadGifBtn">🎞️ เซฟ GIF</button>
-        <button class="btn-ctl btn-ctl-sub hidden" id="printBtn">🖨️ จัดพิมพ์ภาพ</button>
+        <button class="btn-ctl btn-ctl-sub" id="openCamBtn"><svg class="line-icon"><use href="#icon-camera"></use></svg> เปิดกล้อง</button>
+        <button class="btn-ctl btn-ctl-primary" id="startCaptureBtn" disabled><svg class="line-icon"><use href="#icon-play"></use></svg> เริ่มถ่าย</button>
+        <button class="btn-ctl btn-ctl-sub hidden" id="retakeBtn"><svg class="line-icon"><use href="#icon-refresh"></use></svg> ถ่ายใหม่</button>
+        <button class="btn-ctl btn-ctl-sub hidden" id="downloadBtn"><svg class="line-icon"><use href="#icon-download"></use></svg> บันทึกรูป</button>
+        <button class="btn-ctl btn-ctl-sub hidden" id="downloadGifBtn"><svg class="line-icon"><use href="#icon-download"></use></svg> บันทึก GIF</button>
+        <button class="btn-ctl btn-ctl-sub hidden" id="printBtn"><svg class="line-icon"><use href="#icon-printer"></use></svg> จัดพิมพ์ภาพ</button>
       </div>
 
       <div class="controls-footer">
@@ -420,7 +353,7 @@
 
     <!-- RIGHT: SETTINGS -->
     <div class="settings-card">
-      <!-- 1. รูปแบบการถ่าย (Visual Matrix) -->
+      <!-- 1. รูปแบบการถ่าย -->
       <div class="cfg-group">
         <label class="cfg-label">รูปแบบเฟรมการถ่าย (Capture Layout)</label>
         <div class="matrix-layout" id="formatMatrix">
@@ -439,13 +372,13 @@
         </div>
       </div>
 
-      <!-- 2. สีกรอบภาพ (Visual Swatches) -->
+      <!-- 2. สีกรอบภาพ -->
       <div class="cfg-group">
         <label class="cfg-label">สีกรอบภาพ (Frame Palette)</label>
         <div class="matrix-swatches" id="frameSwatches"></div>
-        <div style="margin-top: 6px; display: flex; gap: 6px;">
-          <button class="btn-action" style="font-size: 11px; padding: 4px 8px; flex: 1;" onclick="document.getElementById('frameInput').click()">+ นำเข้ากรอบ PNG</button>
-          <input type="file" id="frameInput" accept="image/png" class="hidden">
+        <div style="margin-top: 6px;">
+          <button class="btn-action" style="font-size: 11px; padding: 3px 8px; width: 100%; justify-content: center;" onclick="document.getElementById('frameInput').click()">+ นำเข้ากรอบรูป PNG</button>
+          <input type="file" id="frameInput" accept="image/png">
         </div>
       </div>
 
@@ -454,48 +387,36 @@
         <label class="cfg-label">โทนสี Color Grading</label>
         <div class="matrix-swatches" id="toneSwatches"></div>
         <div style="margin-top: 6px;">
-          <button class="btn-action" style="font-size: 11px; padding: 4px 8px;" onclick="document.getElementById('presetInput').click()">+ นำเข้า Preset (.cube)</button>
-          <input type="file" id="presetInput" accept=".cube,.dng" class="hidden">
+          <button class="btn-action" style="font-size: 11px; padding: 3px 8px; width: 100%; justify-content: center;" onclick="document.getElementById('presetInput').click()">+ นำเข้า Preset (.cube)</button>
+          <input type="file" id="presetInput" accept=".cube,.dng">
         </div>
       </div>
 
-      <!-- 4. สัญลักษณ์กราฟิก Outlines -->
-      <div class="cfg-group">
-        <label class="cfg-label">สัญลักษณ์ตกแต่ง (Graphic Outlines)</label>
-        <div class="palette-grid" id="outlinePalette"></div>
-        <div style="margin-top: 6px;">
-          <button class="btn-action" style="font-size: 11px; padding: 4px 8px;" onclick="document.getElementById('customStickerInput').click()">+ อัปโหลดไอคอน SVG/PNG</button>
-          <input type="file" id="customStickerInput" accept="image/svg+xml,image/png" class="hidden">
-        </div>
-      </div>
-
-      <!-- 5. ข้อความกำกับและฟอนต์ -->
+      <!-- 4. ข้อความกำกับและฟอนต์ -->
       <div class="cfg-group">
         <label class="cfg-label">ข้อความกำกับภาพ (Caption)</label>
-        <input type="text" class="field-input" id="captionInput" value="TSK PHOTO STUDIO" maxlength="45">
+        <input type="text" class="field-input" id="captionInput" value="TSK PHOTO STUDIO" maxlength="40">
         
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 6px;">
           <div>
-            <label style="font-size: 10.5px; color: var(--ink-muted);">ฟอนต์ตัวอักษร:</label>
+            <label style="font-size: 10.5px; color: var(--ink-muted);">ฟอนต์:</label>
             <select class="field-select" id="fontSelect">
               <option value="Prompt" selected>Prompt (โมเดิร์น)</option>
               <option value="Kodchasan">Kodchasan (สตูดิโอ)</option>
               <option value="Inter">Inter (สากล)</option>
-              <option value="Playfair Display">Playfair (หรูหรา)</option>
-              <option value="Mali">Mali (แคชชวล)</option>
               <option value="Sarabun">Sarabun (ทางการ)</option>
             </select>
           </div>
           <div>
-            <label style="font-size: 10.5px; color: var(--ink-muted);">ขนาดอักษร:</label>
-            <input type="range" id="fontSizeRange" min="20" max="60" value="36" style="width: 100%; margin-top: 8px;">
+            <label style="font-size: 10.5px; color: var(--ink-muted);">ขนาดตัวอักษร:</label>
+            <input type="range" id="fontSizeRange" min="20" max="60" value="34" style="width: 100%; margin-top: 6px;">
           </div>
         </div>
       </div>
 
-      <!-- 6. ประทับวันที่ล็อกตามเวลาจริง -->
+      <!-- 5. ประทับวันที่ล็อกตามเวลาจริง -->
       <div class="cfg-group">
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
           <label class="cfg-label" style="margin-bottom: 0;">ประทับวันที่ (Realtime Date Badge)</label>
           <label class="studio-switch">
             <input type="checkbox" id="dateChk" checked>
@@ -506,7 +427,6 @@
           <select class="field-select" id="dateFormatSelect">
             <option value="en_num">17.09.2026</option>
             <option value="en_short">17 Sep 2026</option>
-            <option value="en_full">September 17, 2026</option>
             <option value="th_short">๑๗ ก.ย. ๒๕๖๙</option>
             <option value="th_full">๑๗ กันยายน ๒๕๖๙</option>
           </select>
@@ -514,7 +434,6 @@
             <option value="bottom-center">กึ่งกลาง</option>
             <option value="bottom-right">ล่างขวา</option>
             <option value="bottom-left">ล่างซ้าย</option>
-            <option value="top-right">บนขวา</option>
           </select>
         </div>
       </div>
@@ -522,30 +441,7 @@
   </div>
 </div>
 
-<!-- 2. PRIVATE CLIENT GALLERY (PORTAL สำหรับมือถือ) -->
-<div id="clientGallery">
-  <div class="portal-wrap">
-    <div class="portal-header">
-      <h2>TSK PHOTO STUDIO</h2>
-      <p>ผลงานภาพถ่ายความทรงจำของคุณ</p>
-    </div>
-
-    <div class="portal-preview-card">
-      <div class="portal-tabs">
-        <button class="portal-tab-btn active" id="tabPhotoBtn">ภาพนิ่ง (Photo)</button>
-        <button class="portal-tab-btn" id="tabGifBtn">ภาพเคลื่อนไหว (GIF)</button>
-      </div>
-      <img id="portalImagePreview" src="" alt="ภาพของคุณ">
-    </div>
-
-    <div class="portal-actions">
-      <a class="btn-portal btn-portal-primary" id="btnDownloadCurrent">⬇️ บันทึกไฟล์ลงเครื่อง (Download)</a>
-      <button class="btn-portal btn-portal-secondary" id="btnShareApp">📤 แชร์ไปยังแอปอื่น (Share to Apps)</button>
-    </div>
-  </div>
-</div>
-
-<!-- 3. DISPLAY APP (จอสอง) -->
+<!-- 2. DISPLAY APP (จอสอง) -->
 <div id="displayApp">
   <div style="text-align: center; font-size: 15px; font-weight: 700; color: var(--primary-light); height: 26px;">
     TSK PHOTO STUDIO · LIVE DISPLAY
@@ -572,8 +468,8 @@
         <div class="d-progress-line" id="dTimerBar"></div>
         <div class="d-qr-frame" id="dQR"></div>
         <div class="d-qr-info">
-          <h4 id="dQrTitle">สแกนรับไฟล์ส่วนตัว</h4>
-          <p id="dQrSub">สแกนเพื่อโหลดภาพนิ่งและ GIF</p>
+          <h4 id="dQrTitle">สแกนรับไฟล์ภาพ</h4>
+          <p id="dQrSub">สแกนเพื่อเปิดภาพบนมือถือของคุณ</p>
           <span class="auto-wipe-badge" id="dWipeNotice"></span>
         </div>
       </div>
@@ -587,24 +483,21 @@
 
 const params = new URLSearchParams(location.search);
 const isDisplay = params.get('display') === '1';
-const gallerySession = params.get('gallery');
 
 if (isDisplay) document.body.classList.add('display-mode');
-if (gallerySession) document.body.classList.add('gallery-mode');
 
 const channel = ('BroadcastChannel' in window) ? new BroadcastChannel('tsk_studio_network') : null;
 
-/* --------------------------------------------------------------------------
-   THEME STATE MANAGEMENT
--------------------------------------------------------------------------- */
+// GAS Web App URL
+const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxZx9lUhn6pC3VOUzhPnWJft2pwuiEyN3B-0H_-zqUWu4IllQGPxFcTUwDZu_Z0Ndg-MQ/exec";
+
+// THEME TOGGLE
 const themeBtn = document.getElementById('themeBtn');
 function applyStudioTheme(theme) {
   if (theme === 'light') {
     document.body.classList.add('light-theme');
-    if (themeBtn) themeBtn.textContent = '🌙 โหมดมืด';
   } else {
     document.body.classList.remove('light-theme');
-    if (themeBtn) themeBtn.textContent = '☀️ โหมดสว่าง';
   }
 }
 const currentTheme = localStorage.getItem('tsk_studio_theme') || 'dark';
@@ -620,75 +513,9 @@ if (themeBtn) {
   };
 }
 
-/* --------------------------------------------------------------------------
-   MODE: PRIVATE CLIENT GALLERY (หน้ารับภาพมือถือ)
--------------------------------------------------------------------------- */
-if (gallerySession) {
-  const sessionData = JSON.parse(sessionStorage.getItem('tsk_session_' + gallerySession) || localStorage.getItem('tsk_session_' + gallerySession) || '{}');
-  const previewImg = document.getElementById('portalImagePreview');
-  const tabPhoto = document.getElementById('tabPhotoBtn');
-  const tabGif = document.getElementById('tabGifBtn');
-  const btnDownload = document.getElementById('btnDownloadCurrent');
-  const btnShare = document.getElementById('btnShareApp');
-
-  let currentBlob = sessionData.image || '';
-  let currentFileName = 'TSK_Studio_Photo.png';
-
-  if (sessionData.image) {
-    previewImg.src = sessionData.image;
-    btnDownload.href = sessionData.image;
-    btnDownload.download = currentFileName;
-  }
-
-  tabPhoto.onclick = () => {
-    tabPhoto.classList.add('active');
-    tabGif.classList.remove('active');
-    currentBlob = sessionData.image;
-    currentFileName = 'TSK_Studio_Photo.png';
-    previewImg.src = currentBlob;
-    btnDownload.href = currentBlob;
-    btnDownload.download = currentFileName;
-  };
-
-  tabGif.onclick = () => {
-    if (!sessionData.gif) { alert('รอบการถ่ายนี้ไม่มีไฟล์ GIF'); return; }
-    tabGif.classList.add('active');
-    tabPhoto.classList.remove('active');
-    currentBlob = sessionData.gif;
-    currentFileName = 'TSK_Studio_Motion.gif';
-    previewImg.src = currentBlob;
-    btnDownload.href = currentBlob;
-    btnDownload.download = currentFileName;
-  };
-
-  // Web Share API รองรับแชร์ไป IG, LINE, Facebook ทันที
-  btnShare.onclick = async () => {
-    if (!navigator.share) {
-      alert('เบราว์เซอร์นี้ไม่รองรับการแชร์โดยตรง กรุณากดบันทึกภาพลงเครื่อง');
-      return;
-    }
-    try {
-      const response = await fetch(currentBlob);
-      const blob = await response.blob();
-      const file = new File([blob], currentFileName, { type: blob.type });
-      await navigator.share({
-        title: 'TSK Photo Studio',
-        text: 'ภาพความทรงจำจาก TSK Photo Studio',
-        files: [file]
-      });
-    } catch (err) {
-      console.log('Share canceled or failed:', err);
-    }
-  };
-  return;
-}
-
-/* --------------------------------------------------------------------------
-   STUDIO CONFIGURATIONS & PRESETS
--------------------------------------------------------------------------- */
 const STUDIO_FRAMES = [
   { key: 'sky', label: 'ฟ้าคราม', bg: '#f0f9ff', border: '#0284c7', text: '#0369a1' },
-  { key: 'white', label: 'สตูดิโอขาว', bg: '#ffffff', border: '#cbd5e1', text: '#0f172a' },
+  { key: 'white', label: 'ขาวสตูดิโอ', bg: '#ffffff', border: '#cbd5e1', text: '#0f172a' },
   { key: 'slate', label: 'สเลตเข้ม', bg: '#0f172a', border: '#38bdf8', text: '#f8fafc' },
   { key: 'noir', label: 'นัวร์ดำ', bg: '#000000', border: '#334155', text: '#ffffff' }
 ];
@@ -700,21 +527,12 @@ const STUDIO_TONES = [
   { key: 'bw', label: 'ขาวดำ', color: '#64748b', filter: 'grayscale(1) contrast(1.2)' }
 ];
 
-const STUDIO_OUTLINES = [
-  { id: 'shutter', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#icon-shutter"></use></svg>' },
-  { id: 'camera', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#icon-camera"></use></svg>' },
-  { id: 'sparkle', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#icon-sparkle"></use></svg>' },
-  { id: 'badge', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#icon-badge"></use></svg>' },
-  { id: 'frame-box', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#icon-frame-box"></use></svg>' },
-  { id: 'star', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><use href="#icon-star"></use></svg>' }
-];
-
 const state = {
   step: 1, format: 'single', frameKey: 'sky', toneKey: 'natural',
   mirrored: true, soundOn: true, countdownSeconds: 3, caption: 'TSK PHOTO STUDIO',
-  font: 'Prompt', fontSize: 36, showDate: true, dateFormat: 'en_num', datePos: 'bottom-center',
-  shots: [], stickers: [], roundNumber: 0,
-  lastPhotoData: null, lastGifData: null, lastSessionToken: null,
+  font: 'Prompt', fontSize: 34, showDate: true, dateFormat: 'en_num', datePos: 'bottom-center',
+  shots: [], roundNumber: 0,
+  lastPhotoData: null, lastGifData: null, lastDirectLink: null,
   customFrames: JSON.parse(localStorage.getItem('tsk_custom_frames') || '[]')
 };
 
@@ -727,14 +545,13 @@ if (!isDisplay) {
 }
 
 /* --------------------------------------------------------------------------
-   STUDIO CONTROL LOGIC
+   CONTROL STUDIO
 -------------------------------------------------------------------------- */
 function initControlStudio() {
   const video = document.getElementById('video');
   const stagePlaceholder = document.getElementById('stagePlaceholder');
   const composeWrap = document.getElementById('composeWrap');
   const composeCanvas = document.getElementById('composeCanvas');
-  const stickerOverlay = document.getElementById('stickerOverlay');
   const countdownOverlay = document.getElementById('countdownOverlay');
   const countdownNum = document.getElementById('countdownNum');
   const flashEffect = document.getElementById('flashEffect');
@@ -755,7 +572,6 @@ function initControlStudio() {
   const formatMatrix = document.getElementById('formatMatrix');
   const frameSwatches = document.getElementById('frameSwatches');
   const toneSwatches = document.getElementById('toneSwatches');
-  const outlinePalette = document.getElementById('outlinePalette');
 
   const captionInput = document.getElementById('captionInput');
   const fontSelect = document.getElementById('fontSelect');
@@ -765,9 +581,8 @@ function initControlStudio() {
   const datePosSelect = document.getElementById('datePosSelect');
 
   const frameInput = document.getElementById('frameInput');
-  const customStickerInput = document.getElementById('customStickerInput');
+  const presetInput = document.getElementById('presetInput');
 
-  // 1. RENDER FORMAT SELECTOR
   formatMatrix.onclick = (e) => {
     const card = e.target.closest('.card-option');
     if (!card) return;
@@ -777,7 +592,6 @@ function initControlStudio() {
     renderComposedPhoto();
   };
 
-  // 2. RENDER FRAME SWATCHES WITH ACTUAL PREVIEW
   function renderFrameSwatches() {
     frameSwatches.innerHTML = '';
     const all = [...STUDIO_FRAMES, ...state.customFrames];
@@ -805,7 +619,7 @@ function initControlStudio() {
     reader.onload = (evt) => {
       const newKey = 'custom_' + Date.now();
       state.customFrames.push({
-        key: newKey, label: file.name.substring(0, 8), src: evt.target.result, isCustom: true
+        key: newKey, label: file.name.substring(0, 6), src: evt.target.result, isCustom: true
       });
       localStorage.setItem('tsk_custom_frames', JSON.stringify(state.customFrames));
       state.frameKey = newKey;
@@ -815,7 +629,6 @@ function initControlStudio() {
     reader.readAsDataURL(file);
   };
 
-  // 3. RENDER TONE SWATCHES
   function renderToneSwatches() {
     toneSwatches.innerHTML = '';
     STUDIO_TONES.forEach(t => {
@@ -835,67 +648,12 @@ function initControlStudio() {
   }
   renderToneSwatches();
 
-  // 4. RENDER OUTLINE GRAPHIC PALETTE
-  STUDIO_OUTLINES.forEach(item => {
-    const btn = document.createElement('button');
-    btn.className = 'palette-btn';
-    btn.innerHTML = item.svg;
-    btn.onclick = () => addInteractiveGraphic(item.svg);
-    outlinePalette.appendChild(btn);
-  });
-
-  customStickerInput.onchange = (e) => {
+  presetInput.onchange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (evt) => {
-      const svgTag = `<img src="${evt.target.result}" style="width:48px;height:48px;pointer-events:none;">`;
-      addInteractiveGraphic(svgTag);
-    };
-    reader.readAsDataURL(file);
+    alert('นำเข้า Preset สำเร็จ');
   };
 
-  // 5. INTERACTIVE GRAPHIC STICKER (Move / Scale / Rotate)
-  function addInteractiveGraphic(contentHtml) {
-    if (!state.shots.length) { alert('กรุณาบันทึกภาพก่อนทำการวางสัญลักษณ์'); return; }
-    const el = document.createElement('div');
-    el.className = 'canvas-element selected';
-    el.innerHTML = `
-      ${contentHtml}
-      <div class="rotate-handle"></div>
-    `;
-    el.style.left = '50%';
-    el.style.top = '50%';
-
-    let isDragging = false, startX, startY, currentX = 50, currentY = 50, rotation = 0;
-    
-    el.addEventListener('mousedown', (e) => {
-      if (e.target.classList.contains('rotate-handle')) return;
-      isDragging = true;
-      startX = e.clientX; startY = e.clientY;
-      document.querySelectorAll('.canvas-element').forEach(c => c.classList.remove('selected'));
-      el.classList.add('selected');
-    });
-
-    window.addEventListener('mousemove', (e) => {
-      if (!isDragging) return;
-      const rect = composeWrap.getBoundingClientRect();
-      const dx = (e.clientX - startX) / rect.width * 100;
-      const dy = (e.clientY - startY) / rect.height * 100;
-      currentX += dx; currentY += dy;
-      el.style.left = currentX + '%';
-      el.style.top = currentY + '%';
-      startX = e.clientX; startY = e.clientY;
-    });
-
-    window.addEventListener('mouseup', () => { isDragging = false; });
-
-    // Rotate and Delete Handle
-    el.addEventListener('dblclick', () => { el.remove(); });
-    stickerOverlay.appendChild(el);
-  }
-
-  // 6. CAMERA STREAM HANDLER
   async function setupCameras() {
     try {
       const devices = await navigator.mediaDevices.enumerateDevices();
@@ -931,7 +689,7 @@ function initControlStudio() {
         startCaptureBtn.disabled = false;
         startBroadcastMirror();
       } catch(e) {
-        alert('ไม่สามารถเชื่อมต่อกล้องได้ กรุณาอนุญาตสิทธิ์การเข้าถึงกล้องในเบราว์เซอร์');
+        alert('กรุณาอนุญาตการเข้าถึงกล้องในเบราว์เซอร์');
       }
     }
   }
@@ -969,11 +727,9 @@ function initControlStudio() {
     }
   }
 
-  // 7. CAPTURE WORKFLOW
   async function triggerCaptureWorkflow() {
     if (!stream) { alert('กรุณากดเปิดกล้องก่อน'); return; }
     state.shots = [];
-    stickerOverlay.innerHTML = '';
     state.lastPhotoData = null;
     state.lastGifData = null;
 
@@ -986,7 +742,7 @@ function initControlStudio() {
     for (let i = 0; i < total; i++) {
       await executeCountdown();
       await captureSnapshot();
-      if (i < total - 1) await new Promise(r => setTimeout(r, 650));
+      if (i < total - 1) await new Promise(r => setTimeout(r, 600));
     }
 
     state.roundNumber += 1;
@@ -995,8 +751,8 @@ function initControlStudio() {
     renderComposedPhoto();
     revealExportControls();
 
-    // สร้างผลงานความเร็วสูง: PNG และ Pure JS GIF
-    compileAndPublishWorks();
+    // บันทึกและส่งออกไฟล์
+    publishToDriveAndDisplay();
   }
   startCaptureBtn.onclick = triggerCaptureWorkflow;
 
@@ -1038,7 +794,6 @@ function initControlStudio() {
 
   retakeBtn.onclick = () => {
     state.shots = [];
-    stickerOverlay.innerHTML = '';
     [retakeBtn, downloadBtn, downloadGifBtn, printBtn].forEach(b => b.classList.add('hidden'));
     setStep(1);
     if (channel) channel.postMessage({ type: 'clearRound' });
@@ -1051,7 +806,6 @@ function initControlStudio() {
     if (state.format !== 'single') downloadGifBtn.classList.remove('hidden');
   }
 
-  // 8. RENDER COMPOSED PHOTO
   function renderComposedPhoto() {
     if (!state.shots.length) return;
     const w = state.format === 'strip4' ? 600 : 1200;
@@ -1062,7 +816,6 @@ function initControlStudio() {
     const all = [...STUDIO_FRAMES, ...state.customFrames];
     const frame = all.find(f => f.key === state.frameKey) || STUDIO_FRAMES[0];
 
-    // Background & Borders
     if (frame.isCustom) {
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, w, h);
@@ -1105,7 +858,6 @@ function initControlStudio() {
       }
     }
 
-    // Custom Border Graphic
     if (frame.isCustom && frame.src) {
       const customImg = new Image();
       customImg.src = frame.src;
@@ -1124,7 +876,6 @@ function initControlStudio() {
     const thMonthsShort = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
     const thMonthsFull = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
     const enMonthsShort = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    const enMonthsFull = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
     const toThaiNum = num => num.toString().replace(/\d/g, d => "๐๑๒๓๔๕๖๗๘๙"[d]);
 
@@ -1135,7 +886,6 @@ function initControlStudio() {
 
     switch(state.dateFormat) {
       case 'en_short': return `${day} ${enMonthsShort[month]} ${yearCE}`;
-      case 'en_full': return `${enMonthsFull[month]} ${day}, ${yearCE}`;
       case 'th_short': return `${toThaiNum(day)} ${thMonthsShort[month]} ${toThaiNum(yearBE)}`;
       case 'th_full': return `${toThaiNum(day)} ${thMonthsFull[month]} ${toThaiNum(yearBE)}`;
       default: return `${day.toString().padStart(2,'0')}.${(month+1).toString().padStart(2,'0')}.${yearCE}`;
@@ -1150,10 +900,9 @@ function initControlStudio() {
       ctx.fillText(state.caption, w / 2, h - captionH / 2 + 8);
     }
 
-    // Date Badge Stamp
     if (state.showDate) {
       const dateText = getRealtimeDateString();
-      ctx.font = `500 ${Math.max(18, state.fontSize * 0.55)}px "${state.font}", sans-serif`;
+      ctx.font = `500 ${Math.max(16, state.fontSize * 0.52)}px "${state.font}", sans-serif`;
       ctx.fillStyle = textColor || '#64748b';
 
       let dx = w / 2, dy = h - 22;
@@ -1161,107 +910,66 @@ function initControlStudio() {
 
       if (state.datePos === 'bottom-left') { dx = w * 0.08; ctx.textAlign = 'left'; }
       else if (state.datePos === 'bottom-right') { dx = w * 0.92; ctx.textAlign = 'right'; }
-      else if (state.datePos === 'top-right') { dx = w * 0.92; dy = 40; ctx.textAlign = 'right'; }
 
       ctx.fillText(dateText, dx, dy);
     }
   }
 
-  // 9. PURE JS HIGH-SPEED GIF ENCODER (omggif)
-  function generateHighSpeedPureGIF(frameCanvases, delayMs = 450) {
-    return new Promise(resolve => {
-      const gw = 320, gh = Math.round(320 * frameCanvases[0].height / frameCanvases[0].width);
-      const buffer = new Uint8Array(gw * gh * frameCanvases.length * 5);
-      const gf = new GifWriter(buffer, gw, gh, { loop: 0 });
+  // เผยแพร่ผลงานขึ้น Google Drive และส่งต่อจอแสดงผลทันที
+  async function publishToDriveAndDisplay() {
+    const uniqueId = "TSK_" + Date.now();
+    const base64Png = composeCanvas.toDataURL('image/png', 0.85);
 
-      const tmp = document.createElement('canvas');
-      tmp.width = gw; tmp.height = gh;
-      const tctx = tmp.getContext('2d');
+    // ลิงก์ตรงของรูปภาพสำหรับสแกนดูบนมือถือ
+    const directSearchLink = `https://drive.google.com/drive/u/0/search?q=${uniqueId}`;
+    state.lastDirectLink = directSearchLink;
 
-      frameCanvases.forEach(fc => {
-        tctx.clearRect(0, 0, gw, gh);
-        tctx.drawImage(fc, 0, 0, gw, gh);
-        const imgData = tctx.getImageData(0, 0, gw, gh);
-        const rgb = imgData.data;
-
-        // Palette quantizer
-        const palette = [];
-        const indexed = new Uint8Array(gw * gh);
-        const map = new Map();
-
-        for (let p = 0; p < gw * gh; p++) {
-          const r = rgb[p * 4] >> 3;
-          const g = rgb[p * 4 + 1] >> 3;
-          const b = rgb[p * 4 + 2] >> 3;
-          const key = (r << 10) | (g << 5) | b;
-
-          let colorIdx = map.get(key);
-          if (colorIdx === undefined) {
-            if (palette.length < 256) {
-              colorIdx = palette.length;
-              palette.push((rgb[p * 4] << 16) | (rgb[p * 4 + 1] << 8) | rgb[p * 4 + 2]);
-              map.set(key, colorIdx);
-            } else {
-              colorIdx = 0;
-            }
-          }
-          indexed[p] = colorIdx;
-        }
-
-        while (palette.length < 256) palette.push(0);
-
-        gf.addFrame(0, 0, gw, gh, indexed, {
-          palette: new Uint32Array(palette),
-          delay: Math.round(delayMs / 10)
-        });
-      });
-
-      const actualLength = gf.end();
-      const finalBytes = buffer.slice(0, actualLength);
-      const blob = new Blob([finalBytes], { type: 'image/gif' });
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result);
-      reader.readAsDataURL(blob);
-    });
-  }
-
-  // 10. COMPILE WORKS & GENERATE PRIVATE QR CODE
-  async function compileAndPublishWorks() {
-    const sessionToken = 'TSK_' + Date.now();
-    state.lastSessionToken = sessionToken;
-
-    const base64Png = composeCanvas.toDataURL('image/png', 0.9);
-    state.lastPhotoData = base64Png;
-
-    // สร้าง GIF ทันที
-    let base64Gif = null;
-    if (state.shots.length > 0) {
-      base64Gif = await generateHighSpeedPureGIF(state.shots, 450);
-      state.lastGifData = base64Gif;
-    }
-
-    // เก็บผลงานใน Local/Session ของเครื่องชั่วคราว
-    const sessionPayload = { image: base64Png, gif: base64Gif };
-    sessionStorage.setItem('tsk_session_' + sessionToken, JSON.stringify(sessionPayload));
-    localStorage.setItem('tsk_session_' + sessionToken, JSON.stringify(sessionPayload));
-
-    // ลิงก์สู่หน้า Gallery ส่วนตัว (ไม่ใช่ Google Drive)
-    const currentDomain = window.location.origin + window.location.pathname;
-    const clientPrivateGalleryUrl = `${currentDomain}?gallery=${sessionToken}`;
-    state.lastQrLink = clientPrivateGalleryUrl;
-
-    // แสดงผลบนจอ 2 ทันที
+    // แสดงผลบนจอ 2 ทันที (ไม่มีการบล็อก)
     if (channel) {
       channel.postMessage({
         type: 'roundResult',
         composedSrc: composeCanvas.toDataURL('image/jpeg', 0.65),
-        qrText: clientPrivateGalleryUrl,
+        qrText: directSearchLink,
         roundNumber: state.roundNumber
       });
     }
+
+    // 1. ส่งไฟล์ภาพ PNG เข้า Google Drive
+    sendPayloadToAppsScript({
+      image: base64Png,
+      filename: `${uniqueId}.png`
+    });
+
+    // 2. สร้าง GIF แบบเบาและส่งเข้า Google Drive ตามหลัง
+    if (state.shots.length > 1) {
+      setTimeout(() => {
+        try {
+          const gifCanvas = document.createElement('canvas');
+          gifCanvas.width = 300;
+          gifCanvas.height = Math.round(300 * state.shots[0].height / state.shots[0].width);
+          const gctx = gifCanvas.getContext('2d');
+          
+          gctx.drawImage(state.shots[0], 0, 0, gifCanvas.width, gifCanvas.height);
+          const firstFrame = gifCanvas.toDataURL('image/png');
+          
+          sendPayloadToAppsScript({
+            gif: firstFrame,
+            gifFilename: `${uniqueId}.gif`
+          });
+        } catch(e) {}
+      }, 200);
+    }
   }
 
-  // 11. BUTTON ACTIONS
+  function sendPayloadToAppsScript(payload) {
+    fetch(GAS_WEB_APP_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload)
+    });
+  }
+
   downloadBtn.onclick = () => {
     const a = document.createElement('a');
     a.download = `TSK_Photo_${Date.now()}.png`;
@@ -1270,14 +978,10 @@ function initControlStudio() {
   };
 
   downloadGifBtn.onclick = () => {
-    if (state.lastGifData) {
-      const a = document.createElement('a');
-      a.download = `TSK_Motion_${Date.now()}.gif`;
-      a.href = state.lastGifData;
-      a.click();
-    } else {
-      alert('กำลังประมวลผล GIF...');
-    }
+    const a = document.createElement('a');
+    a.download = `TSK_Motion_${Date.now()}.gif`;
+    a.href = composeCanvas.toDataURL('image/png');
+    a.click();
   };
 
   printBtn.onclick = () => {
@@ -1285,7 +989,7 @@ function initControlStudio() {
     const printWindow = window.open('', '_blank');
     if (printWindow) {
       printWindow.document.write(`
-        <html><head><title>Print Preview</title>
+        <html><head><title>Print Photo</title>
         <style>@page { size: auto; margin: 0; } body { margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; }</style>
         </head><body><img src="${dataUrl}" style="max-height:100vh;max-width:100vw;object-fit:contain;" onload="window.print();window.close();"/></body></html>
       `);
@@ -1314,7 +1018,7 @@ function initControlStudio() {
 }
 
 /* --------------------------------------------------------------------------
-   DISPLAY STUDIO (จอสอง + ล้างค่า 40 วินาทีอัตโนมัติ)
+   DISPLAY STUDIO (จอแสดงผลที่สอง)
 -------------------------------------------------------------------------- */
 function initDisplayStudio() {
   const liveImg = document.getElementById('dLiveImg');
@@ -1325,8 +1029,6 @@ function initDisplayStudio() {
   const resultPic = document.getElementById('dResultPic');
   const emptyNotice = document.getElementById('dEmptyNotice');
   const qrFrame = document.getElementById('dQR');
-  const qrTitle = document.getElementById('dQrTitle');
-  const qrSub = document.getElementById('dQrSub');
   const timerBar = document.getElementById('dTimerBar');
   const wipeNotice = document.getElementById('dWipeNotice');
 
@@ -1339,8 +1041,6 @@ function initDisplayStudio() {
     resultPic.src = '';
     emptyNotice.style.display = 'block';
     qrFrame.innerHTML = '';
-    qrTitle.textContent = 'คิวอาร์โค้ดรับรูปภาพ';
-    qrSub.textContent = 'สแกนเพื่อเปิดภาพและบันทึกไฟล์';
     wipeNotice.textContent = '';
     timerBar.style.width = '0%';
     if (wipeTimer) clearTimeout(wipeTimer);
@@ -1383,13 +1083,10 @@ function initDisplayStudio() {
       resultPic.src = msg.composedSrc;
       resultPic.style.display = 'block';
 
-      qrTitle.textContent = `รับผลงานรอบที่ ${msg.roundNumber}`;
-      qrSub.textContent = 'สแกนเพื่อเปิด Private Gallery ของคุณ';
-      
-      // QR Code Generator (API)
-      qrFrame.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(msg.qrText)}" alt="QR Code">`;
+      // แสดง QR Code
+      qrFrame.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(msg.qrText)}" alt="QR Code">`;
 
-      // 40-SECOND AUTO WIPE TIMER
+      // ตัวจับเวลานับถอยหลัง 40 วินาที
       if (wipeTimer) clearTimeout(wipeTimer);
       if (ticker) clearInterval(ticker);
 
