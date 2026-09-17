@@ -268,7 +268,7 @@
             <option value="10">10 วิ</option>
           </select>
         </label>
-        <label>กล้อง <select class="small" id="cameraSelect"><option>กล้อง 1</option></select></label>
+        <label>กล้อง <select class="small" id="cameraSelect"><option value="">เลือกกล้อง...</option></select></label>
       </div>
     </div>
 
@@ -586,7 +586,6 @@ function initControlApp(){
     const reader = new FileReader();
     reader.onload = ()=>{
       img.onload = ()=>{
-        // downscale large uploads so localStorage doesn't overflow
         const maxSide = 1400;
         let w = img.width, h = img.height;
         if (Math.max(w,h) > maxSide){
@@ -617,6 +616,7 @@ function initControlApp(){
     reader.readAsDataURL(file);
     uploadFrameInput.value = '';
   });
+
   /* ---------- build tone chips ---------- */
   TONES.forEach(t=>{
     const c = document.createElement('button');
@@ -626,6 +626,7 @@ function initControlApp(){
     c.addEventListener('click', ()=>{ state.toneKey=t.key; refreshChipActive(toneChips,t.key); renderComposite(); });
     toneChips.appendChild(c);
   });
+
   /* ---------- sticker palette ---------- */
   STICKERS.forEach(emo=>{
     const b = document.createElement('button');
@@ -645,57 +646,109 @@ function initControlApp(){
     renderComposite();
   });
 
-  /* ---------- camera ---------- */
+  /* ---------- camera (UPDATED & FIXED) ---------- */
   async function listCameras(){
     try{
       const devices = await navigator.mediaDevices.enumerateDevices();
       const cams = devices.filter(d=>d.kind==='videoinput');
-      cameraSelect.innerHTML='';
-      cams.forEach((c,i)=>{
+      
+      const currentTrack = stream ? stream.getVideoTracks()[0] : null;
+      const currentDeviceId = currentTrack ? currentTrack.getSettings().deviceId : null;
+
+      cameraSelect.innerHTML = '';
+      cams.forEach((c, i)=>{
         const opt = document.createElement('option');
         opt.value = c.deviceId;
         opt.textContent = c.label || `กล้อง ${i+1}`;
+        if (currentDeviceId && c.deviceId === currentDeviceId) {
+          opt.selected = true;
+        }
         cameraSelect.appendChild(opt);
       });
-    }catch(e){}
+    }catch(e){
+      console.error("listCameras error:", e);
+    }
   }
 
   const camWarning = document.getElementById('camWarning');
-  // file:// or plain http on a non-localhost host = insecure context: the browser
-  // will refuse getUserMedia silently, without ever showing the permission prompt.
   if (!window.isSecureContext){
     camWarning.classList.remove('hidden');
   }
 
-  async function openCamera(){
+  async function openCamera(specificDeviceId = null){
     if (!window.isSecureContext){
-      alert('ใช้กล้องไม่ได้: หน้านี้เปิดแบบไม่ปลอดภัย (ไม่ใช่ HTTPS หรือ localhost) เบราว์เซอร์เลยไม่ขึ้นขออนุญาตใช้กล้องให้เลย กรุณาอัปโหลดไฟล์นี้ขึ้นเว็บโฮสต์ที่มี HTTPS หรือรันผ่านเซิร์ฟเวอร์ในเครื่อง (เช่น "python -m http.server" แล้วเปิด http://localhost:8000)');
+      alert('ใช้กล้องไม่ได้: หน้านี้เปิดแบบไม่ปลอดภัย (ไม่ใช่ HTTPS หรือ localhost) เบราว์เซอร์จะไม่ขึ้นขออนุญาตใช้กล้อง กรุณาเปิดผ่าน HTTPS');
       return;
     }
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
-      alert('เบราว์เซอร์นี้ไม่รองรับการเปิดกล้อง (navigator.mediaDevices ไม่มีอยู่) ลองใช้ Chrome, Edge หรือ Safari รุ่นใหม่');
+      alert('เบราว์เซอร์นี้ไม่รองรับการเปิดกล้อง');
       return;
     }
+
+    if (stream) {
+      stream.getTracks().forEach(t => t.stop());
+    }
+
+    const targetId = specificDeviceId || (cameraSelect.value ? cameraSelect.value : null);
+    
+    // ตั้งค่า Constraints แบบยืดหยุ่น ป้องกัน OverconstrainedError
+    const videoConstraints = {
+      width: { ideal: 1280 },
+      height: { ideal: 720 }
+    };
+
+    if (targetId && targetId !== "") {
+      videoConstraints.deviceId = { ideal: targetId };
+    } else {
+      videoConstraints.facingMode = "user";
+    }
+
     try{
-      const deviceId = cameraSelect.value || undefined;
-      const constraints = { video: deviceId ? {deviceId:{exact:deviceId}} : {facingMode:'user'}, audio:false };
-      if (stream) stream.getTracks().forEach(t=>t.stop());
-      stream = await navigator.mediaDevices.getUserMedia(constraints);
+      stream = await navigator.mediaDevices.getUserMedia({ video: videoConstraints, audio: false });
       video.srcObject = stream;
+      video.setAttribute('playsinline', '');
+      video.setAttribute('autoplay', '');
+      video.muted = true;
+      await video.play();
+
       stagePlaceholder.classList.add('hidden');
       startCaptureBtn.disabled = false;
+      
       await listCameras();
       startLivePreviewBroadcast();
     }catch(err){
-      let msg = 'เปิดกล้องไม่สำเร็จ: ' + err.message;
-      if (err.name === 'NotAllowedError') msg = 'คุณ (หรือเบราว์เซอร์) ปฏิเสธการขอใช้กล้อง กรุณากดอนุญาตกล้องที่ไอคอนกุญแจ/กล้องบนแถบที่อยู่เว็บ แล้วลองใหม่';
-      else if (err.name === 'NotFoundError') msg = 'ไม่พบกล้องในอุปกรณ์นี้ ลองเสียบกล้อง USB หรือเลือกกล้องอื่นจากเมนู';
-      else if (err.name === 'NotReadableError') msg = 'กล้องถูกใช้งานโดยโปรแกรมอื่นอยู่ ปิดโปรแกรมอื่นที่ใช้กล้องแล้วลองใหม่';
-      alert(msg);
+      console.warn("Retrying with simple camera constraints due to:", err);
+      // Fallback: ถ้าล้มเหลว ให้ลองขอแบบ basic ที่สุด
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+        video.srcObject = stream;
+        await video.play();
+        stagePlaceholder.classList.add('hidden');
+        startCaptureBtn.disabled = false;
+        await listCameras();
+        startLivePreviewBroadcast();
+      } catch(fallbackErr) {
+        console.error("Camera Open Error:", fallbackErr);
+        let detail = fallbackErr.message || fallbackErr.name || 'ไม่ทราบสาเหตุ';
+        let msg = 'เปิดกล้องไม่สำเร็จ: ' + detail;
+        if (fallbackErr.name === 'NotAllowedError') msg = 'คุณปฏิเสธการขอใช้กล้อง กรุณากดอนุญาตกล้องที่แถบ URL ด้านบนแล้วรีเฟรชใหม่';
+        else if (fallbackErr.name === 'NotFoundError') msg = 'ไม่พบกล้องในอุปกรณ์นี้ ตรวจสอบการเชื่อมต่อกล้อง';
+        else if (fallbackErr.name === 'NotReadableError') msg = 'กล้องถูกโปรแกรมอื่นใช้งานอยู่ กรุณาปิดโปรแกรมอื่นแล้วลองใหม่';
+        alert(msg);
+      }
     }
   }
-  openCamBtn.addEventListener('click', openCamera);
-  cameraSelect.addEventListener('change', ()=>{ if(stream) openCamera(); });
+
+  openCamBtn.addEventListener('click', () => openCamera());
+  cameraSelect.addEventListener('change', () => {
+    if (cameraSelect.value) openCamera(cameraSelect.value);
+  });
+
+  if (navigator.mediaDevices && navigator.mediaDevices.addEventListener) {
+    navigator.mediaDevices.addEventListener('devicechange', () => {
+      listCameras();
+    });
+  }
 
   mirrorChk.addEventListener('change', ()=>{
     state.mirrored = mirrorChk.checked;
@@ -905,7 +958,7 @@ function initControlApp(){
   /* ---------- composition ---------- */
   function getPrintSize(){
     if (state.format==='strip4') return {w:600,h:1800};
-    return {w:1200,h:1800}; // single & grid2x2 -> 4x6"
+    return {w:1200,h:1800};
   }
 
   function drawCover(ctx, img, dx,dy,dw,dh){
@@ -942,7 +995,6 @@ function initControlApp(){
     const frame = getFrame(state.frameKey);
     const isCustom = !!frame.custom;
 
-    // background
     ctx.filter = 'none';
     if (isCustom){
       ctx.fillStyle = '#ffffff';
@@ -961,8 +1013,6 @@ function initControlApp(){
       ctx.strokeRect(ctx.lineWidth/2, ctx.lineWidth/2, w-ctx.lineWidth, h-ctx.lineWidth);
     }
 
-    // custom uploaded frames: photos fill the whole canvas edge-to-edge,
-    // since we don't know where the transparent cutout is in the artwork
     const pad = isCustom ? 0 : w*0.06;
     const captionH = isCustom ? h*0.09 : h*0.11;
     const photoTop = pad, photoBottom = h - (isCustom?0:captionH) - (isCustom?0:pad*0.4);
@@ -990,7 +1040,7 @@ function initControlApp(){
         const img = state.shots[i] || state.shots[state.shots.length-1];
         paintPhoto(img, pad, photoTop + i*(cellH+gap), photoAreaW, cellH);
       }
-    } else { // grid2x2
+    } else {
       const gap = w*0.025;
       const cellW = (photoAreaW - gap)/2;
       const cellH = (photoAreaH - gap)/2;
@@ -1001,7 +1051,6 @@ function initControlApp(){
       }
     }
 
-    // uploaded custom frame artwork goes on top of the photos
     if (isCustom){
       const fimg = getCustomFrameImg(frame);
       if (fimg.complete && fimg.naturalWidth){
@@ -1011,7 +1060,6 @@ function initControlApp(){
       }
     }
 
-    // decorative corners
     if (state.showDecor && !isCustom){
       ctx.font = `${w*0.05}px "Prompt", sans-serif`;
       ctx.fillStyle = frame.text;
@@ -1021,7 +1069,6 @@ function initControlApp(){
       ctx.globalAlpha = 1;
     }
 
-    // caption
     const capY = h - captionH/2 + h*0.01;
     ctx.font = `600 ${h*0.045}px "${state.font}", sans-serif`;
     ctx.fillStyle = state.captionColor;
@@ -1035,7 +1082,6 @@ function initControlApp(){
     ctx.fillText(capText, w/2, capY, w-pad*2);
     ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
 
-    // stickers (position % relative to whole canvas)
     state.stickers.forEach(st=>{
       ctx.save();
       ctx.translate(w*(st.x/100), h*(st.y/100));
@@ -1046,10 +1092,7 @@ function initControlApp(){
       ctx.restore();
     });
 
-    // sync sticker overlay layer sizing with canvas (CSS box)
     renderStickerLayer();
-
-    // broadcast a lightweight preview to the display window (throttled)
     scheduleDisplayResultBroadcast();
   }
 
@@ -1233,7 +1276,7 @@ function initControlApp(){
 
   qrBtn.addEventListener('click', ()=>{
     if (state.lastQrLink) showQr(state.lastQrLink, true);
-    else alert('ต้องกด "ส่งเข้า Google Drive" ก่อน ถึงจะสร้างลิงก์สำหรับ QR ได้ (การส่งรูปผ่าน QR โดยตรงโดยไม่มีเซิร์ฟเวอร์ทำไม่ได้ในเบราว์เซอร์)');
+    else alert('ต้องกด "ส่งเข้า Google Drive" ก่อน ถึงจะสร้างลิงก์สำหรับ QR ได้');
   });
   closeQrBtn.addEventListener('click', ()=> qrModal.classList.add('hidden'));
 
