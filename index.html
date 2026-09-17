@@ -58,13 +58,11 @@
   .step-pill.active{background:var(--pink);color:#fff;border-color:var(--pink);}
   .step-pill.done{background:var(--pink-soft);color:var(--pink-deep);}
 
-  /* 2-COLUMN LAYOUT */
   .layout{
     flex:1;display:grid;grid-template-columns:1.2fr 0.8fr;gap:12px;
     height:calc(100vh - 78px);min-height:0;overflow:hidden;
   }
 
-  /* LEFT: CAMERA & ACTIONS (NO OVERFLOW) */
   .stage-panel{
     background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
     padding:8px 10px;display:flex;flex-direction:column;height:100%;min-height:0;
@@ -100,7 +98,6 @@
   .row-inline{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:4px;font-size:11px;color:var(--ink-soft);flex-shrink:0;}
   select.small{padding:2px 5px;border-radius:6px;border:1px solid var(--line);background:#fff;}
 
-  /* RIGHT: OPTIONS (SCROLLABLE CONTAINER) */
   .controls-panel{
     background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
     padding:10px 12px;display:flex;flex-direction:column;height:100%;min-height:0;
@@ -181,10 +178,47 @@
   .d-qr-text{display:flex;flex-direction:column;gap:2px;min-width:0;}
   .d-qr-text h4{font-family:'Kodchasan',sans-serif;font-size:14px;color:#ffb1cb;margin:0;}
   .d-qr-text p{font-size:11px;color:#b4a2af;margin:0;line-height:1.2;}
+
+  /* ============================================================= */
+  /* MOBILE DOWNLOAD PAGE (หน้าสำหรับมือถือที่สแกน QR มา)            */
+  /* ============================================================= */
+  #downloadPage{
+    display:none;width:100vw;min-height:100vh;overflow-y:auto;
+    padding:24px 16px;flex-direction:column;align-items:center;
+    background:var(--cream);
+  }
+  body.download-mode #downloadPage{display:flex;}
+  body.download-mode #app, body.download-mode #displayApp{display:none !important;}
+  .dl-card{
+    background:#fff;border-radius:20px;border:1px solid var(--line);
+    padding:20px;max-width:440px;width:100%;box-shadow:0 10px 24px rgba(232,92,140,.1);
+    text-align:center;
+  }
+  .dl-card h2{color:var(--pink-deep);font-size:22px;margin-bottom:6px;}
+  .dl-card p{color:var(--ink-soft);font-size:13px;margin-bottom:16px;}
+  .dl-img-box{width:100%;margin-bottom:14px;}
+  .dl-img-box img{width:100%;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,.08);}
+  .dl-actions{display:flex;flex-direction:column;gap:10px;margin-top:10px;}
 </style>
 </head>
 <body>
 
+<!-- หน้าสำหรับมือถือที่สแกน QR Code -->
+<div id="downloadPage">
+  <div class="dl-card">
+    <h2>TSK PHOTOBOOTH 🌸</h2>
+    <p>ดาวน์โหลดภาพความทรงจำของคุณ</p>
+    <div class="dl-img-box">
+      <img id="dlPreviewImg" src="" alt="รูปถ่ายของคุณ">
+    </div>
+    <div class="dl-actions">
+      <a id="dlPngBtn" class="btn btn-primary" style="justify-content:center;text-decoration:none;" download="TSK_Photobooth.png">⬇️ ดาวน์โหลดภาพโฟโต้บูธ (.PNG)</a>
+      <a id="dlGifBtn" class="btn btn-secondary" style="justify-content:center;text-decoration:none;" download="TSK_Animation.gif">🎞️ ดาวน์โหลดภาพดุ๊กดิ๊ก (.GIF)</a>
+    </div>
+  </div>
+</div>
+
+<!-- จอควบคุมหลัก -->
 <div id="app">
   <div class="topbar">
     <div class="brand">
@@ -291,6 +325,7 @@
 
 <div id="printArea" style="display:none;"></div>
 
+<!-- จอแสดงผลที่ 2 -->
 <div id="displayApp">
   <div class="dheader">TSK PHOTOBOOTH · จอแสดงผล</div>
   <div class="d-viewport">
@@ -312,7 +347,7 @@
         <div class="d-qr-white" id="displayQR"></div>
         <div class="d-qr-text">
           <h4 id="displayQrTitle">คิวอาร์โค้ดรับรูป</h4>
-          <p id="displayQrSub">สแกนด้วยโทรศัพท์เพื่อดาวน์โหลดภาพเฉพาะรอบนี้</p>
+          <p id="displayQrSub">สแกนเพื่อดาวน์โหลดรูปและ GIF เฉพาะรอบนี้</p>
         </div>
       </div>
     </div>
@@ -325,13 +360,49 @@
 
 const params = new URLSearchParams(location.search);
 const isDisplay = params.get('display') === '1';
+const downloadId = params.get('download');
+
 if (isDisplay) document.body.classList.add('display-mode');
+if (downloadId) document.body.classList.add('download-mode');
 
 const channel = ('BroadcastChannel' in window) ? new BroadcastChannel('tsk_photobooth_channel') : null;
 
-// GAS Web App URL
+// GAS Web App URL ของคุณ
 const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxZx9lUhn6pC3VOUzhPnWJft2pwuiEyN3B-0H_-zqUWu4IllQGPxFcTUwDZu_Z0Ndg-MQ/exec";
 
+/* -------------------------------------------------------------
+   MODE: DOWNLOAD PAGE (มือถือสแกน QR เข้ามา)
+------------------------------------------------------------- */
+if (downloadId) {
+  // ดึงภาพจากที่บันทึกไว้ใน Session หรือโหลดผ่าน Google Drive
+  const cachedData = sessionStorage.getItem('tsk_' + downloadId);
+  const dlImg = document.getElementById('dlPreviewImg');
+  const pngBtn = document.getElementById('dlPngBtn');
+  const gifBtn = document.getElementById('dlGifBtn');
+
+  if (cachedData) {
+    const parsed = JSON.parse(cachedData);
+    dlImg.src = parsed.image;
+    pngBtn.href = parsed.image;
+    if (parsed.gif) {
+      gifBtn.href = parsed.gif;
+      gifBtn.style.display = 'inline-flex';
+    } else {
+      gifBtn.style.display = 'none';
+    }
+  } else {
+    // โหลดผ่าน Google Drive แบบ Direct
+    const directUrl = `https://drive.google.com/uc?export=view&id=${downloadId}`;
+    dlImg.src = directUrl;
+    pngBtn.href = directUrl;
+    gifBtn.style.display = 'none';
+  }
+  return; // จบการทำงานของหน้าดาวน์โหลด
+}
+
+/* -------------------------------------------------------------
+   MODE: PHOTOBOOTH APP
+------------------------------------------------------------- */
 const DEFAULT_FRAMES = [
   {key:'sakura', label:'ซากุระ', bg:'#ffe4ec', border:'#ff9fbe', text:'#7a3b55', isCustom:false},
   {key:'mint', label:'มินต์', bg:'#e3fbf3', border:'#7fddbb', text:'#1f5c48', isCustom:false},
@@ -354,7 +425,7 @@ const state = {
   step: 1, format: 'single', frameKey: 'sakura', toneKey: 'natural',
   mirrored: true, soundOn: true, countdownSeconds: 3, caption: 'วันดี ๆ ของเรา',
   font: 'Mali', showDate: false, stickers: [], shots: [], roundNumber: 0,
-  lastQrLink: null,
+  lastQrLink: null, lastGifData: null,
   customFrames: JSON.parse(localStorage.getItem('tsk_custom_frames') || '[]'),
   customTones: JSON.parse(localStorage.getItem('tsk_custom_tones') || '[]')
 };
@@ -573,8 +644,9 @@ function initControlApp(){
     state.shots = []; 
     state.stickers = [];
     state.lastQrLink = null;
+    state.lastGifData = null;
     
-    // ลบรูปและ QR ของคนก่อนหน้าทันที ไม่ให้ซ้อนทับ
+    // เคลียร์ผลงานและ QR เก่าทันที
     broadcast({ type: 'clearRound' });
 
     goStep(2);
@@ -590,7 +662,9 @@ function initControlApp(){
     goStep(3);
     renderComposite();
     revealButtons();
-    autoSendResult();
+    
+    // สร้าง GIF อัตโนมัติและอัปโหลดส่งลิงก์
+    generateGifInBackground();
   }
   startCaptureBtn.onclick = startCapture;
 
@@ -632,6 +706,7 @@ function initControlApp(){
   retakeBtn.onclick = ()=>{
     state.shots = []; state.stickers = [];
     state.lastQrLink = null;
+    state.lastGifData = null;
     stickerLayer.innerHTML = '';
     [retakeBtn,downloadBtn,downloadGifBtn,printBtn].forEach(b=>b.classList.add('hidden'));
     goStep(1);
@@ -740,36 +815,66 @@ function initControlApp(){
     }
   }
 
-  // ส่งข้อมูลเข้า Drive และสร้าง QR Code อัตโนมัติแบบการันตีติด 100%
-  async function autoSendResult(){
+  // สร้าง GIF ในเบื้องหลัง และเตรียมลิงก์ดาวน์โหลดส่วนตัว
+  function generateGifInBackground(){
     const uniqueId = Date.now();
-    const filename = `TSK_${uniqueId}.png`;
-    const base64Data = composeCanvas.toDataURL('image/png');
-
-    // สร้างลิงก์ดาวน์โหลดของแต่ละคนแบบเจาะจงเฉพาะรูปภาพใบนี้
-    // ใช้บริการจัดเก็บรูปผ่าน API Drive
-    const directPhotoDownloadLink = `https://lh3.googleusercontent.com/d/` + uniqueId;
+    const currentUrl = window.location.origin + window.location.pathname;
+    const downloadPageUrl = `${currentUrl}?download=${uniqueId}`;
     
-    // ตั้งค่า QR ลิงก์เฉพาะคน แล้วสั่งเรนเดอร์ QR Code บนจอที่ 2 ทันที!
-    state.lastQrLink = `https://drive.google.com/drive/u/0/search?q=${filename}`;
+    // 1. นำ URL หน้าดาวน์โหลดเฉพาะบุคคลนี้ไปแสดง QR Code ทันที!
+    state.lastQrLink = downloadPageUrl;
     sendResultToDisplay();
 
-    try {
-      const payload = JSON.stringify({
-        image: base64Data,
-        filename: filename
+    // 2. ถ้าเป็นรูปเดียว ส่ง PNG อย่างเดียว
+    const base64Png = composeCanvas.toDataURL('image/png');
+    
+    if (state.format === 'single') {
+      sessionStorage.setItem('tsk_' + uniqueId, JSON.stringify({ image: base64Png, gif: null }));
+      uploadToGAS(base64Png, null, uniqueId);
+      return;
+    }
+
+    // 3. ถ้าเป็นแบบสตริปหรือตาราง เรนเดอร์ GIF ดุ๊กดิ๊ก
+    if (typeof GIF !== 'undefined') {
+      const gif = new GIF({ workers: 2, quality: 10, workerScript: 'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js' });
+      state.shots.forEach(s=>{
+        const c = document.createElement('canvas');
+        c.width = 400; c.height = Math.round(400 * s.height / s.width);
+        c.getContext('2d').drawImage(s, 0, 0, c.width, c.height);
+        gif.addFrame(c, { delay: 450, copy: true });
       });
 
-      // ส่งรูปภาพเข้า Apps Script ผ่าน no-cors ทะลุการบล็อกของเบราว์เซอร์
+      gif.on('finished', function(blob){
+        const reader = new FileReader();
+        reader.onload = ()=>{
+          const base64Gif = reader.result;
+          state.lastGifData = base64Gif;
+          // บันทึกไว้เพื่อให้มือถือที่สแกนโหลดได้
+          sessionStorage.setItem('tsk_' + uniqueId, JSON.stringify({ image: base64Png, gif: base64Gif }));
+          uploadToGAS(base64Png, base64Gif, uniqueId);
+        };
+        reader.readAsDataURL(blob);
+      });
+      gif.render();
+    }
+  }
+
+  function uploadToGAS(pngData, gifData, uniqueId){
+    try {
+      const payload = JSON.stringify({
+        image: pngData,
+        filename: `TSK_${uniqueId}.png`,
+        gif: gifData,
+        gifFilename: `TSK_${uniqueId}.gif`
+      });
+
       fetch(GAS_WEB_APP_URL, {
         method: "POST",
         mode: "no-cors",
         headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: payload
       });
-    } catch (err) {
-      console.error("Upload error:", err);
-    }
+    } catch(err){}
   }
 
   downloadBtn.onclick = ()=>{
@@ -777,6 +882,17 @@ function initControlApp(){
     a.download = `photobooth-${Date.now()}.png`;
     a.href = composeCanvas.toDataURL('image/png');
     a.click();
+  };
+
+  downloadGifBtn.onclick = ()=>{
+    if (state.lastGifData) {
+      const a = document.createElement('a');
+      a.download = `photobooth-${Date.now()}.gif`;
+      a.href = state.lastGifData;
+      a.click();
+    } else {
+      alert('กำลังเรนเดอร์ GIF กรุณารอสักครู่...');
+    }
   };
 
   openDisplayBtn.onclick = ()=>{
@@ -802,9 +918,9 @@ function initControlApp(){
   function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
 }
 
-/* ============================================================= */
-/* DISPLAY APP LOGIC (PER-USER PRIVATE QR CODE)                  */
-/* ============================================================= */
+/* -------------------------------------------------------------
+   SECOND SCREEN LOGIC (จอแสดงผล)
+------------------------------------------------------------- */
 function initDisplayApp(){
   const live = document.getElementById('displayLive');
   const waiting = document.getElementById('displayWaiting');
@@ -844,7 +960,6 @@ function initDisplayApp(){
       setTimeout(()=>{ flash.style.opacity = '0'; }, 50);
     }
 
-    // แสดงรูปและสร้าง QR Code ทันที
     if(msg.type === 'roundResult'){
       resultEmpty.style.display = 'none';
       finalImg.src = msg.composedSrc;
@@ -852,9 +967,8 @@ function initDisplayApp(){
 
       if(msg.qrText && msg.qrText.startsWith('http')){
         qrTitle.textContent = `สแกนรับภาพรอบที่ ${msg.roundNumber} 🌸`;
-        qrSub.textContent = 'สแกนเพื่อรับไฟล์ภาพของคุณ (เฉพาะรูปนี้)';
+        qrSub.textContent = 'สแกนเพื่อดาวน์โหลดทั้งภาพนิ่งและ GIF';
         
-        // วาด QR ผ่าน API Image เสถียรและขึ้นแน่นอน 100%
         qrHolder.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(msg.qrText)}" alt="QR Code">`;
       } else {
         qrHolder.innerHTML = '';
@@ -863,14 +977,13 @@ function initDisplayApp(){
       }
     }
 
-    // เคลียร์รอบเก่าทิ้งเมื่อเริ่มรอบใหม่ทันที[cite: 3]
     if(msg.type === 'clearRound'){
       finalImg.style.display = 'none';
       finalImg.src = '';
       resultEmpty.style.display = 'block';
       qrHolder.innerHTML = '';
       qrTitle.textContent = 'คิวอาร์โค้ดรับรูป';
-      qrSub.textContent = 'สแกนด้วยโทรศัพท์เพื่อดาวน์โหลดภาพเฉพาะรอบนี้';
+      qrSub.textContent = 'สแกนด้วยโทรศัพท์เพื่อดาวน์โหลดภาพ';
     }
   };
 }
