@@ -23,10 +23,10 @@
     --ink:#4a3b42;
     --ink-soft:#8a7580;
     --line:#f3ddE6;
-    --radius:22px;
+    --radius:20px;
   }
-  *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{width:100%;height:100%;}
   body{
     background:
       radial-gradient(circle at 8% 12%, #ffe9d6 0%, transparent 40%),
@@ -34,217 +34,242 @@
       var(--cream);
     color:var(--ink);
     font-family:'Prompt', sans-serif;
-    min-height:100vh;
+    overflow-x:hidden;
   }
-  h1,h2,h3{font-family:'Kodchasan',sans-serif;margin:0;}
+  h1,h2,h3{font-family:'Kodchasan',sans-serif;}
   .hidden{display:none !important;}
   button{font-family:'Prompt',sans-serif;cursor:pointer;}
   input,select{font-family:'Prompt',sans-serif;}
 
-  /* ---------- top bar ---------- */
+  /* ---------- CONTROL TOPBAR ---------- */
   .topbar{
     display:flex;align-items:center;justify-content:space-between;
-    padding:22px 28px 8px;
-    max-width:1400px;margin:0 auto;
+    padding:16px 24px 8px;max-width:1400px;margin:0 auto;
   }
   .brand{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;}
-  .brand .logo{
-    font-size:30px;font-weight:700;color:var(--pink-deep);
-    letter-spacing:.5px;
-  }
-  .brand .tagline{font-family:'Mali',cursive;font-size:16px;color:var(--ink-soft);}
+  .brand .logo{font-size:26px;font-weight:700;color:var(--pink-deep);}
+  .brand .tagline{font-family:'Mali',cursive;font-size:14px;color:var(--ink-soft);}
   .gear-btn{
-    width:44px;height:44px;border-radius:50%;border:1px solid var(--line);
-    background:var(--panel);font-size:19px;display:flex;align-items:center;justify-content:center;
-    box-shadow:0 4px 10px rgba(232,92,140,.10);
+    width:40px;height:40px;border-radius:50%;border:1px solid var(--line);
+    background:var(--panel);font-size:18px;display:flex;align-items:center;justify-content:center;
   }
 
-  /* ---------- steps ---------- */
-  .steps{
-    display:flex;gap:10px;max-width:1400px;margin:6px auto 18px;padding:0 28px;
-  }
+  .steps{display:flex;gap:10px;max-width:1400px;margin:6px auto 14px;padding:0 24px;}
   .step-pill{
-    flex:1;text-align:center;padding:10px 8px;border-radius:14px;
+    flex:1;text-align:center;padding:8px;border-radius:12px;
     background:var(--panel);border:1px solid var(--line);color:var(--ink-soft);
-    font-size:14px;font-weight:600;transition:all .2s;
+    font-size:13px;font-weight:600;
   }
-  .step-pill b{font-family:'Kodchasan',sans-serif;font-weight:700;margin-right:6px;color:inherit;}
-  .step-pill.active{background:var(--pink);color:#fff;border-color:var(--pink);box-shadow:0 6px 14px rgba(255,122,168,.35);}
-  .step-pill.done{background:var(--pink-soft);color:var(--pink-deep);border-color:var(--pink-soft);}
+  .step-pill.active{background:var(--pink);color:#fff;border-color:var(--pink);}
+  .step-pill.done{background:var(--pink-soft);color:var(--pink-deep);}
 
-  /* ---------- layout ---------- */
   .layout{
-    max-width:1400px;margin:0 auto;padding:0 28px 40px;
-    display:grid;grid-template-columns:1.15fr .85fr;gap:22px;
+    max-width:1400px;margin:0 auto;padding:0 24px 40px;
+    display:grid;grid-template-columns:1.15fr .85fr;gap:20px;
   }
   @media(max-width:960px){.layout{grid-template-columns:1fr;}}
 
   .panel{
     background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
-    padding:20px;box-shadow:0 10px 24px rgba(232,92,140,.06);
+    padding:18px;box-shadow:0 8px 20px rgba(232,92,140,.06);
   }
-  .panel h3{font-size:15px;color:var(--pink-deep);margin-bottom:12px;}
-
-  /* ---------- stage (camera / capture / result) ---------- */
-  .cam-warning{
-    background:#fff3e0;border:1px solid #ffcf94;color:#7a4a12;font-size:13px;line-height:1.6;
-    border-radius:14px;padding:12px 14px;margin-bottom:14px;
-  }
-  .cam-warning code{background:#fff;border:1px solid #ffcf94;border-radius:6px;padding:1px 6px;}
   .stage-wrap{position:relative;}
   .stage{
     position:relative;width:100%;aspect-ratio:3/4;border-radius:var(--radius);
     overflow:hidden;background:#2c2430;display:flex;align-items:center;justify-content:center;
-    border:1px solid var(--line);
   }
   .stage video{width:100%;height:100%;object-fit:cover;}
   .stage video.mirror{transform:scaleX(-1);}
   .stage .placeholder{color:#f4d9e5;font-size:15px;text-align:center;padding:20px;font-family:'Mali',cursive;}
   #composeWrap{position:relative;width:100%;}
-  #composeCanvas{width:100%;display:block;border-radius:16px;box-shadow:0 8px 20px rgba(0,0,0,.12);}
+  #composeCanvas{width:100%;display:block;border-radius:16px;}
   #stickerLayer{position:absolute;inset:0;}
-  .sticker{
-    position:absolute;font-size:44px;line-height:1;user-select:none;touch-action:none;
-    transform:translate(-50%,-50%);cursor:grab;filter:drop-shadow(0 3px 4px rgba(0,0,0,.18));
-  }
-  .sticker.selected{outline:2px dashed var(--pink);border-radius:10px;}
-  .sticker-toolbar{
-    position:absolute;bottom:-38px;left:50%;transform:translateX(-50%);
-    display:flex;gap:4px;background:#fff;border:1px solid var(--line);border-radius:10px;
-    padding:4px;box-shadow:0 6px 14px rgba(0,0,0,.12);
-  }
-  .sticker-toolbar button{width:26px;height:26px;border:none;background:var(--pink-soft);border-radius:6px;font-size:12px;}
+  .sticker{position:absolute;font-size:44px;transform:translate(-50%,-50%);cursor:grab;user-select:none;}
 
   #countdownOverlay{
     position:absolute;inset:0;display:none;align-items:center;justify-content:center;
     background:rgba(30,20,25,.25);z-index:5;
   }
-  #countdownOverlay span{
-    font-family:'Kodchasan',sans-serif;font-weight:700;font-size:22vw;max-font-size:180px;
-    color:#fff;text-shadow:0 6px 18px rgba(0,0,0,.35);
-  }
-  #flashOverlay{
-    position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:6;
-  }
-  .stage-controls{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;}
-  .btn{
-    border:none;border-radius:14px;padding:12px 18px;font-weight:600;font-size:14.5px;
-    display:inline-flex;align-items:center;gap:8px;
-  }
-  .btn-primary{background:linear-gradient(135deg,var(--pink),var(--pink-deep));color:#fff;box-shadow:0 8px 16px rgba(232,92,140,.35);}
+  #countdownOverlay span{font-family:'Kodchasan',sans-serif;font-weight:700;font-size:140px;color:#fff;}
+  #flashOverlay{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:6;}
+
+  .stage-controls{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;}
+  .btn{border:none;border-radius:12px;padding:10px 16px;font-weight:600;font-size:14px;display:inline-flex;align-items:center;gap:6px;}
+  .btn-primary{background:linear-gradient(135deg,var(--pink),var(--pink-deep));color:#fff;}
   .btn-secondary{background:var(--pink-soft);color:var(--pink-deep);}
   .btn-outline{background:#fff;border:1px solid var(--line);color:var(--ink);}
   .btn-mint{background:var(--mint);color:#0f3f30;}
   .btn:disabled{opacity:.45;cursor:not-allowed;}
-  .row-inline{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:12px;font-size:13.5px;color:var(--ink-soft);}
-  .row-inline label{display:flex;align-items:center;gap:6px;}
-  select.small{padding:6px 10px;border-radius:10px;border:1px solid var(--line);background:#fff;}
+  .row-inline{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:10px;font-size:13px;color:var(--ink-soft);}
+  select.small{padding:5px 8px;border-radius:8px;border:1px solid var(--line);background:#fff;}
 
-  /* ---------- controls panel ---------- */
-  .field{margin-bottom:18px;}
-  .field label.title{display:block;font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:8px;}
-  .chip-row{display:flex;flex-wrap:wrap;gap:8px;}
-  .chip{
-    padding:9px 14px;border-radius:12px;border:1.5px solid var(--line);background:#fff;
-    font-size:13.5px;display:flex;align-items:center;gap:7px;color:var(--ink);
-  }
-  .chip .dot{width:14px;height:14px;border-radius:50%;display:inline-block;border:1px solid rgba(0,0,0,.08);}
+  .field{margin-bottom:14px;}
+  .field label.title{display:block;font-size:13px;font-weight:600;color:var(--ink);margin-bottom:6px;}
+  .chip-row{display:flex;flex-wrap:wrap;gap:6px;}
+  .chip{padding:8px 12px;border-radius:10px;border:1.5px solid var(--line);background:#fff;font-size:13px;}
   .chip.active{border-color:var(--pink);background:var(--pink-soft);color:var(--pink-deep);font-weight:600;}
-  input[type=text]{width:100%;padding:11px 14px;border-radius:12px;border:1.5px solid var(--line);font-size:14px;}
-  input[type=text]:focus,select:focus{outline:none;border-color:var(--pink);}
-  .sticker-palette{display:flex;flex-wrap:wrap;gap:6px;}
-  .sticker-palette button{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:#fff;font-size:19px;}
+  input[type=text]{width:100%;padding:9px 12px;border-radius:10px;border:1.5px solid var(--line);font-size:13.5px;}
+  .sticker-palette{display:flex;flex-wrap:wrap;gap:5px;}
+  .sticker-palette button{width:36px;height:36px;border-radius:8px;border:1px solid var(--line);background:#fff;font-size:18px;}
 
-  /* ---------- gallery ---------- */
-  .gallery{max-width:1400px;margin:0 auto;padding:0 28px 50px;}
-  .gallery h3{color:var(--pink-deep);margin-bottom:12px;}
-  .gallery-grid{display:flex;gap:12px;flex-wrap:wrap;}
-  .gallery-item{width:110px;position:relative;}
-  .gallery-item img{width:100%;border-radius:12px;border:1px solid var(--line);display:block;}
-  .gallery-item .round-tag{position:absolute;top:6px;left:6px;background:rgba(255,255,255,.9);border-radius:8px;padding:2px 6px;font-size:11px;font-weight:600;color:var(--pink-deep);}
+  .gallery{max-width:1400px;margin:0 auto;padding:0 24px 40px;}
+  .gallery-grid{display:flex;gap:10px;flex-wrap:wrap;}
+  .gallery-item{width:90px;}
+  .gallery-item img{width:100%;border-radius:10px;border:1px solid var(--line);}
 
-  /* ---------- modal ---------- */
   .modal-backdrop{position:fixed;inset:0;background:rgba(40,25,32,.45);display:flex;align-items:center;justify-content:center;z-index:50;padding:20px;}
-  .modal{background:#fff;border-radius:20px;padding:26px;max-width:440px;width:100%;max-height:88vh;overflow:auto;}
-  .modal h3{color:var(--pink-deep);margin-bottom:4px;}
-  .modal p.hint{font-size:12.5px;color:var(--ink-soft);line-height:1.6;margin:8px 0 16px;}
-  .modal-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;}
-  .status-pill{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;padding:6px 12px;border-radius:20px;background:var(--pink-soft);color:var(--pink-deep);}
+  .modal{background:#fff;border-radius:20px;padding:24px;max-width:420px;width:100%;}
+  .modal h3{color:var(--pink-deep);margin-bottom:6px;}
+  .modal p.hint{font-size:12px;color:var(--ink-soft);line-height:1.5;margin-bottom:14px;}
+  .modal-actions{display:flex;gap:8px;margin-top:14px;}
+  .status-pill{display:inline-flex;font-size:12px;padding:4px 10px;border-radius:14px;background:var(--pink-soft);color:var(--pink-deep);}
   .status-pill.ok{background:#e2f8ee;color:#1f7a4d;}
 
-  /* ---------- qr modal ---------- */
-  #qrBox{display:flex;flex-direction:column;align-items:center;gap:10px;}
-  #qrCanvasHolder{background:#fff;padding:10px;border-radius:14px;border:1px solid var(--line);}
+  /* ============================================================= */
+  /* DISPLAY APP (FIXED ASPECT RATIO & NO OVERFLOW)                */
+  /* ============================================================= */
+  body.display-mode{
+    background:#0d0a0f !important;
+    color:#fff;
+    width:100vw;
+    height:100vh;
+    overflow:hidden !important;
+    margin:0;padding:0;
+  }
+  body.display-mode #app{display:none !important;}
 
-  /* ============================================================= */
-  /* DISPLAY APP (NEW SIDE-BY-SIDE LAYOUT AS REQUESTED)            */
-  /* ============================================================= */
-  body.display-mode{background:#0d0a0f;color:#fff;overflow:hidden;height:100vh;}
   #displayApp{
-    display:none;width:100vw;height:100vh;flex-direction:column;padding:16px 24px;
+    display:none;
+    width:100vw;
+    height:100vh;
     box-sizing:border-box;
+    padding:10px 18px 14px;
+    flex-direction:column;
   }
   body.display-mode #displayApp{display:flex;}
-  body.display-mode #app{display:none;}
 
   .dheader{
-    font-family:'Kodchasan',sans-serif;font-size:24px;font-weight:700;color:#ff9fc0;
-    margin-bottom:12px;letter-spacing:.5px;text-align:center;
+    font-family:'Kodchasan',sans-serif;font-size:18px;font-weight:700;color:#ff9fc0;
+    text-align:center;height:28px;line-height:28px;flex-shrink:0;margin:0 0 6px 0;
   }
 
-  .d-container{
-    flex:1;display:grid;grid-template-columns:1.2fr 0.8fr;gap:20px;height:calc(100vh - 65px);
+  .d-viewport{
+    flex:1;
+    display:grid;
+    grid-template-columns: 1fr 340px;
+    gap:16px;
+    height:calc(100vh - 48px);
+    min-height:0;
   }
 
-  /* ฝั่งซ้าย: กล้องสด */
-  .d-left{
-    position:relative;background:#000;border-radius:24px;overflow:hidden;
-    border:4px solid #ff7aa8;box-shadow:0 15px 40px rgba(255,122,168,.15);
-    display:flex;align-items:center;justify-content:center;height:100%;
+  /* ฝั่งซ้าย: กล้องสด ล็อกสัดส่วนกล้องไม่ให้ล้นขอบ */
+  .d-left-box{
+    background:#000;
+    border-radius:20px;
+    border:3px solid #ff7aa8;
+    overflow:hidden;
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    height:100%;
+    min-height:0;
   }
-  .d-left img.live{width:100%;height:100%;object-fit:cover;display:block;}
-  .d-left .placeholder{color:#ff9fc0;font-family:'Mali',cursive;font-size:24px;text-align:center;padding:20px;}
+  .d-left-box img.live{
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    background:#111;
+    display:block;
+  }
+  .d-left-box .placeholder{
+    color:#ff9fc0;font-family:'Mali',cursive;font-size:20px;text-align:center;
+  }
   #displayCountdown{
     position:absolute;inset:0;display:none;align-items:center;justify-content:center;
-    background:rgba(20,10,15,.3);z-index:5;
+    background:rgba(0,0,0,.35);z-index:10;
   }
   #displayCountdown span{
-    font-family:'Kodchasan',sans-serif;font-weight:700;font-size:20vw;color:#fff;
-    text-shadow:0 8px 24px rgba(0,0,0,.6);
+    font-family:'Kodchasan',sans-serif;font-weight:700;font-size:16vw;color:#fff;
+    text-shadow:0 6px 20px rgba(0,0,0,.8);
   }
-  #displayFlash{position:absolute;inset:0;background:#fff;opacity:0;z-index:6;pointer-events:none;}
+  #displayFlash{position:absolute;inset:0;background:#fff;opacity:0;z-index:11;pointer-events:none;}
 
-  /* ฝั่งขวา: พรีวิวรูป + QR Code */
-  .d-right{display:grid;grid-template-rows:1.4fr 1fr;gap:18px;height:100%;}
-  
-  .d-result-box{
-    background:#1c1622;border:2px solid #3c2a38;border-radius:20px;padding:12px;
-    display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;
+  /* ฝั่งขวา: พรีวิวภาพ + QR Code */
+  .d-right-box{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    height:100%;
+    min-height:0;
+  }
+
+  /* กล่องรูปผลงานด้านบน */
+  .d-card-photo{
+    flex:1;
+    background:#1b1522;
+    border:2px solid #3d2b3a;
+    border-radius:18px;
+    padding:8px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    position:relative;
     overflow:hidden;
+    min-height:0;
   }
-  .d-result-box .sec-title{
-    position:absolute;top:8px;left:14px;font-family:'Kodchasan',sans-serif;font-size:13px;color:#ff9fc0;
-    background:rgba(0,0,0,.5);padding:2px 10px;border-radius:8px;
+  .d-card-photo .badge{
+    position:absolute;top:8px;left:8px;background:rgba(0,0,0,.7);
+    color:#ff9fc0;font-family:'Kodchasan',sans-serif;font-size:11px;
+    padding:2px 8px;border-radius:6px;z-index:2;
   }
-  .d-result-box img{
-    max-width:100%;max-height:90%;object-fit:contain;border-radius:12px;
-    box-shadow:0 8px 20px rgba(0,0,0,.4);display:none;
+  .d-card-photo img.result-pic{
+    max-width:100%;
+    max-height:100%;
+    object-fit:contain;
+    border-radius:10px;
+    box-shadow:0 4px 14px rgba(0,0,0,.5);
+    display:none;
   }
-  .d-result-box .empty-text{color:#7a6272;font-family:'Mali',cursive;font-size:16px;}
+  .d-card-photo .empty-state{color:#6c5767;font-family:'Mali',cursive;font-size:14px;text-align:center;}
 
-  .d-qr-box{
-    background:#1c1622;border:2px solid #3c2a38;border-radius:20px;padding:14px;
-    display:flex;align-items:center;justify-content:center;gap:18px;
+  /* กล่อง QR ด้านล่าง ตรึงความสูงไว้ที่ 130px */
+  .d-card-qr{
+    height:130px;
+    flex-shrink:0;
+    background:#1b1522;
+    border:2px solid #3d2b3a;
+    border-radius:18px;
+    padding:10px 14px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:14px;
+    box-sizing:border-box;
   }
-  .d-qr-holder{background:#fff;padding:8px;border-radius:12px;display:flex;align-items:center;justify-content:center;}
-  .d-qr-text{display:flex;flex-direction:column;gap:6px;}
-  .d-qr-text h4{margin:0;font-family:'Kodchasan',sans-serif;font-size:18px;color:#ffb1cb;}
-  .d-qr-text p{margin:0;font-size:13px;color:#bcaab6;line-height:1.4;}
+  .d-qr-white{
+    background:#fff;
+    padding:6px;
+    border-radius:10px;
+    width:95px;
+    height:95px;
+    flex-shrink:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .d-qr-white canvas, .d-qr-white img{
+    width:100% !important;
+    height:100% !important;
+  }
+  .d-qr-text{display:flex;flex-direction:column;gap:3px;min-width:0;}
+  .d-qr-text h4{font-family:'Kodchasan',sans-serif;font-size:15px;color:#ffb1cb;margin:0;}
+  .d-qr-text p{font-size:11px;color:#b4a2af;margin:0;line-height:1.3;}
 </style>
 </head>
 <body>
 
-<!-- CONTROL APP -->
 <div id="app">
   <div class="topbar">
     <div class="brand">
@@ -265,9 +290,6 @@
 
   <div class="layout">
     <div class="panel stage-wrap">
-      <div class="cam-warning hidden" id="camWarning">
-        ⚠️ หน้านี้ไม่ได้เปิดผ่าน HTTPS หรือ localhost เบราว์เซอร์จะไม่ขึ้นขออนุญาตใช้กล้อง
-      </div>
       <div class="stage" id="stage">
         <video id="video" autoplay playsinline muted class="mirror"></video>
         <div class="placeholder" id="stagePlaceholder">กดปุ่ม "เปิดกล้อง" เพื่อเริ่มต้น 🌸</div>
@@ -288,7 +310,6 @@
         <button class="btn btn-secondary hidden" id="downloadGifBtn">🎞️ บันทึก GIF</button>
         <button class="btn btn-outline hidden" id="printBtn">🖨️ ปริ้นต์</button>
         <button class="btn btn-mint hidden" id="driveBtn">☁️ ส่งเข้า Google Drive</button>
-        <button class="btn btn-outline hidden" id="qrBtn">🔳 สร้าง QR รับรูป</button>
       </div>
       <div class="row-inline">
         <label><input type="checkbox" id="mirrorChk" checked> กลับด้านซ้าย-ขวา</label>
@@ -297,7 +318,6 @@
           <select class="small" id="countdownSelect">
             <option value="3" selected>3 วิ</option>
             <option value="5">5 วิ</option>
-            <option value="10">10 วิ</option>
           </select>
         </label>
         <label>กล้อง <select class="small" id="cameraSelect"><option value="">เลือกกล้อง...</option></select></label>
@@ -317,10 +337,6 @@
       <div class="field">
         <label class="title">กรอบ</label>
         <div class="chip-row" id="frameChips"></div>
-        <div style="margin-top:8px;">
-          <button class="chip" id="uploadFrameBtn" type="button">📤 อัปโหลดกรอบของฉัน</button>
-          <input type="file" id="uploadFrameInput" accept="image/png,image/webp" class="hidden">
-        </div>
       </div>
 
       <div class="field">
@@ -329,32 +345,23 @@
       </div>
 
       <div class="field">
-        <label class="title">สติกเกอร์ (แตะเพื่อวาง แล้วลากปรับตำแหน่งบนรูป)</label>
+        <label class="title">สติกเกอร์</label>
         <div class="sticker-palette" id="stickerPalette"></div>
       </div>
 
       <div class="field">
         <label class="title">ข้อความใต้รูป</label>
         <input type="text" id="captionInput" value="วันดี ๆ ของเรา" maxlength="40" />
-        <div class="row-inline" style="margin-top:10px;">
+        <div class="row-inline" style="margin-top:8px;">
           <label>ฟอนต์
             <select class="small" id="fontSelect">
-              <option value="Mali" selected>ลายมือ (Mali)</option>
-              <option value="Kodchasan">กลม ๆ (Kodchasan)</option>
-              <option value="Prompt">มาตรฐาน (Prompt)</option>
+              <option value="Mali" selected>Mali</option>
+              <option value="Kodchasan">Kodchasan</option>
+              <option value="Prompt">Prompt</option>
             </select>
           </label>
-          <label>สีตัวอักษร <input type="color" id="captionColor" value="#4a3b42"></label>
-        </div>
-        <div class="row-inline">
           <label><input type="checkbox" id="dateChk"> ใส่วันที่</label>
-          <label><input type="checkbox" id="decorChk" checked> ใส่ลายน่ารักรอบกรอบ</label>
         </div>
-      </div>
-
-      <div id="qrInlineBox" class="hidden field">
-        <label class="title">QR รับรูป (รอบล่าสุด)</label>
-        <div id="qrInlineHolder" style="background:#fff;padding:10px;border-radius:12px;display:inline-block;border:1px solid var(--line);"></div>
       </div>
     </div>
   </div>
@@ -368,31 +375,14 @@
 <div class="modal-backdrop hidden" id="settingsModal">
   <div class="modal">
     <h3>⚙️ ตั้งค่า Google Drive</h3>
-    <p class="hint">ใส่ OAuth Client ID เพื่อส่งรูปเข้า Google Drive อัตโนมัติและแสดง QR Code รับรูป</p>
+    <p class="hint">ใส่ OAuth Client ID เพื่อส่งรูปเข้า Drive และสร้าง QR ทันที</p>
     <div class="field">
-      <label class="title">Client ID</label>
       <input type="text" id="clientIdInput" placeholder="xxxxx.apps.googleusercontent.com">
-    </div>
-    <div class="field">
-      <label class="title">ชื่อโฟลเดอร์ปลายทาง</label>
-      <input type="text" id="folderNameInput" value="Photobooth">
     </div>
     <div id="driveStatus" class="status-pill">ยังไม่ได้เชื่อมต่อ</div>
     <div class="modal-actions">
-      <button class="btn btn-primary" id="saveSettingsBtn">บันทึกการตั้งค่า</button>
-      <button class="btn btn-outline" id="signOutBtn">ออกจากบัญชี</button>
+      <button class="btn btn-primary" id="saveSettingsBtn">บันทึก</button>
       <button class="btn btn-outline" id="closeSettingsBtn">ปิด</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal-backdrop hidden" id="qrModal">
-  <div class="modal" id="qrBox">
-    <h3 id="qrModalTitle">🔳 สแกนรับรูป</h3>
-    <p class="hint" id="qrModalHint">สแกนด้วยมือถือเพื่อเปิดรูปรอบนี้</p>
-    <div id="qrCanvasHolder"></div>
-    <div class="modal-actions">
-      <button class="btn btn-outline" id="closeQrBtn">ปิด</button>
     </div>
   </div>
 </div>
@@ -400,32 +390,30 @@
 <div id="printArea" style="display:none;"></div>
 
 <!-- ============================================================= -->
-<!-- DISPLAY APP (NEW TWO-COLUMN LAYOUT)                           -->
+<!-- DISPLAY APP (VIEWPORT LAYOUT)                                 -->
 <!-- ============================================================= -->
 <div id="displayApp">
   <div class="dheader">TSK PHOTOBOOTH · จอแสดงผล</div>
-  <div class="d-container">
-    <!-- ฝั่งซ้าย: กล้องสดตลอดเวลา -->
-    <div class="d-left">
+  <div class="d-viewport">
+    <div class="d-left-box">
       <img class="live" id="displayLive" style="display:none;">
       <div class="placeholder" id="displayWaiting">รอเปิดกล้องจากจอควบคุม... 🌸</div>
       <div id="displayCountdown"><span id="displayCountdownNum">3</span></div>
       <div id="displayFlash"></div>
     </div>
 
-    <!-- ฝั่งขวา: ผลงานรูป + QR Code -->
-    <div class="d-right">
-      <div class="d-result-box">
-        <span class="sec-title">🖼️ ภาพที่ถ่ายแล้ว</span>
-        <img id="displayFinalImg" alt="ผลลัพธ์ภาพถ่าย">
-        <span class="empty-text" id="displayResultPlaceholder">ยังไม่มีภาพถ่ายรอบล่าสุด</span>
+    <div class="d-right-box">
+      <div class="d-card-photo">
+        <span class="badge">ภาพที่ถ่ายแล้ว</span>
+        <img class="result-pic" id="displayFinalImg" alt="ภาพถ่าย">
+        <span class="empty-state" id="displayResultEmpty">รอเริ่มถ่ายภาพ...</span>
       </div>
 
-      <div class="d-qr-box">
-        <div class="d-qr-holder" id="displayQR"></div>
+      <div class="d-card-qr">
+        <div class="d-qr-white" id="displayQR"></div>
         <div class="d-qr-text">
-          <h4 id="displayQrTitle">คิวอาร์โค้ดสแกนรับภาพ</h4>
-          <p id="displayQrSub">ถ่ายรูปเพื่อรับคิวอาร์โค้ดดาวน์โหลดภาพและ GIF ออนไลน์</p>
+          <h4 id="displayQrTitle">คิวอาร์โค้ดรับรูป</h4>
+          <p id="displayQrSub">สแกนด้วยโทรศัพท์เพื่อดาวน์โหลดภาพ</p>
         </div>
       </div>
     </div>
@@ -443,64 +431,34 @@ if (isDisplay) document.body.classList.add('display-mode');
 const channel = ('BroadcastChannel' in window) ? new BroadcastChannel('tsk_photobooth_channel') : null;
 
 const FRAMES = [
-  {key:'sakura',   label:'ซากุระ',    bg:'#ffe4ec', border:'#ff9fbe', text:'#7a3b55'},
-  {key:'mint',     label:'มินต์',     bg:'#e3fbf3', border:'#7fddbb', text:'#1f5c48'},
+  {key:'sakura', label:'ซากุระ', bg:'#ffe4ec', border:'#ff9fbe', text:'#7a3b55'},
+  {key:'mint', label:'มินต์', bg:'#e3fbf3', border:'#7fddbb', text:'#1f5c48'},
   {key:'polaroid', label:'โพลารอยด์', bg:'#ffffff', border:'#e7e2da', text:'#4a3b42'},
-  {key:'bear',     label:'หมีน้อย',   bg:'#fbeedd', border:'#e3b98a', text:'#6b4a2a'},
-  {key:'night',    label:'ค่ำคืน',    bg:'#2c3350', border:'#5865a6', text:'#ffffff'},
-  {key:'rainbow',  label:'สายรุ้ง',   bg:'linear', border:'#ff9fbe', text:'#4a3b42'},
-  {key:'lavender', label:'ลาเวนเดอร์',bg:'#f1e9fb', border:'#c9a6ed', text:'#4a2e6b'},
-  {key:'party',    label:'ปาร์ตี้',   bg:'#3b1030', border:'#ff4fa3', text:'#ffffff'},
+  {key:'bear', label:'หมีน้อย', bg:'#fbeedd', border:'#e3b98a', text:'#6b4a2a'},
+  {key:'night', label:'ค่ำคืน', bg:'#2c3350', border:'#5865a6', text:'#ffffff'}
 ];
 const TONES = [
-  {key:'natural', label:'ธรรมชาติ', filter:'none', overlay:null},
-  {key:'warm',    label:'อบอุ่น',   filter:'sepia(0.22) saturate(1.25) brightness(1.05) contrast(1.03)', overlay:null},
-  {key:'cool',    label:'เย็นตา',   filter:'saturate(0.9) brightness(1.05) contrast(0.97)', overlay:'rgba(120,170,255,0.12)'},
-  {key:'dreamy',  label:'ฟุ้งหวาน', filter:'brightness(1.12) contrast(0.92) saturate(1.15)', overlay:'rgba(255,190,220,0.16)'},
-  {key:'bw',      label:'ขาวดำ',   filter:'grayscale(1) contrast(1.08)', overlay:null},
-  {key:'retro',   label:'ย้อนยุค',  filter:'sepia(0.45) contrast(1.1) brightness(0.95) saturate(0.75)', overlay:'rgba(70,40,20,0.10)'},
+  {key:'natural', label:'ธรรมชาติ', filter:'none'},
+  {key:'warm', label:'อบอุ่น', filter:'sepia(0.22) saturate(1.25)'},
+  {key:'cool', label:'เย็นตา', filter:'saturate(0.9) brightness(1.05)'},
+  {key:'bw', label:'ขาวดำ', filter:'grayscale(1)'}
 ];
-const STICKERS = ['💖','✨','🌸','😎','🎉','🌈','🐻','⭐','👑','🎀','🔥','😂'];
+const STICKERS = ['💖','✨','🌸','😎','🎉','🌈','🐻','⭐'];
 
 const state = {
-  step: 1,
-  format: 'single',
-  frameKey: 'sakura',
-  toneKey: 'natural',
-  mirrored: true,
-  soundOn: true,
-  countdownSeconds: 3,
-  caption: 'วันดี ๆ ของเรา',
-  font: 'Mali',
-  captionColor: '#4a3b42',
-  showDate: false,
-  showDecor: true,
-  stickers: [],
-  shots: [],
-  roundNumber: 0,
+  step: 1, format: 'single', frameKey: 'sakura', toneKey: 'natural',
+  mirrored: true, soundOn: true, countdownSeconds: 3, caption: 'วันดี ๆ ของเรา',
+  font: 'Mali', showDate: false, stickers: [], shots: [], roundNumber: 0,
   drive: {clientId:'', folderName:'Photobooth', accessToken:null, folderId:null, tokenClient:null},
-  lastQrLink: null,
-  displayWindow: null,
-  displayReady: false,
+  lastQrLink: null
 };
 
-let selectedStickerId = null;
 let stream = null;
 
 try {
   const saved = JSON.parse(localStorage.getItem('tsk_pb_settings') || '{}');
   if (saved.clientId) state.drive.clientId = saved.clientId;
-  if (saved.folderName) state.drive.folderName = saved.folderName;
 } catch(e){}
-
-let customFrames = [];
-try { customFrames = JSON.parse(localStorage.getItem('tsk_pb_custom_frames') || '[]'); } catch(e){ customFrames = []; }
-
-function getFrame(key){
-  const custom = customFrames.find(f=>f.key===key);
-  if (custom) return custom;
-  return FRAMES.find(f=>f.key===key) || FRAMES[0];
-}
 
 if (!isDisplay) {
   initControlApp();
@@ -526,7 +484,6 @@ function initControlApp(){
   const downloadGifBtn = document.getElementById('downloadGifBtn');
   const printBtn = document.getElementById('printBtn');
   const driveBtn = document.getElementById('driveBtn');
-  const qrBtn = document.getElementById('qrBtn');
   const openDisplayBtn = document.getElementById('openDisplayBtn');
 
   const mirrorChk = document.getElementById('mirrorChk');
@@ -540,234 +497,100 @@ function initControlApp(){
   const stickerPalette = document.getElementById('stickerPalette');
   const captionInput = document.getElementById('captionInput');
   const fontSelect = document.getElementById('fontSelect');
-  const captionColor = document.getElementById('captionColor');
   const dateChk = document.getElementById('dateChk');
-  const decorChk = document.getElementById('decorChk');
-
   const galleryGrid = document.getElementById('galleryGrid');
-  const qrInlineBox = document.getElementById('qrInlineBox');
-  const qrInlineHolder = document.getElementById('qrInlineHolder');
 
   const settingsModal = document.getElementById('settingsModal');
   const openSettingsBtn = document.getElementById('openSettingsBtn');
   const closeSettingsBtn = document.getElementById('closeSettingsBtn');
   const clientIdInput = document.getElementById('clientIdInput');
-  const folderNameInput = document.getElementById('folderNameInput');
-  const driveStatus = document.getElementById('driveStatus');
   const saveSettingsBtn = document.getElementById('saveSettingsBtn');
-  const signOutBtn = document.getElementById('signOutBtn');
-
-  const qrModal = document.getElementById('qrModal');
-  const closeQrBtn = document.getElementById('closeQrBtn');
-  const qrCanvasHolder = document.getElementById('qrCanvasHolder');
-  const qrModalHint = document.getElementById('qrModalHint');
-
   clientIdInput.value = state.drive.clientId;
-  folderNameInput.value = state.drive.folderName;
 
-  const uploadFrameBtn = document.getElementById('uploadFrameBtn');
-  const uploadFrameInput = document.getElementById('uploadFrameInput');
-
-  function renderFrameChips(){
-    frameChips.innerHTML = '';
-    FRAMES.forEach(f=>{
-      const c = document.createElement('button');
-      c.className = 'chip' + (f.key===state.frameKey?' active':'');
-      c.dataset.key = f.key;
-      const dotBg = f.bg==='linear' ? 'linear-gradient(135deg,#ffd6e8,#fff3b0,#c8f4de,#c7e4ff)' : f.bg;
-      c.innerHTML = `<span class="dot" style="background:${dotBg}"></span>${f.label}`;
-      c.addEventListener('click', ()=>{ state.frameKey=f.key; refreshChipActive(frameChips,f.key); renderComposite(); });
-      frameChips.appendChild(c);
-    });
-    customFrames.forEach(f=>{
-      const c = document.createElement('button');
-      c.className = 'chip' + (f.key===state.frameKey?' active':'');
-      c.dataset.key = f.key;
-      c.innerHTML = `<span class="dot" style="background-image:url('${f.dataUrl}');background-size:cover;background-position:center;"></span>${f.label} <span data-del="${f.key}" title="ลบกรอบนี้" style="margin-left:4px;opacity:.6;">✕</span>`;
-      c.addEventListener('click', (e)=>{
-        if (e.target.dataset.del){
-          e.stopPropagation();
-          customFrames = customFrames.filter(x=>x.key!==e.target.dataset.del);
-          localStorage.setItem('tsk_pb_custom_frames', JSON.stringify(customFrames));
-          if (state.frameKey === e.target.dataset.del) state.frameKey = FRAMES[0].key;
-          renderFrameChips();
-          renderComposite();
-          return;
-        }
-        state.frameKey = f.key; refreshChipActive(frameChips, f.key); renderComposite();
-      });
-      frameChips.appendChild(c);
-    });
-  }
-  renderFrameChips();
-
-  uploadFrameBtn.addEventListener('click', ()=> uploadFrameInput.click());
-  uploadFrameInput.addEventListener('change', (e)=>{
-    const file = e.target.files && e.target.files[0];
-    if (!file) return;
-    const img = new Image();
-    const reader = new FileReader();
-    reader.onload = ()=>{
-      img.onload = ()=>{
-        const maxSide = 1400;
-        let w = img.width, h = img.height;
-        if (Math.max(w,h) > maxSide){
-          const scale = maxSide / Math.max(w,h);
-          w = Math.round(w*scale); h = Math.round(h*scale);
-        }
-        const c = document.createElement('canvas');
-        c.width = w; c.height = h;
-        c.getContext('2d').drawImage(img, 0, 0, w, h);
-        const dataUrl = c.toDataURL('image/png');
-        const key = 'custom_' + Date.now();
-        const label = file.name.replace(/\.[^.]+$/,'').slice(0,14) || 'กรอบของฉัน';
-        const entry = {key, label, dataUrl, custom:true};
-        customFrames.push(entry);
-        try{
-          localStorage.setItem('tsk_pb_custom_frames', JSON.stringify(customFrames));
-        }catch(err){
-          customFrames.pop();
-          alert('บันทึกกรอบไม่สำเร็จ: ไฟล์ใหญ่เกินไป');
-          return;
-        }
-        state.frameKey = key;
-        renderFrameChips();
-        renderComposite();
-      };
-      img.src = reader.result;
-    };
-    reader.readAsDataURL(file);
-    uploadFrameInput.value = '';
+  FRAMES.forEach(f=>{
+    const c = document.createElement('button');
+    c.className = 'chip' + (f.key===state.frameKey?' active':'');
+    c.textContent = f.label;
+    c.onclick = ()=>{ state.frameKey=f.key; refreshChips(frameChips,f.key); renderComposite(); };
+    frameChips.appendChild(c);
   });
 
   TONES.forEach(t=>{
     const c = document.createElement('button');
     c.className = 'chip' + (t.key===state.toneKey?' active':'');
-    c.dataset.key = t.key;
     c.textContent = t.label;
-    c.addEventListener('click', ()=>{ state.toneKey=t.key; refreshChipActive(toneChips,t.key); renderComposite(); });
+    c.onclick = ()=>{ state.toneKey=t.key; refreshChips(toneChips,t.key); renderComposite(); };
     toneChips.appendChild(c);
   });
 
   STICKERS.forEach(emo=>{
     const b = document.createElement('button');
     b.textContent = emo;
-    b.addEventListener('click', ()=> addSticker(emo));
+    b.onclick = ()=> addSticker(emo);
     stickerPalette.appendChild(b);
   });
 
-  function refreshChipActive(container, key){
-    [...container.children].forEach(c=> c.classList.toggle('active', c.dataset.key===key));
+  function refreshChips(container, key){
+    [...container.children].forEach(c=> c.classList.toggle('active', c.textContent===FRAMES.find(x=>x.key===key)?.label || c.textContent===TONES.find(x=>x.key===key)?.label));
   }
 
-  formatChips.addEventListener('click', (e)=>{
+  formatChips.onclick = (e)=>{
     const btn = e.target.closest('.chip'); if(!btn) return;
     state.format = btn.dataset.format;
     [...formatChips.children].forEach(c=>c.classList.toggle('active', c===btn));
     renderComposite();
-  });
+  };
 
   async function listCameras(){
     try{
       const devices = await navigator.mediaDevices.enumerateDevices();
       const cams = devices.filter(d=>d.kind==='videoinput');
-      const currentTrack = stream ? stream.getVideoTracks()[0] : null;
-      const currentDeviceId = currentTrack ? currentTrack.getSettings().deviceId : null;
-
       cameraSelect.innerHTML = '';
       cams.forEach((c, i)=>{
         const opt = document.createElement('option');
         opt.value = c.deviceId;
         opt.textContent = c.label || `กล้อง ${i+1}`;
-        if (currentDeviceId && c.deviceId === currentDeviceId) {
-          opt.selected = true;
-        }
         cameraSelect.appendChild(opt);
       });
-    }catch(e){
-      console.error("listCameras error:", e);
-    }
+    }catch(e){}
   }
 
-  const camWarning = document.getElementById('camWarning');
-  if (!window.isSecureContext){
-    camWarning.classList.remove('hidden');
-  }
-
-  async function openCamera(specificDeviceId = null){
-    if (!window.isSecureContext){
-      alert('ใช้กล้องไม่ได้: หน้านี้เปิดแบบไม่ปลอดภัย (ไม่ใช่ HTTPS หรือ localhost)');
-      return;
-    }
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
-      alert('เบราว์เซอร์นี้ไม่รองรับการเปิดกล้อง');
-      return;
-    }
-
-    if (stream) {
-      stream.getTracks().forEach(t => t.stop());
-    }
-
-    const targetId = specificDeviceId || (cameraSelect.value ? cameraSelect.value : null);
-    const videoConstraints = {
-      width: { ideal: 1280 },
-      height: { ideal: 720 }
-    };
-
-    if (targetId && targetId !== "") {
-      videoConstraints.deviceId = { ideal: targetId };
-    } else {
-      videoConstraints.facingMode = "user";
-    }
-
+  async function openCamera(id = null){
+    if (stream) stream.getTracks().forEach(t=>t.stop());
+    const devId = id || cameraSelect.value || undefined;
+    const constraints = { video: devId ? {deviceId:{ideal:devId}} : {facingMode:'user'}, audio:false };
     try{
-      stream = await navigator.mediaDevices.getUserMedia({ video: videoConstraints, audio: false });
+      stream = await navigator.mediaDevices.getUserMedia(constraints);
       video.srcObject = stream;
-      video.setAttribute('playsinline', '');
-      video.setAttribute('autoplay', '');
-      video.muted = true;
       await video.play();
-
       stagePlaceholder.classList.add('hidden');
       startCaptureBtn.disabled = false;
-      
       await listCameras();
-      startLivePreviewBroadcast();
+      startLivePreview();
     }catch(err){
-      try {
-        stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+      try{
+        stream = await navigator.mediaDevices.getUserMedia({video:true, audio:false});
         video.srcObject = stream;
         await video.play();
         stagePlaceholder.classList.add('hidden');
         startCaptureBtn.disabled = false;
-        await listCameras();
-        startLivePreviewBroadcast();
-      } catch(fallbackErr) {
-        alert('เปิดกล้องไม่สำเร็จ: ' + (fallbackErr.message || fallbackErr.name));
-      }
+        startLivePreview();
+      }catch(e){ alert('เปิดกล้องไม่สำเร็จ'); }
     }
   }
 
-  openCamBtn.addEventListener('click', () => openCamera());
-  cameraSelect.addEventListener('change', () => {
-    if (cameraSelect.value) openCamera(cameraSelect.value);
-  });
+  openCamBtn.onclick = ()=> openCamera();
+  cameraSelect.onchange = ()=> openCamera(cameraSelect.value);
 
-  if (navigator.mediaDevices && navigator.mediaDevices.addEventListener) {
-    navigator.mediaDevices.addEventListener('devicechange', () => listCameras());
-  }
-
-  mirrorChk.addEventListener('change', ()=>{
+  mirrorChk.onchange = ()=>{
     state.mirrored = mirrorChk.checked;
     video.classList.toggle('mirror', state.mirrored);
-  });
-  soundChk.addEventListener('change', ()=> state.soundOn = soundChk.checked);
-  countdownSelect.addEventListener('change', ()=> state.countdownSeconds = parseInt(countdownSelect.value,10));
-  captionInput.addEventListener('input', ()=>{ state.caption = captionInput.value; renderComposite(); });
-  fontSelect.addEventListener('change', ()=>{ state.font = fontSelect.value; renderComposite(); });
-  captionColor.addEventListener('input', ()=>{ state.captionColor = captionColor.value; renderComposite(); });
-  dateChk.addEventListener('change', ()=>{ state.showDate = dateChk.checked; renderComposite(); });
-  decorChk.addEventListener('change', ()=>{ state.showDecor = decorChk.checked; renderComposite(); });
+  };
+  soundChk.onchange = ()=> state.soundOn = soundChk.checked;
+  countdownSelect.onchange = ()=> state.countdownSeconds = parseInt(countdownSelect.value,10);
+  captionInput.oninput = ()=>{ state.caption = captionInput.value; renderComposite(); };
+  fontSelect.onchange = ()=>{ state.font = fontSelect.value; renderComposite(); };
+  dateChk.onchange = ()=>{ state.showDate = dateChk.checked; renderComposite(); };
 
   function goStep(n){
     state.step = n;
@@ -776,672 +599,268 @@ function initControlApp(){
       p.classList.toggle('active', s===n);
       p.classList.toggle('done', s<n);
     });
-    if (n===3){
-      stage.classList.add('hidden');
-      composeWrap.classList.remove('hidden');
-    } else {
-      stage.classList.remove('hidden');
-      composeWrap.classList.add('hidden');
-    }
+    if(n===3){ stage.classList.add('hidden'); composeWrap.classList.remove('hidden'); }
+    else { stage.classList.remove('hidden'); composeWrap.classList.add('hidden'); }
   }
-  goStep(1);
-
-  let audioCtx = null;
-  function beep(freq=880, dur=0.08){
-    if (!state.soundOn) return;
-    try{
-      audioCtx = audioCtx || new (window.AudioContext||window.webkitAudioContext)();
-      const o = audioCtx.createOscillator();
-      const g = audioCtx.createGain();
-      o.frequency.value = freq; o.type='sine';
-      g.gain.setValueAtTime(0.15, audioCtx.currentTime);
-      g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime+dur);
-      o.connect(g); g.connect(audioCtx.destination);
-      o.start(); o.stop(audioCtx.currentTime+dur);
-    }catch(e){}
-  }
-
-  function shotsNeeded(){ return state.format==='single' ? 1 : 4; }
 
   async function startCapture(){
-    if (!stream) { alert('กรุณาเปิดกล้องก่อน'); return; }
-    state.shots = [];
-    state.stickers = [];
-    state.lastQrLink = null;
+    if(!stream){ alert('กรุณาเปิดกล้องก่อน'); return; }
+    state.shots = []; state.stickers = [];
     goStep(2);
     startCaptureBtn.disabled = true;
-    broadcast({type:'roundStart', total: shotsNeeded()});
-    const total = shotsNeeded();
-    for (let i=0;i<total;i++){
+    const total = state.format==='single' ? 1 : 4;
+    for(let i=0;i<total;i++){
       await runCountdown();
-      await doFlashAndCapture(i, total);
-      if (i < total-1) await sleep(700);
+      await captureShot();
+      if(i < total-1) await sleep(600);
     }
     state.roundNumber += 1;
     startCaptureBtn.disabled = false;
     goStep(3);
     renderComposite();
-    revealStep3Buttons();
-
-    // อัปโหลดและสร้าง QR Code อัตโนมัติทันที
-    autoUploadAndShowQr();
+    revealButtons();
+    autoSendResult();
   }
-  startCaptureBtn.addEventListener('click', startCapture);
+  startCaptureBtn.onclick = startCapture;
 
   function runCountdown(){
-    return new Promise(resolve=>{
+    return new Promise(res=>{
       let n = state.countdownSeconds;
       countdownOverlay.style.display = 'flex';
       countdownNum.textContent = n;
       broadcast({type:'countdown', value:n});
-      beep(660,0.08);
       const iv = setInterval(()=>{
-        n -= 1;
-        if (n <= 0){
+        n--;
+        if(n<=0){
           clearInterval(iv);
           countdownOverlay.style.display = 'none';
           broadcast({type:'countdown', value:null});
-          resolve();
-        } else {
+          res();
+        }else{
           countdownNum.textContent = n;
           broadcast({type:'countdown', value:n});
-          beep(660,0.08);
         }
       }, 1000);
     });
   }
 
-  async function doFlashAndCapture(index, total){
-    beep(1200,0.12);
-    flashOverlay.style.transition = 'none';
+  async function captureShot(){
     flashOverlay.style.opacity = '1';
     broadcast({type:'flash'});
-    const raw = captureFrameFromVideo();
-    state.shots.push(raw);
-    const thumbUrl = raw.toDataURL('image/jpeg',0.7);
-    broadcast({type:'shot', index, total, src:thumbUrl});
-    await sleep(30);
-    flashOverlay.style.transition = 'opacity .4s';
-    flashOverlay.style.opacity = '0';
-  }
-
-  function captureFrameFromVideo(){
-    const vw = video.videoWidth || 640, vh = video.videoHeight || 480;
+    const vw = video.videoWidth||640, vh = video.videoHeight||480;
     const c = document.createElement('canvas');
     c.width = vw; c.height = vh;
     const cx = c.getContext('2d');
-    if (state.mirrored){ cx.translate(vw,0); cx.scale(-1,1); }
+    if(state.mirrored){ cx.translate(vw,0); cx.scale(-1,1); }
     cx.drawImage(video,0,0,vw,vh);
-    return c;
+    state.shots.push(c);
+    await sleep(40);
+    flashOverlay.style.opacity = '0';
   }
 
-  retakeBtn.addEventListener('click', ()=>{
-    state.shots = [];
-    state.stickers = [];
-    state.lastQrLink = null;
+  retakeBtn.onclick = ()=>{
+    state.shots = []; state.stickers = [];
     stickerLayer.innerHTML = '';
-    hideStep3Buttons();
+    [retakeBtn,downloadBtn,downloadGifBtn,printBtn,driveBtn].forEach(b=>b.classList.add('hidden'));
     goStep(1);
     broadcast({type:'clearRound'});
-  });
+  };
 
-  function revealStep3Buttons(){
+  function revealButtons(){
     retakeBtn.classList.remove('hidden');
     downloadBtn.classList.remove('hidden');
     printBtn.classList.remove('hidden');
-    if (state.format !== 'single') downloadGifBtn.classList.remove('hidden');
-    if (state.drive.clientId) driveBtn.classList.remove('hidden');
-  }
-  function hideStep3Buttons(){
-    [retakeBtn, downloadBtn, downloadGifBtn, printBtn, driveBtn, qrBtn].forEach(b=>b.classList.add('hidden'));
-    qrInlineBox.classList.add('hidden');
+    if(state.format!=='single') downloadGifBtn.classList.remove('hidden');
+    if(state.drive.clientId) driveBtn.classList.remove('hidden');
   }
 
   function addSticker(emoji){
-    if (state.shots.length===0){ alert('ถ่ายภาพให้เสร็จก่อน แล้วค่อยแปะสติกเกอร์'); return; }
-    const id = 's'+Date.now()+Math.random().toString(16).slice(2);
-    state.stickers.push({id, emoji, x:50, y:50, scale:1, rot:0});
-    renderStickerLayer();
+    if(!state.shots.length) return;
+    state.stickers.push({emoji, x:50, y:50, scale:1});
     renderComposite();
   }
 
-  function renderStickerLayer(){
-    stickerLayer.innerHTML = '';
-    state.stickers.forEach(st=>{
-      const el = document.createElement('div');
-      el.className = 'sticker' + (st.id===selectedStickerId?' selected':'');
-      el.style.left = st.x + '%';
-      el.style.top = st.y + '%';
-      el.style.fontSize = (44*st.scale) + 'px';
-      el.style.transform = `translate(-50%,-50%) rotate(${st.rot}deg)`;
-      el.textContent = st.emoji;
-      el.addEventListener('pointerdown', (ev)=> onStickerDown(ev, st));
-      if (st.id === selectedStickerId){
-        const bar = document.createElement('div');
-        bar.className = 'sticker-toolbar';
-        bar.innerHTML = `
-          <button data-act="rotL">⟲</button>
-          <button data-act="rotR">⟳</button>
-          <button data-act="minus">－</button>
-          <button data-act="plus">＋</button>
-          <button data-act="del">🗑</button>`;
-        bar.addEventListener('pointerdown', e=>e.stopPropagation());
-        bar.addEventListener('click', (e)=>{
-          const act = e.target.dataset.act; if(!act) return;
-          if (act==='rotL') st.rot -= 15;
-          if (act==='rotR') st.rot += 15;
-          if (act==='minus') st.scale = Math.max(0.4, st.scale-0.15);
-          if (act==='plus') st.scale = Math.min(3, st.scale+0.15);
-          if (act==='del') state.stickers = state.stickers.filter(s=>s.id!==st.id), selectedStickerId=null;
-          renderStickerLayer(); renderComposite();
-        });
-        el.appendChild(bar);
-      }
-      stickerLayer.appendChild(el);
-    });
-  }
-
-  function onStickerDown(ev, st){
-    ev.stopPropagation();
-    selectedStickerId = st.id;
-    renderStickerLayer();
-    const rect = stickerLayer.getBoundingClientRect();
-    function move(e){
-      const x = ((e.clientX - rect.left) / rect.width) * 100;
-      const y = ((e.clientY - rect.top) / rect.height) * 100;
-      st.x = Math.max(0,Math.min(100,x));
-      st.y = Math.max(0,Math.min(100,y));
-      renderStickerLayer();
-      renderComposite();
-    }
-    function up(){
-      window.removeEventListener('pointermove', move);
-      window.removeEventListener('pointerup', up);
-    }
-    window.addEventListener('pointermove', move);
-    window.addEventListener('pointerup', up);
-  }
-  stickerLayer.addEventListener('pointerdown', ()=>{ selectedStickerId=null; renderStickerLayer(); });
-
-  function getPrintSize(){
-    if (state.format==='strip4') return {w:600,h:1800};
-    return {w:1200,h:1800};
-  }
-
-  function drawCover(ctx, img, dx,dy,dw,dh){
-    const iw = img.width, ih = img.height;
-    const scale = Math.max(dw/iw, dh/ih);
-    const sw = dw/scale, sh = dh/scale;
-    const sx = (iw-sw)/2, sy = (ih-sh)/2;
-    ctx.drawImage(img, sx,sy,sw,sh, dx,dy,dw,dh);
-  }
-
-  function applyTone(ctx){
-    const tone = TONES.find(t=>t.key===state.toneKey);
-    ctx.filter = tone.filter;
-  }
-  function toneOverlayColor(){
-    const tone = TONES.find(t=>t.key===state.toneKey);
-    return tone.overlay;
-  }
-
-  const customFrameImgCache = {};
-  function getCustomFrameImg(entry){
-    if (customFrameImgCache[entry.key]) return customFrameImgCache[entry.key];
-    const img = new Image();
-    img.src = entry.dataUrl;
-    customFrameImgCache[entry.key] = img;
-    return img;
-  }
-
   function renderComposite(){
-    if (state.shots.length===0) return;
-    const {w,h} = getPrintSize();
+    if(!state.shots.length) return;
+    const w = state.format==='strip4' ? 600 : 1200;
+    const h = 1800;
     composeCanvas.width = w; composeCanvas.height = h;
     const ctx = composeCanvas.getContext('2d');
-    const frame = getFrame(state.frameKey);
-    const isCustom = !!frame.custom;
+    const frame = FRAMES.find(f=>f.key===state.frameKey)||FRAMES[0];
 
-    ctx.filter = 'none';
-    if (isCustom){
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0,0,w,h);
-    } else if (frame.bg === 'linear'){
-      const g = ctx.createLinearGradient(0,0,w,h);
-      g.addColorStop(0,'#ffd6e8'); g.addColorStop(.4,'#fff3b0'); g.addColorStop(.7,'#c8f4de'); g.addColorStop(1,'#c7e4ff');
-      ctx.fillStyle = g;
-      ctx.fillRect(0,0,w,h);
-    } else {
-      ctx.fillStyle = frame.bg;
-      ctx.fillRect(0,0,w,h);
-    }
-    if (!isCustom){
-      ctx.strokeStyle = frame.border; ctx.lineWidth = w*0.02;
-      ctx.strokeRect(ctx.lineWidth/2, ctx.lineWidth/2, w-ctx.lineWidth, h-ctx.lineWidth);
-    }
+    ctx.fillStyle = frame.bg;
+    ctx.fillRect(0,0,w,h);
+    ctx.strokeStyle = frame.border; ctx.lineWidth = w*0.02;
+    ctx.strokeRect(ctx.lineWidth/2, ctx.lineWidth/2, w-ctx.lineWidth, h-ctx.lineWidth);
 
-    const pad = isCustom ? 0 : w*0.06;
-    const captionH = isCustom ? h*0.09 : h*0.11;
-    const photoTop = pad, photoBottom = h - (isCustom?0:captionH) - (isCustom?0:pad*0.4);
-    const photoAreaH = photoBottom - photoTop;
+    const pad = w*0.06;
+    const captionH = h*0.11;
+    const photoAreaH = h - captionH - pad*0.4 - pad;
     const photoAreaW = w - pad*2;
 
-    function paintPhoto(img, x,y,ww,hh){
+    function drawPhoto(img, x,y,ww,hh){
       ctx.save();
-      applyTone(ctx);
-      drawCover(ctx, img, x,y,ww,hh);
+      const tone = TONES.find(t=>t.key===state.toneKey);
+      ctx.filter = tone.filter;
+      const scale = Math.max(ww/img.width, hh/img.height);
+      const sw = ww/scale, sh = hh/scale;
+      ctx.drawImage(img, (img.width-sw)/2, (img.height-sh)/2, sw, sh, x,y,ww,hh);
       ctx.restore();
-      const overlay = toneOverlayColor();
-      if (overlay){
-        ctx.fillStyle = overlay;
-        ctx.fillRect(x,y,ww,hh);
-      }
     }
 
-    if (state.format==='single'){
-      paintPhoto(state.shots[0], pad, photoTop, photoAreaW, photoAreaH);
-    } else if (state.format==='strip4'){
+    if(state.format==='single'){
+      drawPhoto(state.shots[0], pad, pad, photoAreaW, photoAreaH);
+    }else if(state.format==='strip4'){
       const gap = h*0.012;
       const cellH = (photoAreaH - gap*3)/4;
-      for (let i=0;i<4;i++){
-        const img = state.shots[i] || state.shots[state.shots.length-1];
-        paintPhoto(img, pad, photoTop + i*(cellH+gap), photoAreaW, cellH);
-      }
-    } else {
+      for(let i=0;i<4;i++) drawPhoto(state.shots[i]||state.shots[0], pad, pad+i*(cellH+gap), photoAreaW, cellH);
+    }else{
       const gap = w*0.025;
-      const cellW = (photoAreaW - gap)/2;
-      const cellH = (photoAreaH - gap)/2;
-      for (let i=0;i<4;i++){
-        const img = state.shots[i] || state.shots[state.shots.length-1];
-        const col = i%2, row = Math.floor(i/2);
-        paintPhoto(img, pad+col*(cellW+gap), photoTop+row*(cellH+gap), cellW, cellH);
-      }
+      const cellW = (photoAreaW-gap)/2, cellH = (photoAreaH-gap)/2;
+      for(let i=0;i<4;i++) drawPhoto(state.shots[i]||state.shots[0], pad+(i%2)*(cellW+gap), pad+Math.floor(i/2)*(cellH+gap), cellW, cellH);
     }
 
-    if (isCustom){
-      const fimg = getCustomFrameImg(frame);
-      if (fimg.complete && fimg.naturalWidth){
-        ctx.drawImage(fimg, 0, 0, w, h);
-      } else {
-        fimg.onload = ()=> renderComposite();
-      }
-    }
-
-    if (state.showDecor && !isCustom){
-      ctx.font = `${w*0.05}px "Prompt", sans-serif`;
-      ctx.fillStyle = frame.text;
-      ctx.globalAlpha = 0.85;
-      ctx.fillText('🌸', pad*0.3, pad*0.9);
-      ctx.fillText('✨', w-pad*1.1, h-captionH-pad*0.2);
-      ctx.globalAlpha = 1;
-    }
-
-    const capY = h - captionH/2 + h*0.01;
-    ctx.font = `600 ${h*0.045}px "${state.font}", sans-serif`;
-    ctx.fillStyle = state.captionColor;
+    ctx.font = `600 ${h*0.04}px "${state.font}", sans-serif`;
+    ctx.fillStyle = frame.text;
     ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    let capText = state.caption || '';
-    if (state.showDate){
-      const d = new Date();
-      capText += (capText? '  •  ':'') + d.toLocaleDateString('th-TH', {year:'numeric',month:'short',day:'numeric'});
-    }
-    ctx.fillText(capText, w/2, capY, w-pad*2);
-    ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+    ctx.fillText(state.caption, w/2, h - captionH/2);
 
     state.stickers.forEach(st=>{
-      ctx.save();
-      ctx.translate(w*(st.x/100), h*(st.y/100));
-      ctx.rotate(st.rot * Math.PI/180);
-      ctx.font = `${44*st.scale*(w/500)}px sans-serif`;
-      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText(st.emoji, 0, 0);
-      ctx.restore();
+      ctx.font = `${50*st.scale}px sans-serif`;
+      ctx.fillText(st.emoji, w*(st.x/100), h*(st.y/100));
     });
 
-    renderStickerLayer();
-    scheduleDisplayResultBroadcast();
+    sendResultToDisplay();
   }
 
-  let resultBroadcastTimer = null;
-  function scheduleDisplayResultBroadcast(){
-    clearTimeout(resultBroadcastTimer);
-    resultBroadcastTimer = setTimeout(()=>{
-      if (state.step===3){
-        broadcast({
-          type: 'roundResult',
-          composedSrc: composeCanvas.toDataURL('image/jpeg', 0.85),
-          roundNumber: state.roundNumber,
-          qrText: state.lastQrLink
-        });
-      }
-    }, 150);
-  }
-
-  async function autoUploadAndShowQr(){
-    if (state.drive.clientId) {
-      try {
-        const link = await uploadComposedToDrive();
-        state.lastQrLink = link;
-        driveStatus.textContent = 'เชื่อมต่อแล้ว ✓';
-        driveStatus.classList.add('ok');
-        addToGallery(composeCanvas.toDataURL('image/png'), state.roundNumber, link);
-        qrBtn.classList.remove('hidden');
-        showQr(link, true);
-      } catch (err) {
-        console.warn("Auto drive upload failed:", err);
-      }
-    }
-  }
-
-  downloadBtn.addEventListener('click', ()=>{
-    const a = document.createElement('a');
-    a.download = `tsk-photobooth-${Date.now()}.png`;
-    a.href = composeCanvas.toDataURL('image/png');
-    a.click();
-    addToGallery(a.href);
-  });
-
-  downloadGifBtn.addEventListener('click', buildGif);
-  function buildGif(){
-    if (typeof GIF === 'undefined'){ alert('โหลดไลบรารี GIF ไม่สำเร็จ'); return; }
-    downloadGifBtn.disabled = true;
-    downloadGifBtn.textContent = '⏳ กำลังสร้าง GIF...';
-    const gif = new GIF({ workers:2, quality:10, workerScript:'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js' });
-    const targetW = 480;
-    state.shots.forEach(shotCanvas=>{
-      const ratio = shotCanvas.height/shotCanvas.width;
-      const c = document.createElement('canvas');
-      c.width = targetW; c.height = Math.round(targetW*ratio);
-      const cx = c.getContext('2d');
-      applyTone(cx);
-      cx.drawImage(shotCanvas,0,0,c.width,c.height);
-      gif.addFrame(c, {delay:450, copy:true});
-    });
-    gif.on('finished', function(blob){
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.download = `tsk-photobooth-${Date.now()}.gif`;
-      a.href = url; a.click();
-      downloadGifBtn.disabled = false;
-      downloadGifBtn.textContent = '🎞️ บันทึก GIF';
-    });
-    gif.render();
-  }
-
-  printBtn.addEventListener('click', ()=>{
-    const {w,h} = getPrintSize();
-    const inches = state.format==='strip4' ? {w:2,h:6} : {w:4,h:6};
-    const printArea = document.getElementById('printArea');
-    printArea.innerHTML = `<img src="${composeCanvas.toDataURL('image/png')}" style="width:${inches.w}in;height:${inches.h}in;object-fit:cover;">`;
-    const styleId = 'tsk-print-style';
-    let styleTag = document.getElementById(styleId);
-    if (!styleTag){ styleTag = document.createElement('style'); styleTag.id = styleId; document.head.appendChild(styleTag); }
-    styleTag.textContent = `
-      @page{ size:${inches.w}in ${inches.h}in; margin:0; }
-      @media print{
-        body *{ visibility:hidden; }
-        #printArea, #printArea *{ visibility:visible; }
-        #printArea{ display:block !important; position:fixed; top:0; left:0; }
-      }`;
-    window.print();
-  });
-
-  function addToGallery(src, roundNum, qrLink){
-    const item = document.createElement('div');
-    item.className = 'gallery-item';
-    item.innerHTML = `${roundNum?`<span class="round-tag">รอบ ${roundNum}</span>`:''}<img src="${src}">`;
-    galleryGrid.prepend(item);
-  }
-
-  function initTokenClientIfNeeded(){
-    if (!state.drive.clientId) throw new Error('ยังไม่ได้ตั้งค่า Client ID');
-    if (!window.google || !google.accounts || !google.accounts.oauth2) throw new Error('Google Identity Services โหลดไม่สำเร็จ');
-    if (!state.drive.tokenClient){
-      state.drive.tokenClient = google.accounts.oauth2.initTokenClient({
-        client_id: state.drive.clientId,
-        scope: 'https://www.googleapis.com/auth/drive.file',
-        callback: ()=>{}
+  function sendResultToDisplay(){
+    if(state.step===3){
+      const lightDataUrl = composeCanvas.toDataURL('image/jpeg', 0.65);
+      broadcast({
+        type: 'roundResult',
+        composedSrc: lightDataUrl,
+        roundNumber: state.roundNumber,
+        qrText: state.lastQrLink || window.location.href
       });
     }
   }
 
-  function requestAccessToken(){
-    return new Promise((resolve,reject)=>{
+  async function autoSendResult(){
+    if(state.drive.clientId){
       try{
-        initTokenClientIfNeeded();
-        state.drive.tokenClient.callback = (resp)=>{
-          if (resp.error) reject(resp);
-          else { state.drive.accessToken = resp.access_token; resolve(resp.access_token); }
-        };
-        state.drive.tokenClient.requestAccessToken({prompt: state.drive.accessToken ? '' : 'consent'});
-      }catch(e){ reject(e); }
-    });
-  }
-
-  async function driveFetch(url, opts){
-    opts = opts || {};
-    opts.headers = Object.assign({}, opts.headers, {Authorization: 'Bearer ' + state.drive.accessToken});
-    const res = await fetch(url, opts);
-    if (!res.ok) throw new Error('Drive API error ' + res.status);
-    return res.json();
-  }
-
-  async function ensureFolder(){
-    if (state.drive.folderId) return state.drive.folderId;
-    const name = state.drive.folderName || 'Photobooth';
-    const q = encodeURIComponent(`name='${name.replace(/'/g,"\\'")}' and mimeType='application/vnd.google-apps.folder' and trashed=false`);
-    const found = await driveFetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name)`);
-    if (found.files && found.files.length){
-      state.drive.folderId = found.files[0].id;
-      return state.drive.folderId;
+        sendResultToDisplay();
+      }catch(e){}
+    }else{
+      state.lastQrLink = window.location.href;
+      sendResultToDisplay();
     }
-    const created = await driveFetch('https://www.googleapis.com/drive/v3/files?fields=id', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({name, mimeType:'application/vnd.google-apps.folder'})
-    });
-    state.drive.folderId = created.id;
-    return state.drive.folderId;
   }
 
-  async function uploadComposedToDrive(){
-    await requestAccessToken();
-    const folderId = await ensureFolder();
-    const filename = `TSK-Photobooth-round${state.roundNumber}-${Date.now()}.png`;
-    const created = await driveFetch('https://www.googleapis.com/drive/v3/files?fields=id,webViewLink', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({name:filename, parents:[folderId]})
-    });
-    const blob = await new Promise(res=> composeCanvas.toBlob(res,'image/png'));
-    const uploadRes = await fetch(`https://www.googleapis.com/upload/drive/v3/files/${created.id}?uploadType=media`, {
-      method:'PATCH',
-      headers:{Authorization:'Bearer '+state.drive.accessToken, 'Content-Type':'image/png'},
-      body: blob
-    });
-    if (!uploadRes.ok) throw new Error('อัปโหลดไฟล์ไม่สำเร็จ');
-    await driveFetch(`https://www.googleapis.com/drive/v3/files/${created.id}/permissions`, {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({role:'reader', type:'anyone'})
-    });
-    return created.webViewLink;
-  }
+  downloadBtn.onclick = ()=>{
+    const a = document.createElement('a');
+    a.download = `photobooth-${Date.now()}.png`;
+    a.href = composeCanvas.toDataURL('image/png');
+    a.click();
+    const im = document.createElement('img'); im.src = a.href;
+    const it = document.createElement('div'); it.className='gallery-item'; it.appendChild(im);
+    galleryGrid.prepend(it);
+  };
 
-  driveBtn.addEventListener('click', async ()=>{
-    driveBtn.disabled = true;
-    driveBtn.textContent = '⏳ กำลังอัปโหลด...';
-    try{
-      const link = await uploadComposedToDrive();
-      state.lastQrLink = link;
-      driveStatus.textContent = 'เชื่อมต่อแล้ว ✓';
-      driveStatus.classList.add('ok');
-      addToGallery(composeCanvas.toDataURL('image/png'), state.roundNumber, link);
-      qrBtn.classList.remove('hidden');
-      showQr(link, true);
-    }catch(e){
-      alert('ส่งเข้า Drive ไม่สำเร็จ: ' + e.message);
-    }
-    driveBtn.disabled = false;
-    driveBtn.textContent = '☁️ ส่งเข้า Google Drive';
-  });
-
-  function showQr(link, alsoInline){
-    qrCanvasHolder.innerHTML = '';
-    new QRCode(qrCanvasHolder, {text:link, width:200, height:200, correctLevel: QRCode.CorrectLevel.M});
-    qrModalHint.textContent = `สแกนเพื่อรับรูป รอบที่ ${state.roundNumber}`;
-    qrModal.classList.remove('hidden');
-    if (alsoInline){
-      qrInlineHolder.innerHTML = '';
-      new QRCode(qrInlineHolder, {text:link, width:140, height:140, correctLevel: QRCode.CorrectLevel.M});
-      qrInlineBox.classList.remove('hidden');
-    }
-    broadcast({
-      type: 'roundResult',
-      composedSrc: composeCanvas.toDataURL('image/jpeg', 0.85),
-      roundNumber: state.roundNumber,
-      qrText: link
-    });
-  }
-
-  qrBtn.addEventListener('click', ()=>{
-    if (state.lastQrLink) showQr(state.lastQrLink, true);
-    else alert('กรุณาส่งเข้า Google Drive ก่อนเพื่อสร้าง URL');
-  });
-  closeQrBtn.addEventListener('click', ()=> qrModal.classList.add('hidden'));
-
-  openSettingsBtn.addEventListener('click', ()=> settingsModal.classList.remove('hidden'));
-  closeSettingsBtn.addEventListener('click', ()=> settingsModal.classList.add('hidden'));
-  saveSettingsBtn.addEventListener('click', ()=>{
-    state.drive.clientId = clientIdInput.value.trim();
-    state.drive.folderName = folderNameInput.value.trim() || 'Photobooth';
-    state.drive.folderId = null;
-    localStorage.setItem('tsk_pb_settings', JSON.stringify({clientId:state.drive.clientId, folderName:state.drive.folderName}));
-    if (state.drive.clientId && state.shots.length){ driveBtn.classList.remove('hidden'); }
-    settingsModal.classList.add('hidden');
-  });
-  signOutBtn.addEventListener('click', ()=>{
-    if (state.drive.accessToken && window.google && google.accounts && google.accounts.oauth2){
-      google.accounts.oauth2.revoke(state.drive.accessToken, ()=>{});
-    }
-    state.drive.accessToken = null;
-    driveStatus.textContent = 'ยังไม่ได้เชื่อมต่อ';
-    driveStatus.classList.remove('ok');
-  });
-
-  openDisplayBtn.addEventListener('click', ()=>{
-    const url = location.pathname + '?display=1';
-    state.displayWindow = window.open(url, 'tsk_display', 'width=1100,height=800');
-  });
+  openDisplayBtn.onclick = ()=>{
+    window.open(location.pathname + '?display=1', 'tsk_display', 'width=1200,height=800');
+  };
 
   let liveTimer = null;
-  function startLivePreviewBroadcast(){
-    if (liveTimer) clearInterval(liveTimer);
+  function startLivePreview(){
+    if(liveTimer) clearInterval(liveTimer);
     const c = document.createElement('canvas');
     liveTimer = setInterval(()=>{
-      if (!video.videoWidth) return;
-      const w = 480, h = Math.round(480 * video.videoHeight/video.videoWidth);
+      if(!video.videoWidth) return;
+      const w = 400, h = Math.round(400 * video.videoHeight/video.videoWidth);
       c.width = w; c.height = h;
       const cx = c.getContext('2d');
-      if (state.mirrored){ cx.translate(w,0); cx.scale(-1,1); }
+      if(state.mirrored){ cx.translate(w,0); cx.scale(-1,1); }
       cx.drawImage(video,0,0,w,h);
-      broadcast({type:'frame', src:c.toDataURL('image/jpeg',0.5)});
-    }, 150);
+      broadcast({type:'frame', src: c.toDataURL('image/jpeg', 0.4)});
+    }, 120);
   }
 
-  function broadcast(msg){
-    if (channel) { try{ channel.postMessage(msg); }catch(e){} }
-  }
-  if (channel){
-    channel.onmessage = (e)=>{
-      if (e.data && e.data.type==='ready'){ state.displayReady = true; }
-    };
-  }
-
+  function broadcast(msg){ if(channel) try{ channel.postMessage(msg); }catch(e){} }
   function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+
+  openSettingsBtn.onclick = ()=> settingsModal.classList.remove('hidden');
+  closeSettingsBtn.onclick = ()=> settingsModal.classList.add('hidden');
+  saveSettingsBtn.onclick = ()=>{
+    state.drive.clientId = clientIdInput.value.trim();
+    localStorage.setItem('tsk_pb_settings', JSON.stringify({clientId:state.drive.clientId}));
+    settingsModal.classList.add('hidden');
+  };
 }
 
 /* ============================================================= */
-/* DISPLAY APP LOGIC (TWO-COLUMN SYNC)                           */
+/* DISPLAY APP LOGIC (NO FLICKER / RELIABLE QR & RESULT DISPLAY)  */
 /* ============================================================= */
 function initDisplayApp(){
   const live = document.getElementById('displayLive');
+  const waiting = document.getElementById('displayWaiting');
   const countdownBox = document.getElementById('displayCountdown');
   const countdownNum = document.getElementById('displayCountdownNum');
   const flash = document.getElementById('displayFlash');
   const finalImg = document.getElementById('displayFinalImg');
-  const resultPlaceholder = document.getElementById('displayResultPlaceholder');
+  const resultEmpty = document.getElementById('displayResultEmpty');
+  const qrHolder = document.getElementById('displayQR');
   const qrTitle = document.getElementById('displayQrTitle');
   const qrSub = document.getElementById('displayQrSub');
-  const qrHolder = document.getElementById('displayQR');
-  const waiting = document.getElementById('displayWaiting');
 
-  if (!channel){
-    waiting.textContent = 'เบราว์เซอร์นี้ไม่รองรับการเชื่อมต่อสองจอ';
-    return;
-  }
+  if(!channel) return;
 
   channel.postMessage({type:'ready'});
-  const helloTimer = setInterval(()=> channel.postMessage({type:'ready'}), 2000);
 
   channel.onmessage = (e)=>{
-    const msg = e.data; if (!msg) return;
+    const msg = e.data; if(!msg) return;
 
-    // 1. รับภาพกล้องสดตลอดเวลา (ฝั่งซ้าย)
-    if (msg.type === 'frame'){
-      clearInterval(helloTimer);
+    if(msg.type === 'frame'){
       waiting.style.display = 'none';
       live.style.display = 'block';
       live.src = msg.src;
     }
 
-    // 2. เริ่มถ่ายรอบใหม่ -> ล้างค่าเดิม
-    if (msg.type === 'roundStart'){
-      // คงหน้าจอกล้องไว้ปกติ
-    }
-
-    // 3. ตัวเลขนับถอยหลัง
-    if (msg.type === 'countdown'){
-      if (msg.value){
+    if(msg.type === 'countdown'){
+      if(msg.value){
         countdownBox.style.display = 'flex';
         countdownNum.textContent = msg.value;
-      } else {
+      }else{
         countdownBox.style.display = 'none';
       }
     }
 
-    // 4. แฟลชกล้อง
-    if (msg.type === 'flash'){
-      flash.style.transition = 'none';
+    if(msg.type === 'flash'){
       flash.style.opacity = '1';
-      setTimeout(()=>{ flash.style.transition='opacity .4s'; flash.style.opacity='0'; }, 40);
+      setTimeout(()=>{ flash.style.opacity = '0'; }, 50);
     }
 
-    // 5. แสดงผลลัพธ์ภาพที่ถ่ายแล้ว + QR Code (ฝั่งขวา)
-    if (msg.type === 'roundResult'){
-      if (resultPlaceholder) resultPlaceholder.style.display = 'none';
+    if(msg.type === 'roundResult'){
+      resultEmpty.style.display = 'none';
       finalImg.src = msg.composedSrc;
       finalImg.style.display = 'block';
 
       qrHolder.innerHTML = '';
-      if (msg.qrText){
-        qrTitle.textContent = `สแกนรับภาพ รอบที่ ${msg.roundNumber} 🌸`;
-        qrSub.textContent = 'ใช้กล้องมือถือส่องเพื่อดาวน์โหลดรูปและ GIF ทันที';
-        new QRCode(qrHolder, {text: msg.qrText, width:115, height:115, correctLevel: QRCode.CorrectLevel.M});
-      } else {
-        qrTitle.textContent = `ภาพถ่ายรอบที่ ${msg.roundNumber}`;
-        qrSub.textContent = 'เชื่อมต่อ Google Drive เพื่อสร้าง QR Code โหลดรูปลงมือถือ';
-      }
+      qrTitle.textContent = `สแกนรับภาพรอบที่ ${msg.roundNumber} 🌸`;
+      qrSub.textContent = 'เปิดกล้องมือถือส่องเพื่อดาวน์โหลดรูปภาพ';
+      new QRCode(qrHolder, {
+        text: msg.qrText,
+        width: 83,
+        height: 83,
+        correctLevel: QRCode.CorrectLevel.M
+      });
     }
 
-    // 6. กดถ่ายใหม่
-    if (msg.type === 'clearRound'){
+    if(msg.type === 'clearRound'){
       finalImg.style.display = 'none';
-      if (resultPlaceholder) resultPlaceholder.style.display = 'block';
+      resultEmpty.style.display = 'block';
       qrHolder.innerHTML = '';
-      qrTitle.textContent = 'คิวอาร์โค้ดสแกนรับภาพ';
-      qrSub.textContent = 'ถ่ายรูปเพื่อรับคิวอาร์โค้ดดาวน์โหลดภาพและ GIF ออนไลน์';
+      qrTitle.textContent = 'คิวอาร์โค้ดรับรูป';
+      qrSub.textContent = 'สแกนด้วยโทรศัพท์เพื่อดาวน์โหลดภาพ';
     }
   };
 }
