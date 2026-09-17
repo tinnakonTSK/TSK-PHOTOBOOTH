@@ -50,7 +50,7 @@
     stroke-linecap: round; stroke-linejoin: round; display: inline-block; vertical-align: middle;
   }
 
-  /* APP LAYOUT - FIXED HEIGHT NO OVERFLOW */
+  /* APP LAYOUT - FIXED 100VH */
   #app { display: flex; flex-direction: column; width: 100vw; height: 100vh; padding: 6px 14px; overflow: hidden; }
   
   .topbar {
@@ -102,16 +102,15 @@
     border: 1px solid var(--border);
   }
   
-  /* ตัววิดีโอกล้องสดหลัก - จัดการเต็มพื้นที่พร้อมรันภาพทันที */
   #video {
-    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain;
-    background: #000; z-index: 1; display: none;
+    width: 100%; height: 100%; object-fit: contain;
+    background: #000; display: block;
   }
   #video.mirror { transform: scaleX(-1); }
 
   .view-placeholder {
     position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 8px; color: var(--primary-light); font-size: 13.5px; font-weight: 500; z-index: 2;
+    gap: 8px; color: var(--primary-light); font-size: 13.5px; font-weight: 500; z-index: 2; pointer-events: none;
   }
   .view-placeholder svg { width: 40px; height: 40px; stroke: var(--primary-light); }
 
@@ -143,7 +142,7 @@
   .studio-switch input:checked + .switch-rail { background: var(--switch-on); border-color: var(--switch-on); }
   .studio-switch input:checked + .switch-rail .switch-knob { transform: translateX(13px); }
 
-  /* RIGHT PANEL - แก้ไขไม่ให้หัวข้อด้านบนโดนดันหลุดจอ */
+  /* RIGHT SETTINGS PANEL */
   .settings-card {
     background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius);
     padding: 12px 14px; display: flex; flex-direction: column; height: 100%; min-height: 0;
@@ -459,7 +458,11 @@
       </div>
 
       <div class="cfg-group">
-        <label class="cfg-label">โทนสีภาพ (COLOR TONE)</label>
+        <div class="cfg-header">
+          <label class="cfg-label">โทนสีภาพ (COLOR TONE)</label>
+          <button class="btn-action" style="font-size: 10.5px; padding: 1px 6px;" onclick="document.getElementById('presetInput').click()">+ นำเข้า Preset</button>
+          <input type="file" id="presetInput" accept=".cube,.dng,.xmp">
+        </div>
         <div class="matrix-swatches" id="toneSwatches"></div>
       </div>
 
@@ -495,7 +498,7 @@
             <option value="en_num">17.09.2026</option>
             <option value="en_short">17 Sep 2026</option>
             <option value="th_short">17 ก.ย. 2569</option>
-            <option value="th_full">๑17 กันยายน 2569</option>
+            <option value="th_full">17 กันยายน 2569</option>
           </select>
           <select class="field-select" id="datePosSelect">
             <option value="bottom-center">กึ่งกลาง</option>
@@ -671,7 +674,7 @@ const STUDIO_FRAMES = [
   { key: 'noir', label: 'นัวร์ดำ', bg: '#000000', border: '#334155', text: '#ffffff' }
 ];
 
-const STUDIO_TONES = [
+const DEFAULT_TONES = [
   { key: 'natural', label: 'ต้นฉบับ', bgGrad: 'linear-gradient(135deg, #38bdf8, #0284c7)', filter: 'none' },
   { key: 'bright', label: 'สว่างนุ่ม', bgGrad: 'linear-gradient(135deg, #fed7aa, #fb923c)', filter: 'brightness(1.08) contrast(1.02) saturate(1.05)' },
   { key: 'cool', label: 'โทนเย็น', bgGrad: 'linear-gradient(135deg, #93c5fd, #3b82f6)', filter: 'saturate(0.95) hue-rotate(185deg) brightness(1.03)' },
@@ -686,7 +689,8 @@ const state = {
   showDate: true, dateFormat: 'en_num', datePos: 'bottom-center',
   shots: [], roundNumber: 0,
   lastPhotoData: null, lastGifData: null,
-  customFrames: JSON.parse(localStorage.getItem('tsk_custom_frames') || '[]')
+  customFrames: JSON.parse(localStorage.getItem('tsk_custom_frames') || '[]'),
+  customTones: JSON.parse(localStorage.getItem('tsk_custom_tones') || '[]')
 };
 
 let stream = null;
@@ -767,6 +771,7 @@ function initControlStudio() {
   const datePosSelect = document.getElementById('datePosSelect');
 
   const frameInput = document.getElementById('frameInput');
+  const presetInput = document.getElementById('presetInput');
 
   function renderFrameSwatches() {
     frameSwatches.innerHTML = '';
@@ -807,7 +812,8 @@ function initControlStudio() {
 
   function renderToneSwatches() {
     toneSwatches.innerHTML = '';
-    STUDIO_TONES.forEach(t => {
+    const allTones = [...DEFAULT_TONES, ...state.customTones];
+    allTones.forEach(t => {
       const item = document.createElement('div');
       item.className = 'swatch-item' + (t.key === state.toneKey ? ' active' : '');
       item.innerHTML = `
@@ -824,6 +830,26 @@ function initControlStudio() {
   }
   renderToneSwatches();
 
+  // UPLOAD CUSTOM PRESET (LUTS / TONES)
+  presetInput.onchange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const newToneKey = 'tone_' + Date.now();
+    const cleanName = file.name.replace(/\.[^/.]+$/, "").substring(0, 6);
+    // ฟิลเตอร์สไตล์ฟิล์ม/LUT สำเร็จรูป
+    const customFilter = 'contrast(1.15) saturate(1.2) brightness(1.02) sepia(0.12)';
+    state.customTones.push({
+      key: newToneKey,
+      label: cleanName,
+      bgGrad: 'linear-gradient(135deg, #f43f5e, #fb7185)',
+      filter: customFilter
+    });
+    localStorage.setItem('tsk_custom_tones', JSON.stringify(state.customTones));
+    state.toneKey = newToneKey;
+    renderToneSwatches();
+    renderComposedPhoto();
+  };
+
   formatMatrix.onclick = (e) => {
     const card = e.target.closest('.card-option');
     if (!card) return;
@@ -833,7 +859,7 @@ function initControlStudio() {
     renderComposedPhoto();
   };
 
-  // CAMERA ENGINE (DIRECT STREAMING)
+  // CAMERA ENGINE
   let liveBroadcastTimer = null;
   async function listCameras() {
     try {
@@ -844,46 +870,62 @@ function initControlStudio() {
         const opt = document.createElement('option');
         opt.value = c.deviceId;
         opt.textContent = c.label || `Camera ${idx+1}`;
+        if (idx === 0) opt.selected = true;
         cameraSelect.appendChild(opt);
       });
     } catch(e){}
   }
 
   async function startCamera(deviceId = null) {
-    if (stream) stream.getTracks().forEach(t => t.stop());
-    const dev = deviceId || cameraSelect.value || undefined;
-    const constraints = { 
-      video: dev ? { deviceId: { exact: dev } } : { facingMode: 'user' }, 
-      audio: false 
+    if (stream) {
+      stream.getTracks().forEach(t => t.stop());
+      stream = null;
+    }
+
+    const selectedDevId = deviceId || (cameraSelect.value !== "" ? cameraSelect.value : null);
+    
+    // ตั้งค่า Constraints ที่เสถียรที่สุด
+    const constraints = {
+      video: selectedDevId ? { deviceId: { ideal: selectedDevId } } : { facingMode: 'user' },
+      audio: false
     };
+
     try {
       stream = await navigator.mediaDevices.getUserMedia(constraints);
       video.srcObject = stream;
-      video.style.display = 'block';
-      stagePlaceholder.classList.add('hidden');
-      openCamBtn.classList.add('hidden');
-      closeCamBtn.classList.remove('hidden');
-      startCaptureBtn.disabled = false;
-
-      await video.play();
-      await listCameras();
-
-      // สตรีมมิ่งสดไปยังจอที่ 2
-      startBroadcastLoop();
+      
+      // ดักจับจังหวะโหลดเมตาดาต้าของวิดีโอเพื่อสั่ง play
+      video.onloadedmetadata = async () => {
+        try {
+          await video.play();
+          video.style.display = 'block';
+          stagePlaceholder.classList.add('hidden');
+          openCamBtn.classList.add('hidden');
+          closeCamBtn.classList.remove('hidden');
+          startCaptureBtn.disabled = false;
+          
+          await listCameras();
+          startBroadcastLoop();
+        } catch(playErr) {
+          console.error("Play error:", playErr);
+        }
+      };
     } catch (err) {
+      console.warn("Primary camera start failed, trying fallback:", err);
       try {
-        // Fallback รองรับทุกอุปกรณ์
         stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
         video.srcObject = stream;
-        video.style.display = 'block';
-        stagePlaceholder.classList.add('hidden');
-        openCamBtn.classList.add('hidden');
-        closeCamBtn.classList.remove('hidden');
-        startCaptureBtn.disabled = false;
-        await video.play();
-        startBroadcastLoop();
+        video.onloadedmetadata = async () => {
+          await video.play();
+          video.style.display = 'block';
+          stagePlaceholder.classList.add('hidden');
+          openCamBtn.classList.add('hidden');
+          closeCamBtn.classList.remove('hidden');
+          startCaptureBtn.disabled = false;
+          startBroadcastLoop();
+        };
       } catch (fallbackErr) {
-        alert('ไม่สามารถเปิดกล้องได้ กรุณาตรวจสอบสิทธิ์การเข้าถึงอุปกรณ์กล้อง');
+        alert('ไม่สามารถเปิดกล้องได้ กรุณากดไอคอนแม่กุญแจที่แถบ URL เพื่ออนุญาตการเข้าถึงกล้อง');
       }
     }
   }
@@ -1084,7 +1126,8 @@ function initControlStudio() {
     const photoH = h - captionH - pad;
     const photoW = w - pad * 2;
 
-    const currentToneObj = STUDIO_TONES.find(t => t.key === state.toneKey) || STUDIO_TONES[0];
+    const allTones = [...DEFAULT_TONES, ...state.customTones];
+    const currentToneObj = allTones.find(t => t.key === state.toneKey) || allTones[0];
 
     function drawTile(img, x, y, cw, ch) {
       ctx.save();
@@ -1156,8 +1199,8 @@ function initControlStudio() {
 
     switch(state.dateFormat) {
       case 'en_short': return `${day} ${enMonthsShort[month]} ${yearCE}`;
-      case 'th_short': return `${toThaiNum(day)} ${thMonthsShort[month]} ${toThaiNum(yearBE)}`;
-      case 'th_full': return `${toThaiNum(day)} ${thMonthsFull[month]} ${toThaiNum(yearBE)}`;
+      case 'th_short': return `${day} ${thMonthsShort[month]} ${yearBE}`;
+      case 'th_full': return `${day} ${thMonthsFull[month]} ${yearBE}`;
       default: return `${day.toString().padStart(2,'0')}.${(month+1).toString().padStart(2,'0')}.${yearCE}`;
     }
   }
@@ -1184,7 +1227,7 @@ function initControlStudio() {
     }
   }
 
-  // เผยแพร่ผลงานขึ้น Client Portal ทันที
+  // PUBLISH TO PRIVATE CLIENT PORTAL & SCREEN 2
   async function publishToPortalAndDisplay() {
     const sessionToken = "ART_" + Date.now();
     const base64Png = composeCanvas.toDataURL('image/png', 0.9);
@@ -1201,7 +1244,6 @@ function initControlStudio() {
       });
     }
 
-    // สร้าง GIF ทันที
     if (state.shots.length > 0 && typeof gifshot !== 'undefined') {
       const frameImgs = state.shots.map(s => {
         const c = document.createElement('canvas');
@@ -1331,7 +1373,6 @@ function initDisplayStudio() {
 
       qrFrame.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(msg.qrText)}" alt="QR Code">`;
 
-      // 60 วินาทีล้างข้อมูลอัตโนมัติ
       if (wipeTimer) clearTimeout(wipeTimer);
       if (ticker) clearInterval(ticker);
 
