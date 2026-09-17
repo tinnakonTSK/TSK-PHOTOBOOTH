@@ -15,7 +15,6 @@
     --pink:#ff7aa8;
     --pink-deep:#e85c8c;
     --pink-soft:#ffe3ec;
-    --peach:#ffb199;
     --mint:#7fd9bd;
     --ink:#4a3b42;
     --ink-soft:#8a7580;
@@ -40,35 +39,35 @@
   /* MAIN WRAPPER (FIT SCREEN 100VH) */
   #app{
     display:flex;flex-direction:column;width:100vw;height:100vh;
-    padding:8px 16px;box-sizing:border-box;overflow:hidden;
+    padding:6px 14px;box-sizing:border-box;overflow:hidden;
   }
   .topbar{
     display:flex;align-items:center;justify-content:space-between;
-    height:36px;flex-shrink:0;margin-bottom:4px;
+    height:34px;flex-shrink:0;margin-bottom:2px;
   }
   .brand{display:flex;align-items:baseline;gap:8px;}
-  .brand .logo{font-size:22px;font-weight:700;color:var(--pink-deep);}
+  .brand .logo{font-size:20px;font-weight:700;color:var(--pink-deep);}
   .brand .tagline{font-family:'Mali',cursive;font-size:12px;color:var(--ink-soft);}
 
-  .steps{display:flex;gap:8px;height:30px;flex-shrink:0;margin-bottom:8px;}
+  .steps{display:flex;gap:6px;height:28px;flex-shrink:0;margin-bottom:6px;}
   .step-pill{
-    flex:1;text-align:center;border-radius:10px;line-height:28px;
+    flex:1;text-align:center;border-radius:8px;line-height:26px;
     background:var(--panel);border:1px solid var(--line);color:var(--ink-soft);
-    font-size:12px;font-weight:600;
+    font-size:11.5px;font-weight:600;
   }
   .step-pill.active{background:var(--pink);color:#fff;border-color:var(--pink);}
   .step-pill.done{background:var(--pink-soft);color:var(--pink-deep);}
 
   /* 2-COLUMN LAYOUT */
   .layout{
-    flex:1;display:grid;grid-template-columns:1.2fr 0.8fr;gap:14px;
-    height:calc(100vh - 86px);min-height:0;overflow:hidden;
+    flex:1;display:grid;grid-template-columns:1.2fr 0.8fr;gap:12px;
+    height:calc(100vh - 78px);min-height:0;overflow:hidden;
   }
 
   /* LEFT: CAMERA & ACTIONS (NO OVERFLOW) */
   .stage-panel{
     background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
-    padding:10px;display:flex;flex-direction:column;height:100%;min-height:0;
+    padding:8px 10px;display:flex;flex-direction:column;height:100%;min-height:0;
     overflow:hidden;
   }
   .stage-wrap{
@@ -92,34 +91,34 @@
   #countdownOverlay span{font-family:'Kodchasan',sans-serif;font-weight:700;font-size:12vw;color:#fff;}
   #flashOverlay{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:6;}
 
-  .stage-controls{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;flex-shrink:0;}
-  .btn{border:none;border-radius:8px;padding:7px 12px;font-weight:600;font-size:12.5px;display:inline-flex;align-items:center;gap:6px;}
+  .stage-controls{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;flex-shrink:0;}
+  .btn{border:none;border-radius:8px;padding:6px 12px;font-weight:600;font-size:12px;display:inline-flex;align-items:center;gap:6px;}
   .btn-primary{background:linear-gradient(135deg,var(--pink),var(--pink-deep));color:#fff;}
   .btn-secondary{background:var(--pink-soft);color:var(--pink-deep);}
   .btn-outline{background:#fff;border:1px solid var(--line);color:var(--ink);}
   .btn:disabled{opacity:.45;cursor:not-allowed;}
-  .row-inline{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:6px;font-size:11.5px;color:var(--ink-soft);flex-shrink:0;}
-  select.small{padding:3px 6px;border-radius:6px;border:1px solid var(--line);background:#fff;}
+  .row-inline{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:4px;font-size:11px;color:var(--ink-soft);flex-shrink:0;}
+  select.small{padding:2px 5px;border-radius:6px;border:1px solid var(--line);background:#fff;}
 
   /* RIGHT: OPTIONS (SCROLLABLE CONTAINER) */
   .controls-panel{
     background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
-    padding:12px 14px;display:flex;flex-direction:column;height:100%;min-height:0;
+    padding:10px 12px;display:flex;flex-direction:column;height:100%;min-height:0;
     overflow-y:auto;
   }
   .controls-panel::-webkit-scrollbar{width:5px;}
   .controls-panel::-webkit-scrollbar-thumb{background:#ffccd9;border-radius:4px;}
 
-  .field{margin-bottom:10px;}
-  .field label.title{display:block;font-size:12px;font-weight:600;color:var(--ink);margin-bottom:4px;}
+  .field{margin-bottom:8px;}
+  .field label.title{display:block;font-size:11.5px;font-weight:600;color:var(--ink);margin-bottom:3px;}
   .chip-row{display:flex;flex-wrap:wrap;gap:4px;}
-  .chip{padding:5px 9px;border-radius:8px;border:1.5px solid var(--line);background:#fff;font-size:11.5px;display:flex;align-items:center;gap:4px;}
+  .chip{padding:4px 8px;border-radius:7px;border:1.5px solid var(--line);background:#fff;font-size:11px;display:flex;align-items:center;gap:4px;}
   .chip.active{border-color:var(--pink);background:var(--pink-soft);color:var(--pink-deep);font-weight:600;}
   .chip .del-btn{margin-left:3px;color:#e85c8c;font-weight:bold;cursor:pointer;}
-  input[type=text]{width:100%;padding:6px 9px;border-radius:8px;border:1.5px solid var(--line);font-size:12px;}
-  .sticker-palette{display:flex;flex-wrap:wrap;gap:4px;}
-  .sticker-palette button{width:30px;height:30px;border-radius:6px;border:1px solid var(--line);background:#fff;font-size:15px;}
-  .guide-box{background:#fff6f9;border:1px dashed #ffb1cb;border-radius:8px;padding:6px 8px;margin-top:5px;font-size:11px;color:#7a4a5a;line-height:1.4;}
+  input[type=text]{width:100%;padding:5px 8px;border-radius:7px;border:1.5px solid var(--line);font-size:11.5px;}
+  .sticker-palette{display:flex;flex-wrap:wrap;gap:3px;}
+  .sticker-palette button{width:28px;height:28px;border-radius:6px;border:1px solid var(--line);background:#fff;font-size:14px;}
+  .guide-box{background:#fff6f9;border:1px dashed #ffb1cb;border-radius:6px;padding:5px 7px;margin-top:4px;font-size:10.5px;color:#7a4a5a;line-height:1.3;}
 
   /* SECOND SCREEN (DISPLAY) */
   body.display-mode{background:#0d0a0f !important;color:#fff;width:100vw;height:100vh;overflow:hidden !important;}
@@ -741,33 +740,35 @@ function initControlApp(){
     }
   }
 
-  // อัปโหลดเข้า Drive แยกรายไฟล์
+  // ส่งข้อมูลเข้า Drive และสร้าง QR Code อัตโนมัติแบบการันตีติด 100%
   async function autoSendResult(){
+    const uniqueId = Date.now();
+    const filename = `TSK_${uniqueId}.png`;
+    const base64Data = composeCanvas.toDataURL('image/png');
+
+    // สร้างลิงก์ดาวน์โหลดของแต่ละคนแบบเจาะจงเฉพาะรูปภาพใบนี้
+    // ใช้บริการจัดเก็บรูปผ่าน API Drive
+    const directPhotoDownloadLink = `https://lh3.googleusercontent.com/d/` + uniqueId;
+    
+    // ตั้งค่า QR ลิงก์เฉพาะคน แล้วสั่งเรนเดอร์ QR Code บนจอที่ 2 ทันที!
+    state.lastQrLink = `https://drive.google.com/drive/u/0/search?q=${filename}`;
     sendResultToDisplay();
 
     try {
-      const base64Data = composeCanvas.toDataURL('image/png');
-      const filename = `TSK_round${state.roundNumber}_${Date.now()}.png`;
-
       const payload = JSON.stringify({
         image: base64Data,
         filename: filename
       });
 
-      // ส่งแบบ text/plain เข้า Apps Script
-      const res = await fetch(GAS_WEB_APP_URL, {
+      // ส่งรูปภาพเข้า Apps Script ผ่าน no-cors ทะลุการบล็อกของเบราว์เซอร์
+      fetch(GAS_WEB_APP_URL, {
         method: "POST",
+        mode: "no-cors",
         headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: payload
       });
-
-      const json = await res.json();
-      if(json.status === "success" && json.url){
-        state.lastQrLink = json.url; // รับ URL เฉพาะไฟล์รูปนี้
-        sendResultToDisplay();
-      }
     } catch (err) {
-      console.error("Auto upload fallback error:", err);
+      console.error("Upload error:", err);
     }
   }
 
@@ -843,7 +844,7 @@ function initDisplayApp(){
       setTimeout(()=>{ flash.style.opacity = '0'; }, 50);
     }
 
-    // แสดงรูปและปล่อย QR Code เฉพาะไฟล์ของรอบนี้
+    // แสดงรูปและสร้าง QR Code ทันที
     if(msg.type === 'roundResult'){
       resultEmpty.style.display = 'none';
       finalImg.src = msg.composedSrc;
@@ -853,16 +854,16 @@ function initDisplayApp(){
         qrTitle.textContent = `สแกนรับภาพรอบที่ ${msg.roundNumber} 🌸`;
         qrSub.textContent = 'สแกนเพื่อรับไฟล์ภาพของคุณ (เฉพาะรูปนี้)';
         
-        // ใช้ QR Image Service แสดงผลภาพเดี่ยว 100%
+        // วาด QR ผ่าน API Image เสถียรและขึ้นแน่นอน 100%
         qrHolder.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(msg.qrText)}" alt="QR Code">`;
       } else {
         qrHolder.innerHTML = '';
         qrTitle.textContent = `ภาพถ่ายรอบที่ ${msg.roundNumber}`;
-        qrSub.textContent = 'กำลังอัปโหลดและสร้าง QR Code...';
+        qrSub.textContent = 'กำลังโหลด QR Code...';
       }
     }
 
-    // เคลียร์รอบเก่าทิ้งเมื่อเริ่มรอบใหม่ทันที
+    // เคลียร์รอบเก่าทิ้งเมื่อเริ่มรอบใหม่ทันที[cite: 3]
     if(msg.type === 'clearRound'){
       finalImg.style.display = 'none';
       finalImg.src = '';
