@@ -228,7 +228,7 @@
     <div class="stage-panel">
       <div class="stage-wrap" id="stage">
         <video id="video" autoplay playsinline muted class="mirror"></video>
-        <div class="placeholder" id="stagePlaceholder">กดปุ่ม "เปิดกล้อง" เพื่อเริ่มต้น 🌸</div>
+        <div class="placeholder" id="stagePlaceholder">กดปุ่ม "เปิดกล้อง" เพื่อเริ่มต้น</div>
         <div id="countdownOverlay"><span id="countdownNum">3</span></div>
         <div id="flashOverlay"></div>
       </div>
@@ -253,9 +253,10 @@
           <select class="small" id="countdownSelect">
             <option value="3" selected>3 วิ</option>
             <option value="5">5 วิ</option>
+            <option value="8">8 วิ</option>
           </select>
         </label>
-        <label>กล้อง <select class="small" id="cameraSelect"><option value="">เลือกกล้อง...</option></select></label>
+        <label>กล้อง <select class="small" id="cameraSelect"><option value="">เลือกกล้อง</option></select></label>
       </div>
     </div>
 
@@ -264,9 +265,9 @@
       <div class="field">
         <label class="title">รูปแบบภาพ</label>
         <div class="chip-row" id="formatChips">
-          <button class="chip active" data-format="single">🖼️ รูปเดี่ยว</button>
-          <button class="chip" data-format="strip4">🎞️ สตริป 4 ช่อง</button>
-          <button class="chip" data-format="grid2x2">🔲 ตาราง 2×2</button>
+          <button class="chip active" data-format="single">รูปเดี่ยว</button>
+          <button class="chip" data-format="strip4">สตริป 4 ช่อง</button>
+          <button class="chip" data-format="grid2x2">ตาราง 2×2</button>
         </div>
       </div>
 
@@ -324,7 +325,7 @@
   <div class="d-viewport">
     <div class="d-left-box">
       <img class="live" id="displayLive" style="display:none;">
-      <div class="placeholder" id="displayWaiting">รอเปิดกล้องจากจอควบคุม... 🌸</div>
+      <div class="placeholder" id="displayWaiting">รอเปิดกล้องจากจอควบคุม...</div>
       <div id="displayCountdown"><span id="displayCountdownNum">3</span></div>
       <div id="displayFlash"></div>
     </div>
@@ -339,8 +340,8 @@
       <div class="d-card-qr">
         <div class="d-qr-white" id="displayQR"></div>
         <div class="d-qr-text">
-          <h4 id="displayQrTitle">คิวอาร์โค้ดรับรูป</h4>
-          <p id="displayQrSub">สแกนด้วยโทรศัพท์เพื่อดาวน์โหลดภาพ</p>
+          <h4 id="displayQrTitle">แสกน QR CODE รับรูป</h4>
+          <p id="displayQrSub">Scan to get photos</p>
         </div>
       </div>
     </div>
