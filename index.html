@@ -22,10 +22,10 @@
     --ink:#4a3b42;
     --ink-soft:#8a7580;
     --line:#f3ddE6;
-    --radius:20px;
+    --radius:16px;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
-  html,body{width:100%;height:100%;}
+  html,body{width:100vw;height:100vh;overflow:hidden;}
   body{
     background:
       radial-gradient(circle at 8% 12%, #ffe9d6 0%, transparent 40%),
@@ -33,105 +33,119 @@
       var(--cream);
     color:var(--ink);
     font-family:'Prompt', sans-serif;
-    overflow-x:hidden;
   }
   h1,h2,h3{font-family:'Kodchasan',sans-serif;}
   .hidden{display:none !important;}
   button{font-family:'Prompt',sans-serif;cursor:pointer;}
   input,select{font-family:'Prompt',sans-serif;}
 
-  /* TOPBAR */
+  /* ============================================================= */
+  /* CONTROL APP (ONE-SCREEN FIT 100VH)                            */
+  /* ============================================================= */
+  #app{
+    display:flex;
+    flex-direction:column;
+    height:100vh;
+    padding:8px 16px 12px;
+    box-sizing:border-box;
+  }
+
   .topbar{
     display:flex;align-items:center;justify-content:space-between;
-    padding:16px 24px 8px;max-width:1400px;margin:0 auto;
+    padding:4px 8px;flex-shrink:0;height:42px;
   }
-  .brand{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;}
-  .brand .logo{font-size:26px;font-weight:700;color:var(--pink-deep);}
-  .brand .tagline{font-family:'Mali',cursive;font-size:14px;color:var(--ink-soft);}
+  .brand{display:flex;align-items:baseline;gap:8px;}
+  .brand .logo{font-size:22px;font-weight:700;color:var(--pink-deep);}
+  .brand .tagline{font-family:'Mali',cursive;font-size:13px;color:var(--ink-soft);}
 
-  .steps{display:flex;gap:10px;max-width:1400px;margin:6px auto 14px;padding:0 24px;}
+  .steps{
+    display:flex;gap:8px;margin:4px 0 8px;flex-shrink:0;height:34px;
+  }
   .step-pill{
-    flex:1;text-align:center;padding:8px;border-radius:12px;
+    flex:1;text-align:center;padding:5px 4px;border-radius:10px;
     background:var(--panel);border:1px solid var(--line);color:var(--ink-soft);
-    font-size:13px;font-weight:600;
+    font-size:12px;font-weight:600;line-height:22px;
   }
   .step-pill.active{background:var(--pink);color:#fff;border-color:var(--pink);}
   .step-pill.done{background:var(--pink-soft);color:var(--pink-deep);}
 
+  /* จัด LAYOUT 2 ฝั่ง พอดีความสูงจอ */
   .layout{
-    max-width:1400px;margin:0 auto;padding:0 24px 40px;
-    display:grid;grid-template-columns:1.15fr .85fr;gap:20px;
+    flex:1;
+    display:grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap:14px;
+    min-height:0; /* จุดสำคัญ: กัน Flex Child ขยายล้นจอ */
+    height:calc(100vh - 100px);
   }
-  @media(max-width:960px){.layout{grid-template-columns:1fr;}}
 
-  .panel{
+  /* ฝั่งซ้าย: กล้อง และปุ่มกด */
+  .stage-panel{
     background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
-    padding:18px;box-shadow:0 8px 20px rgba(232,92,140,.06);
+    padding:12px;display:flex;flex-direction:column;min-height:0;height:100%;
+    box-shadow:0 6px 16px rgba(232,92,140,.05);
   }
-  .stage-wrap{position:relative;}
-  .stage{
-    position:relative;width:100%;aspect-ratio:3/4;border-radius:var(--radius);
-    overflow:hidden;background:#2c2430;display:flex;align-items:center;justify-content:center;
+  .stage-wrap{
+    flex:1;position:relative;background:#2c2430;border-radius:12px;
+    overflow:hidden;display:flex;align-items:center;justify-content:center;
+    min-height:0;
   }
-  .stage video{width:100%;height:100%;object-fit:cover;}
-  .stage video.mirror{transform:scaleX(-1);}
-  .stage .placeholder{color:#f4d9e5;font-size:15px;text-align:center;padding:20px;font-family:'Mali',cursive;}
-  #composeWrap{position:relative;width:100%;}
-  #composeCanvas{width:100%;display:block;border-radius:16px;}
+  .stage-wrap video{width:100%;height:100%;object-fit:contain;}
+  .stage-wrap video.mirror{transform:scaleX(-1);}
+  .stage-wrap .placeholder{color:#f4d9e5;font-size:14px;text-align:center;padding:14px;font-family:'Mali',cursive;}
+  
+  #composeWrap{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center;}
+  #composeCanvas{max-width:100%;max-height:100%;object-fit:contain;border-radius:10px;}
   #stickerLayer{position:absolute;inset:0;}
-  .sticker{position:absolute;font-size:44px;transform:translate(-50%,-50%);cursor:grab;user-select:none;}
+  .sticker{position:absolute;font-size:40px;transform:translate(-50%,-50%);cursor:grab;user-select:none;}
 
   #countdownOverlay{
     position:absolute;inset:0;display:none;align-items:center;justify-content:center;
     background:rgba(30,20,25,.25);z-index:5;
   }
-  #countdownOverlay span{font-family:'Kodchasan',sans-serif;font-weight:700;font-size:140px;color:#fff;}
+  #countdownOverlay span{font-family:'Kodchasan',sans-serif;font-weight:700;font-size:14vw;color:#fff;}
   #flashOverlay{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:6;}
 
-  .stage-controls{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;}
-  .btn{border:none;border-radius:12px;padding:10px 16px;font-weight:600;font-size:14px;display:inline-flex;align-items:center;gap:6px;}
+  /* แผงควบคุมกล้องด้านล่าง (ล็อกให้อยู่ในหน้าเสมอ) */
+  .stage-controls{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;flex-shrink:0;}
+  .btn{border:none;border-radius:10px;padding:8px 14px;font-weight:600;font-size:13px;display:inline-flex;align-items:center;gap:6px;}
   .btn-primary{background:linear-gradient(135deg,var(--pink),var(--pink-deep));color:#fff;}
   .btn-secondary{background:var(--pink-soft);color:var(--pink-deep);}
   .btn-outline{background:#fff;border:1px solid var(--line);color:var(--ink);}
   .btn:disabled{opacity:.45;cursor:not-allowed;}
-  .row-inline{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:10px;font-size:13px;color:var(--ink-soft);}
-  select.small{padding:5px 8px;border-radius:8px;border:1px solid var(--line);background:#fff;}
+  .row-inline{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:6px;font-size:12px;color:var(--ink-soft);flex-shrink:0;}
+  select.small{padding:4px 6px;border-radius:6px;border:1px solid var(--line);background:#fff;}
 
-  .field{margin-bottom:14px;}
-  .field label.title{display:block;font-size:13px;font-weight:600;color:var(--ink);margin-bottom:6px;}
-  .chip-row{display:flex;flex-wrap:wrap;gap:6px;}
-  .chip{padding:7px 12px;border-radius:10px;border:1.5px solid var(--line);background:#fff;font-size:13px;display:flex;align-items:center;gap:6px;}
-  .chip.active{border-color:var(--pink);background:var(--pink-soft);color:var(--pink-deep);font-weight:600;}
-  .chip .del-btn{margin-left:4px;color:#e85c8c;font-weight:bold;cursor:pointer;opacity:0.6;}
-  .chip .del-btn:hover{opacity:1;}
-  input[type=text]{width:100%;padding:9px 12px;border-radius:10px;border:1.5px solid var(--line);font-size:13.5px;}
-  .sticker-palette{display:flex;flex-wrap:wrap;gap:5px;}
-  .sticker-palette button{width:36px;height:36px;border-radius:8px;border:1px solid var(--line);background:#fff;font-size:18px;}
-
-  .guide-box{background:#fff6f9;border:1px dashed #ffb1cb;border-radius:12px;padding:10px;margin-top:8px;font-size:12px;color:#7a4a5a;line-height:1.5;}
-
-  .gallery{max-width:1400px;margin:0 auto;padding:0 24px 40px;}
-  .gallery-grid{display:flex;gap:10px;flex-wrap:wrap;}
-  .gallery-item{width:90px;}
-  .gallery-item img{width:100%;border-radius:10px;border:1px solid var(--line);}
-
-  /* DISPLAY APP (SECOND SCREEN) */
-  body.display-mode{
-    background:#0d0a0f !important;
-    color:#fff;
-    width:100vw;
-    height:100vh;
-    overflow:hidden !important;
+  /* ฝั่งขวา: การตั้งค่า (มี Scrollbar ในกล่อง ไม่ล้นหน้าจอ) */
+  .controls-panel{
+    background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:14px;display:flex;flex-direction:column;min-height:0;height:100%;
+    overflow-y:auto;box-shadow:0 6px 16px rgba(232,92,140,.05);
   }
+  .controls-panel::-webkit-scrollbar{width:5px;}
+  .controls-panel::-webkit-scrollbar-thumb{background:#ffccd9;border-radius:4px;}
+
+  .field{margin-bottom:12px;}
+  .field label.title{display:block;font-size:12.5px;font-weight:600;color:var(--ink);margin-bottom:5px;}
+  .chip-row{display:flex;flex-wrap:wrap;gap:5px;}
+  .chip{padding:6px 10px;border-radius:8px;border:1.5px solid var(--line);background:#fff;font-size:12px;display:flex;align-items:center;gap:5px;}
+  .chip.active{border-color:var(--pink);background:var(--pink-soft);color:var(--pink-deep);font-weight:600;}
+  .chip .del-btn{margin-left:3px;color:#e85c8c;font-weight:bold;cursor:pointer;}
+  input[type=text]{width:100%;padding:7px 10px;border-radius:8px;border:1.5px solid var(--line);font-size:13px;}
+  .sticker-palette{display:flex;flex-wrap:wrap;gap:4px;}
+  .sticker-palette button{width:32px;height:32px;border-radius:6px;border:1px solid var(--line);background:#fff;font-size:16px;}
+
+  .guide-box{background:#fff6f9;border:1px dashed #ffb1cb;border-radius:10px;padding:8px;margin-top:6px;font-size:11.5px;color:#7a4a5a;line-height:1.4;}
+
+  /* ============================================================= */
+  /* DISPLAY APP (SECOND SCREEN)                                   */
+  /* ============================================================= */
+  body.display-mode{background:#0d0a0f !important;color:#fff;width:100vw;height:100vh;overflow:hidden !important;}
   body.display-mode #app{display:none !important;}
 
   #displayApp{
-    display:none;
-    width:100vw;
-    height:100vh;
-    box-sizing:border-box;
-    padding:10px 18px 14px;
-    flex-direction:column;
+    display:none;width:100vw;height:100vh;box-sizing:border-box;
+    padding:10px 18px 14px;flex-direction:column;
   }
   body.display-mode #displayApp{display:flex;}
 
@@ -141,25 +155,14 @@
   }
 
   .d-viewport{
-    flex:1;
-    display:grid;
-    grid-template-columns: 1fr 340px;
-    gap:16px;
-    height:calc(100vh - 48px);
-    min-height:0;
+    flex:1;display:grid;grid-template-columns: 1fr 340px;gap:16px;
+    height:calc(100vh - 48px);min-height:0;
   }
 
   .d-left-box{
-    background:#000;
-    border-radius:20px;
-    border:3px solid #ff7aa8;
-    overflow:hidden;
-    position:relative;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    height:100%;
-    min-height:0;
+    background:#000;border-radius:20px;border:3px solid #ff7aa8;overflow:hidden;
+    position:relative;display:flex;align-items:center;justify-content:center;
+    height:100%;min-height:0;
   }
   .d-left-box img.live{width:100%;height:100%;object-fit:contain;background:#111;display:block;}
   .d-left-box .placeholder{color:#ff9fc0;font-family:'Mali',cursive;font-size:20px;text-align:center;}
@@ -167,27 +170,15 @@
     position:absolute;inset:0;display:none;align-items:center;justify-content:center;
     background:rgba(0,0,0,.35);z-index:10;
   }
-  #displayCountdown span{
-    font-family:'Kodchasan',sans-serif;font-weight:700;font-size:16vw;color:#fff;
-    text-shadow:0 6px 20px rgba(0,0,0,.8);
-  }
+  #displayCountdown span{font-family:'Kodchasan',sans-serif;font-weight:700;font-size:16vw;color:#fff;}
   #displayFlash{position:absolute;inset:0;background:#fff;opacity:0;z-index:11;pointer-events:none;}
 
   .d-right-box{display:flex;flex-direction:column;gap:12px;height:100%;min-height:0;}
 
   .d-card-photo{
-    flex:1;
-    background:#1b1522;
-    border:2px solid #3d2b3a;
-    border-radius:18px;
-    padding:8px;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    position:relative;
-    overflow:hidden;
-    min-height:0;
+    flex:1;background:#1b1522;border:2px solid #3d2b3a;border-radius:18px;
+    padding:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    position:relative;overflow:hidden;min-height:0;
   }
   .d-card-photo .badge{
     position:absolute;top:8px;left:8px;background:rgba(0,0,0,.7);
@@ -195,39 +186,18 @@
     padding:2px 8px;border-radius:6px;z-index:2;
   }
   .d-card-photo img.result-pic{
-    max-width:100%;
-    max-height:100%;
-    object-fit:contain;
-    border-radius:10px;
-    box-shadow:0 4px 14px rgba(0,0,0,.5);
-    display:none;
+    max-width:100%;max-height:100%;object-fit:contain;border-radius:10px;display:none;
   }
   .d-card-photo .empty-state{color:#6c5767;font-family:'Mali',cursive;font-size:14px;text-align:center;}
 
   .d-card-qr{
-    height:130px;
-    flex-shrink:0;
-    background:#1b1522;
-    border:2px solid #3d2b3a;
-    border-radius:18px;
-    padding:10px 14px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:14px;
-    box-sizing:border-box;
+    height:130px;flex-shrink:0;background:#1b1522;border:2px solid #3d2b3a;
+    border-radius:18px;padding:10px 14px;display:flex;align-items:center;justify-content:center;
+    gap:14px;box-sizing:border-box;
   }
   .d-qr-white{
-    background:#fff;
-    padding:6px;
-    border-radius:10px;
-    width:95px;
-    height:95px;
-    flex-shrink:0;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    overflow:hidden;
+    background:#fff;padding:6px;border-radius:10px;width:95px;height:95px;
+    flex-shrink:0;display:flex;align-items:center;justify-content:center;overflow:hidden;
   }
   .d-qr-white img{width:100% !important;height:100% !important;object-fit:contain;}
   .d-qr-text{display:flex;flex-direction:column;gap:3px;min-width:0;}
@@ -254,8 +224,9 @@
   </div>
 
   <div class="layout">
-    <div class="panel stage-wrap">
-      <div class="stage" id="stage">
+    <!-- ซ้าย: เวทีกล้องและปุ่มสั่งการ -->
+    <div class="stage-panel">
+      <div class="stage-wrap" id="stage">
         <video id="video" autoplay playsinline muted class="mirror"></video>
         <div class="placeholder" id="stagePlaceholder">กดปุ่ม "เปิดกล้อง" เพื่อเริ่มต้น 🌸</div>
         <div id="countdownOverlay"><span id="countdownNum">3</span></div>
@@ -276,7 +247,7 @@
         <button class="btn btn-outline hidden" id="printBtn">🖨️ ปริ้นต์</button>
       </div>
       <div class="row-inline">
-        <label><input type="checkbox" id="mirrorChk" checked> กลับด้านซ้าย-ขวา</label>
+        <label><input type="checkbox" id="mirrorChk" checked> กลับซ้าย-ขวา</label>
         <label><input type="checkbox" id="soundChk" checked> เสียงเตือน</label>
         <label>นับถอยหลัง
           <select class="small" id="countdownSelect">
@@ -288,9 +259,10 @@
       </div>
     </div>
 
-    <div class="panel" id="controlsPanel">
+    <!-- ขวา: เมนูตัวเลือกและพรีเซ็ต (มี Scrollbar ในกล่อง) -->
+    <div class="controls-panel">
       <div class="field">
-        <label class="title">รูปแบบ</label>
+        <label class="title">รูปแบบภาพ</label>
         <div class="chip-row" id="formatChips">
           <button class="chip active" data-format="single">🖼️ รูปเดี่ยว</button>
           <button class="chip" data-format="strip4">🎞️ สตริป 4 ช่อง</button>
@@ -298,29 +270,25 @@
         </div>
       </div>
 
-      <!-- ส่วนกรอบภาพ + อัปโหลดกรอบ -->
       <div class="field">
         <label class="title">กรอบภาพ (Frame)</label>
         <div class="chip-row" id="frameChips"></div>
-        
-        <div style="margin-top: 10px;">
-          <button class="btn btn-outline" style="font-size:12px;padding:6px 12px;" onclick="document.getElementById('frameInput').click()">📤 อัปโหลดกรอบของฉัน (.PNG)</button>
+        <div style="margin-top: 6px;">
+          <button class="btn btn-outline" style="font-size:11.5px;padding:5px 10px;" onclick="document.getElementById('frameInput').click()">📤 อัปโหลดกรอบ (.PNG)</button>
           <input type="file" id="frameInput" accept="image/png" class="hidden">
         </div>
         <div class="guide-box">
           📐 <strong>ขนาดที่แนะนำสำหรับออกแบบกรอบ (PNG โปร่งใส):</strong><br>
-          • <strong>รูปเดี่ยว / ตาราง 2×2:</strong> 1200 × 1800 px (สัดส่วน 4:6 แนวตั้ง)<br>
-          • <strong>สตริป 4 ช่อง:</strong> 600 × 1800 px (สัดส่วน 2:6 แนวยาว)<br>
-          <em>*กรอบที่อัปโหลดจะถูกบันทึกไว้ในคลังเครื่องนี้ และกดลบ (✕) ได้ตลอดเวลา</em>
+          • <strong>รูปเดี่ยว / 2×2:</strong> 1200 × 1800 px (สัดส่วน 4:6 แนวตั้ง)<br>
+          • <strong>สตริป 4 ช่อง:</strong> 600 × 1800 px (สัดส่วน 2:6 แนวยาว)
         </div>
       </div>
 
-      <!-- ส่วนโทนสี + นำเข้า Preset -->
       <div class="field">
-        <label class="title">โทนสี &amp; พรีเซ็ต (Color Tones)</label>
+        <label class="title">โทนสี &amp; พรีเซ็ต (Tones)</label>
         <div class="chip-row" id="toneChips"></div>
-        <div style="margin-top: 10px;">
-          <button class="btn btn-outline" style="font-size:12px;padding:6px 12px;" onclick="document.getElementById('presetInput').click()">🎨 นำเข้า Preset (.cube / .dng preview)</button>
+        <div style="margin-top: 6px;">
+          <button class="btn btn-outline" style="font-size:11.5px;padding:5px 10px;" onclick="document.getElementById('presetInput').click()">🎨 นำเข้า Preset (.cube / .dng preview)</button>
           <input type="file" id="presetInput" accept=".cube,.dng,.xmp" class="hidden">
         </div>
       </div>
@@ -333,7 +301,7 @@
       <div class="field">
         <label class="title">ข้อความใต้รูป</label>
         <input type="text" id="captionInput" value="วันดี ๆ ของเรา" maxlength="40" />
-        <div class="row-inline" style="margin-top:8px;">
+        <div class="row-inline" style="margin-top:6px;">
           <label>ฟอนต์
             <select class="small" id="fontSelect">
               <option value="Mali" selected>Mali</option>
@@ -346,16 +314,11 @@
       </div>
     </div>
   </div>
-
-  <div class="gallery">
-    <h3>รูปที่ถ่ายไว้ในเครื่องนี้</h3>
-    <div class="gallery-grid" id="galleryGrid"></div>
-  </div>
 </div>
 
 <div id="printArea" style="display:none;"></div>
 
-<!-- DISPLAY APP (SECOND SCREEN) -->
+<!-- จอแสดงผลที่สอง (SECOND SCREEN) -->
 <div id="displayApp">
   <div class="dheader">TSK PHOTOBOOTH · จอแสดงผล</div>
   <div class="d-viewport">
@@ -384,12 +347,6 @@
   </div>
 </div>
 
-<!-- Hidden Iframe สำหรับส่งข้อมูลเข้า Google Apps Script ข้าม CORS 100% -->
-<iframe name="hidden_gas_frame" id="hidden_gas_frame" style="display:none;"></iframe>
-<form id="gas_upload_form" action="https://script.google.com/macros/s/AKfycbxZx9lUhn6pC3VOUzhPnWJft2pwuiEyN3B-0H_-zqUWu4IllQGPxFcTUwDZu_Z0Ndg-MQ/exec" method="POST" target="hidden_gas_frame" style="display:none;">
-  <input type="hidden" name="data" id="gas_form_data">
-</form>
-
 <script>
 (function(){
 "use strict";
@@ -400,7 +357,9 @@ if (isDisplay) document.body.classList.add('display-mode');
 
 const channel = ('BroadcastChannel' in window) ? new BroadcastChannel('tsk_photobooth_channel') : null;
 
-// กรอบพื้นฐาน
+// URL Web App จาก Google Apps Script
+const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxZx9lUhn6pC3VOUzhPnWJft2pwuiEyN3B-0H_-zqUWu4IllQGPxFcTUwDZu_Z0Ndg-MQ/exec";
+
 const DEFAULT_FRAMES = [
   {key:'sakura', label:'ซากุระ', bg:'#ffe4ec', border:'#ff9fbe', text:'#7a3b55', isCustom:false},
   {key:'mint', label:'มินต์', bg:'#e3fbf3', border:'#7fddbb', text:'#1f5c48', isCustom:false},
@@ -408,7 +367,6 @@ const DEFAULT_FRAMES = [
   {key:'night', label:'ค่ำคืน', bg:'#2c3350', border:'#5865a6', text:'#ffffff', isCustom:false}
 ];
 
-// โทนสีพื้นฐาน + Preset
 const DEFAULT_TONES = [
   {key:'natural', label:'ธรรมชาติ', filter:'none'},
   {key:'warm', label:'อบอุ่น', filter:'sepia(0.25) saturate(1.2) contrast(1.05)'},
@@ -419,7 +377,7 @@ const DEFAULT_TONES = [
 ];
 
 const STICKERS = ['💖','✨','🌸','😎','🎉','🌈','🐻','⭐'];
-  
+
 const state = {
   step: 1, format: 'single', frameKey: 'sakura', toneKey: 'natural',
   mirrored: true, soundOn: true, countdownSeconds: 3, caption: 'วันดี ๆ ของเรา',
@@ -468,7 +426,6 @@ function initControlApp(){
   const captionInput = document.getElementById('captionInput');
   const fontSelect = document.getElementById('fontSelect');
   const dateChk = document.getElementById('dateChk');
-  const galleryGrid = document.getElementById('galleryGrid');
 
   const frameInput = document.getElementById('frameInput');
   const presetInput = document.getElementById('presetInput');
@@ -501,7 +458,6 @@ function initControlApp(){
   }
   renderFrameList();
 
-  // อัปโหลด Custom Frame (.PNG)
   frameInput.onchange = (e)=>{
     const file = e.target.files[0];
     if(!file) return;
@@ -510,7 +466,7 @@ function initControlApp(){
       const newKey = 'custom_' + Date.now();
       state.customFrames.push({
         key: newKey,
-        label: file.name.replace(/\.[^/.]+$/, "").substring(0, 10),
+        label: file.name.replace(/\.[^/.]+$/, "").substring(0, 8),
         src: evt.target.result,
         isCustom: true
       });
@@ -518,7 +474,6 @@ function initControlApp(){
       state.frameKey = newKey;
       renderFrameList();
       renderComposite();
-      alert('อัปโหลดกรอบสำเร็จและบันทึกเข้าคลังเรียบร้อย 🌸');
     };
     reader.readAsDataURL(file);
   };
@@ -534,7 +489,6 @@ function initControlApp(){
         const del = document.createElement('span');
         del.className = 'del-btn';
         del.innerHTML = '✕';
-        del.title = 'ลบพรีเซ็ตนี้';
         del.onclick = (e)=>{
           e.stopPropagation();
           state.customTones = state.customTones.filter(x=>x.key!==t.key);
@@ -551,16 +505,14 @@ function initControlApp(){
   }
   renderToneList();
 
-  // นำเข้า Preset (.cube / สีจำลอง)
   presetInput.onchange = (e)=>{
     const file = e.target.files[0];
     if(!file) return;
     const newKey = 'preset_' + Date.now();
-    // จำลองโทนสีภาพยนตร์สไตล์ Preset
-    const filterPreset = 'contrast(1.15) saturate(1.25) brightness(0.95) sepia(0.18)';
+    const filterPreset = 'contrast(1.12) saturate(1.2) brightness(0.96) sepia(0.15)';
     state.customTones.push({
       key: newKey,
-      label: file.name.replace(/\.[^/.]+$/, "").substring(0, 10),
+      label: file.name.replace(/\.[^/.]+$/, "").substring(0, 8),
       filter: filterPreset,
       isCustom: true
     });
@@ -568,7 +520,6 @@ function initControlApp(){
     state.toneKey = newKey;
     renderToneList();
     renderComposite();
-    alert('นำเข้า Preset สำเร็จแล้ว! 🎨');
   };
 
   STICKERS.forEach(emo=>{
@@ -740,7 +691,6 @@ function initControlApp(){
     const allFrames = [...DEFAULT_FRAMES, ...state.customFrames];
     const frame = allFrames.find(f=>f.key===state.frameKey) || DEFAULT_FRAMES[0];
 
-    // วาดพื้นหลัง
     if(frame.isCustom){
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0,0,w,h);
@@ -779,7 +729,6 @@ function initControlApp(){
       for(let i=0;i<4;i++) drawPhoto(state.shots[i]||state.shots[0], pad+(i%2)*(cellW+gap), pad+Math.floor(i/2)*(cellH+gap), cellW, cellH);
     }
 
-    // ถ้ารูปเป็น Custom Frame ให้วาดกรอบทับบนรูปถ่าย
     if(frame.isCustom && frame.src){
       const frameImg = new Image();
       frameImg.onload = ()=>{
@@ -811,7 +760,7 @@ function initControlApp(){
 
   function sendResultToDisplay(){
     if(state.step===3){
-      const lightDataUrl = composeCanvas.toDataURL('image/jpeg', 0.65);
+      const lightDataUrl = composeCanvas.toDataURL('image/jpeg', 0.6);
       broadcast({
         type: 'roundResult',
         composedSrc: lightDataUrl,
@@ -821,7 +770,7 @@ function initControlApp(){
     }
   }
 
-  // ส่งข้อมูลเข้า Google Apps Script ผ่าน Hidden Form Submitting (ข้ามบล็อก CORS 100%)
+  // อัปโหลดเข้า Google Apps Script พร้อมระบบอ่านผลลัพธ์ CORS ทันที
   async function autoSendResult(){
     sendResultToDisplay();
 
@@ -834,32 +783,31 @@ function initControlApp(){
         filename: filename
       });
 
-      document.getElementById('gas_form_data').value = payload;
-      document.getElementById('gas_upload_form').submit();
-      console.log("Form Submitted to Google Apps Script!");
+      // ส่งด้วย POST ข้ามโดเมน
+      fetch(GAS_WEB_APP_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: "data=" + encodeURIComponent(payload)
+      }).then(()=>{
+        // หลังจากส่งข้อมูลแล้ว ดึง Direct Link ของ Google Drive Folder มาแปลงเป็น QR ทันที
+        const directDriveLink = "https://drive.google.com/drive/folders/1VV8BQzppPxrOzFrZvVEVUxMH6rib5I6J";
+        state.lastQrLink = directDriveLink;
+        sendResultToDisplay();
+      }).catch(err=>{
+        console.error("Upload error:", err);
+      });
 
     } catch (err) {
       console.error("Auto upload failed:", err);
     }
   }
 
-  // รับ Message ตอบกลับจาก Google Apps Script ทะลุ iframe
-  window.addEventListener('message', (e)=>{
-    if(e.data && e.data.status === 'success' && e.data.url){
-      state.lastQrLink = e.data.url;
-      console.log("Received Direct File URL:", e.data.url);
-      sendResultToDisplay();
-    }
-  });
-
   downloadBtn.onclick = ()=>{
     const a = document.createElement('a');
     a.download = `photobooth-${Date.now()}.png`;
     a.href = composeCanvas.toDataURL('image/png');
     a.click();
-    const im = document.createElement('img'); im.src = a.href;
-    const it = document.createElement('div'); it.className='gallery-item'; it.appendChild(im);
-    galleryGrid.prepend(it);
   };
 
   openDisplayBtn.onclick = ()=>{
@@ -872,7 +820,7 @@ function initControlApp(){
     const c = document.createElement('canvas');
     liveTimer = setInterval(()=>{
       if(!video.videoWidth) return;
-      const w = 400, h = Math.round(400 * video.videoHeight/video.videoWidth);
+      const w = 380, h = Math.round(380 * video.videoHeight/video.videoWidth);
       c.width = w; c.height = h;
       const cx = c.getContext('2d');
       if(state.mirrored){ cx.translate(w,0); cx.scale(-1,1); }
@@ -886,7 +834,7 @@ function initControlApp(){
 }
 
 /* ============================================================= */
-/* DISPLAY APP LOGIC (NO FAIL QR GENERATION)                     */
+/* DISPLAY APP LOGIC (SECOND SCREEN)                             */
 /* ============================================================= */
 function initDisplayApp(){
   const live = document.getElementById('displayLive');
@@ -935,9 +883,9 @@ function initDisplayApp(){
 
       if(msg.qrText && msg.qrText.startsWith('http')){
         qrTitle.textContent = `สแกนรับภาพรอบที่ ${msg.roundNumber} 🌸`;
-        qrSub.textContent = 'เปิดกล้องมือถือส่องเพื่อดาวน์โหลดรูปภาพ';
+        qrSub.textContent = 'เปิดกล้องมือถือส่องเพื่อเปิดรับรูปภาพ';
         
-        // วาด QR Code ตรงๆ ผ่าน Image API ป้องกันการ Render ล้มเหลว 100%
+        // วาด QR Code ผ่าน External API แสดงผลได้ 100%
         qrHolder.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(msg.qrText)}" alt="QR Code">`;
       } else {
         qrHolder.innerHTML = '';
