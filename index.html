@@ -15,6 +15,7 @@
     --pink:#ff7aa8;
     --pink-deep:#e85c8c;
     --pink-soft:#ffe3ec;
+    --peach:#ffb199;
     --mint:#7fd9bd;
     --ink:#4a3b42;
     --ink-soft:#8a7580;
@@ -36,7 +37,7 @@
   button{font-family:'Prompt',sans-serif;cursor:pointer;}
   input,select{font-family:'Prompt',sans-serif;}
 
-  /* MAIN WRAPPER (FIT SCREEN 100VH) */
+  /* MAIN CONTROL APP */
   #app{
     display:flex;flex-direction:column;width:100vw;height:100vh;
     padding:6px 14px;box-sizing:border-box;overflow:hidden;
@@ -184,9 +185,10 @@
   /* ============================================================= */
   #downloadPage{
     display:none;width:100vw;min-height:100vh;overflow-y:auto;
-    padding:24px 16px;flex-direction:column;align-items:center;
+    padding:20px 16px;flex-direction:column;align-items:center;
     background:var(--cream);
   }
+  body.download-mode{overflow-y:auto !important;}
   body.download-mode #downloadPage{display:flex;}
   body.download-mode #app, body.download-mode #displayApp{display:none !important;}
   .dl-card{
@@ -194,11 +196,11 @@
     padding:20px;max-width:440px;width:100%;box-shadow:0 10px 24px rgba(232,92,140,.1);
     text-align:center;
   }
-  .dl-card h2{color:var(--pink-deep);font-size:22px;margin-bottom:6px;}
-  .dl-card p{color:var(--ink-soft);font-size:13px;margin-bottom:16px;}
+  .dl-card h2{color:var(--pink-deep);font-size:22px;margin-bottom:4px;}
+  .dl-card p{color:var(--ink-soft);font-size:13px;margin-bottom:14px;}
   .dl-img-box{width:100%;margin-bottom:14px;}
-  .dl-img-box img{width:100%;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,.08);}
-  .dl-actions{display:flex;flex-direction:column;gap:10px;margin-top:10px;}
+  .dl-img-box img{width:100%;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,.08);display:block;}
+  .dl-actions{display:flex;flex-direction:column;gap:10px;}
 </style>
 </head>
 <body>
@@ -209,11 +211,11 @@
     <h2>TSK PHOTOBOOTH 🌸</h2>
     <p>ดาวน์โหลดภาพความทรงจำของคุณ</p>
     <div class="dl-img-box">
-      <img id="dlPreviewImg" src="" alt="รูปถ่ายของคุณ">
+      <img id="dlPreviewImg" src="" alt="กำลังโหลดรูปภาพ...">
     </div>
     <div class="dl-actions">
-      <a id="dlPngBtn" class="btn btn-primary" style="justify-content:center;text-decoration:none;" download="TSK_Photobooth.png">⬇️ ดาวน์โหลดภาพโฟโต้บูธ (.PNG)</a>
-      <a id="dlGifBtn" class="btn btn-secondary" style="justify-content:center;text-decoration:none;" download="TSK_Animation.gif">🎞️ ดาวน์โหลดภาพดุ๊กดิ๊ก (.GIF)</a>
+      <a id="dlPngBtn" class="btn btn-primary" style="justify-content:center;text-decoration:none;padding:12px;" target="_blank">⬇️ ดาวน์โหลดภาพโฟโต้บูธ (.PNG)</a>
+      <a id="dlGifBtn" class="btn btn-secondary" style="justify-content:center;text-decoration:none;padding:12px;display:none;" target="_blank">🎞️ ดาวน์โหลดภาพดุ๊กดิ๊ก (.GIF)</a>
     </div>
   </div>
 </div>
@@ -360,48 +362,39 @@
 
 const params = new URLSearchParams(location.search);
 const isDisplay = params.get('display') === '1';
-const downloadId = params.get('download');
+const downloadImg = params.get('img');
+const downloadGif = params.get('gif');
 
 if (isDisplay) document.body.classList.add('display-mode');
-if (downloadId) document.body.classList.add('download-mode');
+if (downloadImg) document.body.classList.add('download-mode');
 
 const channel = ('BroadcastChannel' in window) ? new BroadcastChannel('tsk_photobooth_channel') : null;
 
-// GAS Web App URL ของคุณ
+// GAS Web App URL
 const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxZx9lUhn6pC3VOUzhPnWJft2pwuiEyN3B-0H_-zqUWu4IllQGPxFcTUwDZu_Z0Ndg-MQ/exec";
 
 /* -------------------------------------------------------------
    MODE: DOWNLOAD PAGE (มือถือสแกน QR เข้ามา)
 ------------------------------------------------------------- */
-if (downloadId) {
-  // ดึงภาพจากที่บันทึกไว้ใน Session หรือโหลดผ่าน Google Drive
-  const cachedData = sessionStorage.getItem('tsk_' + downloadId);
+if (downloadImg) {
   const dlImg = document.getElementById('dlPreviewImg');
   const pngBtn = document.getElementById('dlPngBtn');
   const gifBtn = document.getElementById('dlGifBtn');
 
-  if (cachedData) {
-    const parsed = JSON.parse(cachedData);
-    dlImg.src = parsed.image;
-    pngBtn.href = parsed.image;
-    if (parsed.gif) {
-      gifBtn.href = parsed.gif;
-      gifBtn.style.display = 'inline-flex';
-    } else {
-      gifBtn.style.display = 'none';
-    }
+  dlImg.src = decodeURIComponent(downloadImg);
+  pngBtn.href = decodeURIComponent(downloadImg);
+
+  if (downloadGif && downloadGif !== 'null') {
+    gifBtn.href = decodeURIComponent(downloadGif);
+    gifBtn.style.display = 'inline-flex';
   } else {
-    // โหลดผ่าน Google Drive แบบ Direct
-    const directUrl = `https://drive.google.com/uc?export=view&id=${downloadId}`;
-    dlImg.src = directUrl;
-    pngBtn.href = directUrl;
     gifBtn.style.display = 'none';
   }
-  return; // จบการทำงานของหน้าดาวน์โหลด
+  return;
 }
 
 /* -------------------------------------------------------------
-   MODE: PHOTOBOOTH APP
+   MODE: PHOTOBOOTH CONTROL APP
 ------------------------------------------------------------- */
 const DEFAULT_FRAMES = [
   {key:'sakura', label:'ซากุระ', bg:'#ffe4ec', border:'#ff9fbe', text:'#7a3b55', isCustom:false},
@@ -646,7 +639,6 @@ function initControlApp(){
     state.lastQrLink = null;
     state.lastGifData = null;
     
-    // เคลียร์ผลงานและ QR เก่าทันที
     broadcast({ type: 'clearRound' });
 
     goStep(2);
@@ -663,8 +655,8 @@ function initControlApp(){
     renderComposite();
     revealButtons();
     
-    // สร้าง GIF อัตโนมัติและอัปโหลดส่งลิงก์
-    generateGifInBackground();
+    // อัปโหลดเข้า Google Drive และสร้าง QR
+    processUploadAndGenerateQR();
   }
   startCaptureBtn.onclick = startCapture;
 
@@ -815,31 +807,17 @@ function initControlApp(){
     }
   }
 
-  // สร้าง GIF ในเบื้องหลัง และเตรียมลิงก์ดาวน์โหลดส่วนตัว
-  function generateGifInBackground(){
+  // ส่งขึ้น Drive และสร้าง QR ทันทีที่อัปโหลดสำเร็จ
+  async function processUploadAndGenerateQR(){
     const uniqueId = Date.now();
-    const currentUrl = window.location.origin + window.location.pathname;
-    const downloadPageUrl = `${currentUrl}?download=${uniqueId}`;
-    
-    // 1. นำ URL หน้าดาวน์โหลดเฉพาะบุคคลนี้ไปแสดง QR Code ทันที!
-    state.lastQrLink = downloadPageUrl;
-    sendResultToDisplay();
-
-    // 2. ถ้าเป็นรูปเดียว ส่ง PNG อย่างเดียว
     const base64Png = composeCanvas.toDataURL('image/png');
-    
-    if (state.format === 'single') {
-      sessionStorage.setItem('tsk_' + uniqueId, JSON.stringify({ image: base64Png, gif: null }));
-      uploadToGAS(base64Png, null, uniqueId);
-      return;
-    }
 
-    // 3. ถ้าเป็นแบบสตริปหรือตาราง เรนเดอร์ GIF ดุ๊กดิ๊ก
-    if (typeof GIF !== 'undefined') {
+    // ถ้าไม่ใช่รูปเดี่ยว ให้สร้าง GIF ดุ๊กดิ๊ก
+    if (state.format !== 'single' && typeof GIF !== 'undefined') {
       const gif = new GIF({ workers: 2, quality: 10, workerScript: 'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js' });
       state.shots.forEach(s=>{
         const c = document.createElement('canvas');
-        c.width = 400; c.height = Math.round(400 * s.height / s.width);
+        c.width = 360; c.height = Math.round(360 * s.height / s.width);
         c.getContext('2d').drawImage(s, 0, 0, c.width, c.height);
         gif.addFrame(c, { delay: 450, copy: true });
       });
@@ -847,34 +825,45 @@ function initControlApp(){
       gif.on('finished', function(blob){
         const reader = new FileReader();
         reader.onload = ()=>{
-          const base64Gif = reader.result;
-          state.lastGifData = base64Gif;
-          // บันทึกไว้เพื่อให้มือถือที่สแกนโหลดได้
-          sessionStorage.setItem('tsk_' + uniqueId, JSON.stringify({ image: base64Png, gif: base64Gif }));
-          uploadToGAS(base64Png, base64Gif, uniqueId);
+          state.lastGifData = reader.result;
+          uploadFilesToDrive(base64Png, reader.result, uniqueId);
         };
         reader.readAsDataURL(blob);
       });
       gif.render();
+    } else {
+      uploadFilesToDrive(base64Png, null, uniqueId);
     }
   }
 
-  function uploadToGAS(pngData, gifData, uniqueId){
+  async function uploadFilesToDrive(pngBase64, gifBase64, uniqueId){
     try {
       const payload = JSON.stringify({
-        image: pngData,
+        image: pngBase64,
         filename: `TSK_${uniqueId}.png`,
-        gif: gifData,
+        gif: gifBase64,
         gifFilename: `TSK_${uniqueId}.gif`
       });
 
-      fetch(GAS_WEB_APP_URL, {
+      // ส่งข้อมูลผ่าน text/plain เพื่อกัน CORS
+      const response = await fetch(GAS_WEB_APP_URL, {
         method: "POST",
-        mode: "no-cors",
         headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: payload
       });
-    } catch(err){}
+
+      const res = await response.json();
+      if (res.status === "success" && res.pngUrl) {
+        // สร้างลิงก์หน้าดาวน์โหลดสำหรับมือถือ
+        const currentUrl = window.location.origin + window.location.pathname;
+        const mobileDownloadUrl = `${currentUrl}?img=${encodeURIComponent(res.pngUrl)}&gif=${encodeURIComponent(res.gifUrl || 'null')}`;
+        
+        state.lastQrLink = mobileDownloadUrl;
+        sendResultToDisplay(); // อัปเดต QR Code บนจอที่ 2 ทันที!
+      }
+    } catch (err) {
+      console.error("Upload error:", err);
+    }
   }
 
   downloadBtn.onclick = ()=>{
@@ -891,7 +880,7 @@ function initControlApp(){
       a.href = state.lastGifData;
       a.click();
     } else {
-      alert('กำลังเรนเดอร์ GIF กรุณารอสักครู่...');
+      alert('กำลังประมวลผล GIF สักครู่...');
     }
   };
 
@@ -967,13 +956,13 @@ function initDisplayApp(){
 
       if(msg.qrText && msg.qrText.startsWith('http')){
         qrTitle.textContent = `สแกนรับภาพรอบที่ ${msg.roundNumber} 🌸`;
-        qrSub.textContent = 'สแกนเพื่อดาวน์โหลดทั้งภาพนิ่งและ GIF';
+        qrSub.textContent = 'สแกนเพื่อเปิดภาพและบันทึกลงมือถือ';
         
         qrHolder.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(msg.qrText)}" alt="QR Code">`;
       } else {
         qrHolder.innerHTML = '';
         qrTitle.textContent = `ภาพถ่ายรอบที่ ${msg.roundNumber}`;
-        qrSub.textContent = 'กำลังโหลด QR Code...';
+        qrSub.textContent = 'กำลังอัปโหลดเข้า Drive เพื่อสร้าง QR...';
       }
     }
 
