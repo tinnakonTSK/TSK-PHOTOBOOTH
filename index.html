@@ -446,7 +446,26 @@
         </div>
         <div class="matrix-swatches" id="frameSwatches"></div>
       </div>
-
+      
+<div class="cfg-group hidden" id="customFrameMarginGroup">
+        <div class="cfg-header">
+          <label class="cfg-label">ช่องใส่รูป (PHOTO WINDOW)</label>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:6px; font-size:11px; color:var(--ink-muted);">
+          <label>บน (Top)
+            <input type="range" id="marginTopRange" min="0" max="45" value="12" style="width:100%;">
+          </label>
+          <label>ล่าง (Bottom)
+            <input type="range" id="marginBottomRange" min="0" max="45" value="12" style="width:100%;">
+          </label>
+          <label>ซ้าย (Left)
+            <input type="range" id="marginLeftRange" min="0" max="45" value="12" style="width:100%;">
+          </label>
+          <label>ขวา (Right)
+            <input type="range" id="marginRightRange" min="0" max="45" value="12" style="width:100%;">
+          </label>
+        </div>
+      </div>
       <div class="cfg-group">
         <div class="cfg-header">
           <label class="cfg-label">โทนสีภาพ (COLOR TONE)</label>
@@ -680,7 +699,8 @@ const state = {
   shots: [], roundNumber: 0,
   lastPhotoData: null, lastGifData: null,
   customFrames: JSON.parse(localStorage.getItem('tsk_custom_frames') || '[]'),
-  customTones: JSON.parse(localStorage.getItem('tsk_custom_tones') || '[]')
+  customTones: JSON.parse(localStorage.getItem('tsk_custom_tones') || '[]'),
+  customFrameMargins: JSON.parse(localStorage.getItem('tsk_custom_frame_margins') || '{}')
 };
 
 let stream = null;
@@ -762,7 +782,38 @@ function initControlStudio() {
 
   const frameInput = document.getElementById('frameInput');
   const presetInput = document.getElementById('presetInput');
+  const marginGroup = document.getElementById('customFrameMarginGroup');
+  const marginTopRange = document.getElementById('marginTopRange');
+  const marginBottomRange = document.getElementById('marginBottomRange');
+  const marginLeftRange = document.getElementById('marginLeftRange');
+  const marginRightRange = document.getElementById('marginRightRange');
 
+  function getCurrentFrameMargin() {
+    return state.customFrameMargins[state.frameKey] || { top: 12, bottom: 12, left: 12, right: 12 };
+  }
+
+  function updateMarginUI() {
+    const isCustom = state.customFrames.some(f => f.key === state.frameKey);
+    marginGroup.classList.toggle('hidden', !isCustom);
+    if (!isCustom) return;
+    const m = getCurrentFrameMargin();
+    marginTopRange.value = m.top;
+    marginBottomRange.value = m.bottom;
+    marginLeftRange.value = m.left;
+    marginRightRange.value = m.right;
+  }
+
+  [['top', marginTopRange], ['bottom', marginBottomRange], ['left', marginLeftRange], ['right', marginRightRange]]
+    .forEach(([key, el]) => {
+      el.oninput = () => {
+        const m = getCurrentFrameMargin();
+        m[key] = parseInt(el.value, 10);
+        state.customFrameMargins[state.frameKey] = m;
+        localStorage.setItem('tsk_custom_frame_margins', JSON.stringify(state.customFrameMargins));
+        renderComposedPhoto();
+      };
+    });
+  
   function renderFrameSwatches() {
     frameSwatches.innerHTML = '';
     const all = [...STUDIO_FRAMES, ...state.customFrames];
@@ -776,12 +827,14 @@ function initControlStudio() {
       item.onclick = () => {
         state.frameKey = f.key;
         renderFrameSwatches();
+        updateMarginUI();
         renderComposedPhoto();
       };
       frameSwatches.appendChild(item);
     });
   }
   renderFrameSwatches();
+  updateMarginUI();
 
   frameInput.onchange = (e) => {
     const file = e.target.files[0];
@@ -794,7 +847,10 @@ function initControlStudio() {
       });
       localStorage.setItem('tsk_custom_frames', JSON.stringify(state.customFrames));
       state.frameKey = newKey;
+      state.customFrameMargins[newKey] = { top: 12, bottom: 12, left: 12, right: 12 };
+      localStorage.setItem('tsk_custom_frame_margins', JSON.stringify(state.customFrameMargins));
       renderFrameSwatches();
+      updateMarginUI();
       renderComposedPhoto();
     };
     reader.readAsDataURL(file);
@@ -1089,7 +1145,7 @@ function initControlStudio() {
     if (!state.shots.length) return;
     const isHorizontal = state.format === 'h_dual';
     const isSlimStrip = state.format === 'v_triple' || state.format === 'strip4';
-    
+
     let w = 1200, h = 1800;
     if (isHorizontal) { w = 1800; h = 1200; }
     else if (isSlimStrip) { w = 600; h = 1800; }
@@ -1099,22 +1155,6 @@ function initControlStudio() {
 
     const custom = state.customFrames.find(f => f.key === state.frameKey);
     const frame = custom || STUDIO_FRAMES.find(f => f.key === state.frameKey) || STUDIO_FRAMES[0];
-
-    if (custom && custom.src) {
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, w, h);
-    } else {
-      ctx.fillStyle = frame.bg;
-      ctx.fillRect(0, 0, w, h);
-      ctx.strokeStyle = frame.border;
-      ctx.lineWidth = w * 0.015;
-      ctx.strokeRect(ctx.lineWidth/2, ctx.lineWidth/2, w - ctx.lineWidth, h - ctx.lineWidth);
-    }
-
-    const pad = custom ? 0 : w * 0.055;
-    const captionH = custom ? 0 : h * 0.10;
-    const photoH = h - captionH - pad;
-    const photoW = w - pad * 2;
 
     const allTones = [...DEFAULT_TONES, ...state.customTones];
     const currentToneObj = allTones.find(t => t.key === state.toneKey) || allTones[0];
@@ -1128,37 +1168,42 @@ function initControlStudio() {
       ctx.restore();
     }
 
-    if (state.format === 'single') {
-      drawTile(state.shots[0], pad, pad, photoW, photoH);
-    } else if (state.format === 'h_dual') {
-      const gap = w * 0.02;
-      const cellW = (photoW - gap) / 2;
-      drawTile(state.shots[0], pad, pad, cellW, photoH);
-      drawTile(state.shots[1] || state.shots[0], pad + cellW + gap, pad, cellW, photoH);
-    } else if (state.format === 'v_dual') {
-      const gap = h * 0.02;
-      const cellH = (photoH - gap) / 2;
-      drawTile(state.shots[0], pad, pad, photoW, cellH);
-      drawTile(state.shots[1] || state.shots[0], pad, pad + cellH + gap, photoW, cellH);
-    } else if (state.format === 'v_triple') {
-      const gap = h * 0.015;
-      const cellH = (photoH - gap * 2) / 3;
-      for (let i = 0; i < 3; i++) drawTile(state.shots[i] || state.shots[0], pad, pad + i * (cellH + gap), photoW, cellH);
-    } else if (state.format === 'strip4') {
-      const gap = h * 0.012;
-      const cellH = (photoH - gap * 3) / 4;
-      for (let i = 0; i < 4; i++) drawTile(state.shots[i] || state.shots[0], pad, pad + i * (cellH + gap), photoW, cellH);
-    } else if (state.format === 'grid2x2' || state.format === 'polaroid4') {
-      const gap = w * 0.025;
-      const cellW = (photoW - gap) / 2, cellH = (photoH - gap) / 2;
-      for (let i = 0; i < 4; i++) {
-        drawTile(state.shots[i] || state.shots[0], pad + (i % 2) * (cellW + gap), pad + Math.floor(i / 2) * (cellH + gap), cellW, cellH);
-      }
-    } else if (state.format === 'grid2x3') {
-      const gap = w * 0.02;
-      const cellW = (photoW - gap) / 2, cellH = (photoH - gap * 2) / 3;
-      for (let i = 0; i < 6; i++) {
-        drawTile(state.shots[i] || state.shots[0], pad + (i % 2) * (cellW + gap), pad + Math.floor(i / 2) * (cellH + gap), cellW, cellH);
+    function drawAllTiles(pad, captionH, areaW, areaH) {
+      const photoH = areaH - captionH - pad;
+      const photoW = areaW - pad * 2;
+
+      if (state.format === 'single') {
+        drawTile(state.shots[0], pad, pad, photoW, photoH);
+      } else if (state.format === 'h_dual') {
+        const gap = areaW * 0.02;
+        const cellW = (photoW - gap) / 2;
+        drawTile(state.shots[0], pad, pad, cellW, photoH);
+        drawTile(state.shots[1] || state.shots[0], pad + cellW + gap, pad, cellW, photoH);
+      } else if (state.format === 'v_dual') {
+        const gap = areaH * 0.02;
+        const cellH = (photoH - gap) / 2;
+        drawTile(state.shots[0], pad, pad, photoW, cellH);
+        drawTile(state.shots[1] || state.shots[0], pad, pad + cellH + gap, photoW, cellH);
+      } else if (state.format === 'v_triple') {
+        const gap = areaH * 0.015;
+        const cellH = (photoH - gap * 2) / 3;
+        for (let i = 0; i < 3; i++) drawTile(state.shots[i] || state.shots[0], pad, pad + i * (cellH + gap), photoW, cellH);
+      } else if (state.format === 'strip4') {
+        const gap = areaH * 0.012;
+        const cellH = (photoH - gap * 3) / 4;
+        for (let i = 0; i < 4; i++) drawTile(state.shots[i] || state.shots[0], pad, pad + i * (cellH + gap), photoW, cellH);
+      } else if (state.format === 'grid2x2' || state.format === 'polaroid4') {
+        const gap = areaW * 0.025;
+        const cellW = (photoW - gap) / 2, cellH = (photoH - gap) / 2;
+        for (let i = 0; i < 4; i++) {
+          drawTile(state.shots[i] || state.shots[0], pad + (i % 2) * (cellW + gap), pad + Math.floor(i / 2) * (cellH + gap), cellW, cellH);
+        }
+      } else if (state.format === 'grid2x3') {
+        const gap = areaW * 0.02;
+        const cellW = (photoW - gap) / 2, cellH = (photoH - gap * 2) / 3;
+        for (let i = 0; i < 6; i++) {
+          drawTile(state.shots[i] || state.shots[0], pad + (i % 2) * (cellW + gap), pad + Math.floor(i / 2) * (cellH + gap), cellW, cellH);
+        }
       }
     }
 
@@ -1166,12 +1211,41 @@ function initControlStudio() {
       const img = new Image();
       img.src = custom.src;
       img.onload = () => {
+        // 1) วาดกรอบ PNG ที่อัปโหลดเองเป็นพื้นหลังก่อน (ไม่สนใจว่าไฟล์จะโปร่งใสหรือไม่)
         ctx.drawImage(img, 0, 0, w, h);
-        renderTypography(ctx, w, h, captionH, frame.text);
+
+        // 2) คำนวณ "ช่องใส่รูป" จากค่า margin ที่ผู้ใช้ปรับเอง (หน่วย % ต่อด้าน)
+        const m = state.customFrameMargins[state.frameKey] || { top: 12, bottom: 12, left: 12, right: 12 };
+        const insetTop = h * (m.top / 100);
+        const insetBottom = h * (m.bottom / 100);
+        const insetLeft = w * (m.left / 100);
+        const insetRight = w * (m.right / 100);
+        const innerW = w - insetLeft - insetRight;
+        const innerH = h - insetTop - insetBottom;
+
+        // 3) ตัดพื้นที่ (clip) แล้ววาดรูปทับลงไปเฉพาะในช่องนั้น -> รูปจะเห็นแน่นอน
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(insetLeft, insetTop, innerW, innerH);
+        ctx.clip();
+        ctx.translate(insetLeft, insetTop);
+        drawAllTiles(0, 0, innerW, innerH);
+        ctx.restore();
+
+        renderTypography(ctx, w, h, 0, frame.text);
       };
       return;
     }
 
+    ctx.fillStyle = frame.bg;
+    ctx.fillRect(0, 0, w, h);
+    ctx.strokeStyle = frame.border;
+    ctx.lineWidth = w * 0.015;
+    ctx.strokeRect(ctx.lineWidth/2, ctx.lineWidth/2, w - ctx.lineWidth, h - ctx.lineWidth);
+
+    const pad = w * 0.055;
+    const captionH = h * 0.10;
+    drawAllTiles(pad, captionH, w, h);
     renderTypography(ctx, w, h, captionH, frame.text);
   }
 
