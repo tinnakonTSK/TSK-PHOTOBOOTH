@@ -64,11 +64,12 @@
 
   .top-actions { display: flex; align-items: center; gap: 8px; }
   .btn-action {
-    height: 28px; padding: 0 10px; border-radius: var(--radius);
-    border: 1px solid var(--border); background: var(--panel); color: var(--ink);
+    height: 28px; padding: 0 12px; border-radius: var(--radius);
+    border: none; background: var(--panel-hover); color: var(--ink);
     font-size: 11px; font-weight: 500; display: inline-flex; align-items: center; gap: 5px; cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
   }
-  .btn-action:hover { border-color: var(--border-focus); background: var(--panel-hover); }
+  .btn-action:hover { background: var(--primary); color: #fff; }
 
   /* STEPPER */
   .stepper-wrap {
@@ -156,38 +157,29 @@
   .cfg-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; height: 20px; }
   .cfg-label { font-size: 11px; font-weight: 600; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.5px; }
 
-  .btn-help {
-    width: 16px; height: 16px; border-radius: 50%; border: 1px solid var(--border);
-    background: var(--panel-hover); color: var(--primary-light); font-size: 10px;
-    display: inline-flex; align-items: center; justify-content: center; cursor: pointer; position: relative;
-  }
-  .btn-help .tooltip-box {
-    visibility: hidden; opacity: 0; position: absolute; bottom: 125%; right: 0;
-    background: #0f172a; color: #f8fafc; border: 1px solid var(--border-focus);
-    padding: 6px 10px; border-radius: 6px; font-size: 10.5px; white-space: nowrap; z-index: 50;
-    transition: opacity 0.2s ease; pointer-events: none; box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-  }
-  .btn-help:hover .tooltip-box { visibility: visible; opacity: 1; }
+  .layout-size-hint { font-size: 11px; color: var(--primary-light); font-weight: 500; margin: -2px 0 6px; }
 
   .matrix-layout {
     display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px;
     max-height: 155px; overflow-y: auto; padding-right: 2px;
   }
   .card-option {
-    border: 1px solid var(--border); border-radius: var(--radius); padding: 5px 2px; background: var(--panel-hover);
+    border: none; border-radius: var(--radius); padding: 6px 2px; background: var(--panel-hover);
     display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer;
+    transition: background 0.15s ease, box-shadow 0.15s ease;
   }
-  .card-option.active { border-color: var(--primary-light); background: rgba(56, 189, 248, 0.12); }
+  .card-option.active { background: rgba(56, 189, 248, 0.16); box-shadow: inset 0 0 0 2px var(--primary-light); }
   .card-option svg { width: 22px; height: 28px; stroke: var(--ink-muted); fill: none; }
   .card-option.active svg { stroke: var(--primary-light); }
   .card-option span { font-size: 9.5px; font-weight: 500; text-align: center; }
 
   .matrix-swatches { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
   .swatch-item {
-    border: 1px solid var(--border); border-radius: var(--radius); padding: 5px 3px; background: var(--panel-hover);
+    border: none; border-radius: var(--radius); padding: 5px 3px; background: var(--panel-hover);
     display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer;
+    transition: box-shadow 0.15s ease;
   }
-  .swatch-item.active { border-color: var(--primary-light); }
+  .swatch-item.active { box-shadow: inset 0 0 0 2px var(--primary-light); }
   .swatch-dot { width: 20px; height: 20px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); }
   .swatch-name { font-size: 10px; }
 
@@ -408,11 +400,8 @@
       <div class="cfg-group">
         <div class="cfg-header">
           <label class="cfg-label">รูปแบบเฟรมถ่ายภาพ (LAYOUT)</label>
-          <div class="btn-help" id="btnHelp">
-            ?
-            <div class="tooltip-box" id="tooltipText">ขนาดที่แนะนำ: 1200 × 1800 px (4:6)</div>
-          </div>
         </div>
+        <div class="layout-size-hint" id="tooltipText">ขนาดที่แนะนำ: 1200 × 1800 px (4:6)</div>
         <div class="matrix-layout" id="formatMatrix">
           <div class="card-option active" data-format="single" data-size="1200 × 1800 px (4:6)">
             <svg viewBox="0 0 24 30"><rect x="2" y="2" width="20" height="26" rx="2"/><rect x="4" y="4" width="16" height="18" fill="rgba(255,255,255,0.2)"/></svg>
@@ -938,8 +927,8 @@ function initControlStudio() {
 
     liveBroadcastTimer = setInterval(() => {
       if (!video.videoWidth) return;
-      canvasTmp.width = 360;
-      canvasTmp.height = Math.round(360 * video.videoHeight / video.videoWidth);
+      canvasTmp.width = 640;
+      canvasTmp.height = Math.round(640 * video.videoHeight / video.videoWidth);
 
       if (state.mirrored) {
         ctxTmp.translate(canvasTmp.width, 0);
@@ -950,14 +939,14 @@ function initControlStudio() {
       if (channel) {
         channel.postMessage({
           type: 'frame',
-          src: canvasTmp.toDataURL('image/jpeg', 0.4)
+          src: canvasTmp.toDataURL('image/jpeg', 0.75)
         });
       }
 
       if (state.mirrored) {
         ctxTmp.setTransform(1, 0, 0, 1, 0, 0);
       }
-    }, 100);
+    }, 80);
   }
 
   function stopCamera() {
