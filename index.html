@@ -1,0 +1,1510 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>TSK PHOTO STUDIO · Professional Photobooth</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Kodchasan:wght@500;600;700&family=Prompt:wght@300;400;500;600&family=Sarabun:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/gifshot@0.3.2/dist/gifshot.min.js"></script>
+<style>
+  :root {
+    --bg-base: #060b13;
+    --panel: #0d1527;
+    --panel-hover: #132038;
+    --primary: #0284c7;
+    --primary-light: #38bdf8;
+    --border: #1e293b;
+    --border-focus: #38bdf8;
+    --ink: #f8fafc;
+    --ink-muted: #94a3b8;
+    --radius: 6px;
+    --switch-bg: #1e293b;
+    --switch-on: #0284c7;
+    --stage-bg: #030712;
+  }
+
+  body.light-theme {
+    --bg-base: #f1f5f9;
+    --panel: #ffffff;
+    --panel-hover: #f8fafc;
+    --primary: #0284c7;
+    --primary-light: #0369a1;
+    --border: #cbd5e1;
+    --border-focus: #0284c7;
+    --ink: #0f172a;
+    --ink-muted: #475569;
+    --switch-bg: #cbd5e1;
+    --switch-on: #0284c7;
+    --stage-bg: #090d16;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+  html, body { width: 100vw; height: 100vh; overflow: hidden; background: var(--bg-base); color: var(--ink); font-family: 'Prompt', sans-serif; }
+  button, input, select { font-family: 'Prompt', sans-serif; outline: none; }
+  input[type="file"] { display: none !important; }
+  .hidden { display: none !important; }
+
+  .line-icon {
+    width: 14px; height: 14px; stroke: currentColor; stroke-width: 1.8; fill: none;
+    stroke-linecap: round; stroke-linejoin: round; display: inline-block; vertical-align: middle;
+  }
+
+  /* APP LAYOUT - FIXED 100VH */
+  #app { display: flex; flex-direction: column; width: 100vw; height: 100vh; padding: 6px 14px; overflow: hidden; }
+  
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    height: 38px; border-bottom: 1px solid var(--border); padding-bottom: 4px; margin-bottom: 6px; flex-shrink: 0;
+  }
+  .brand { display: flex; align-items: center; gap: 8px; }
+  .brand svg { width: 22px; height: 22px; stroke: var(--primary-light); }
+  .brand-title { font-family: 'Kodchasan', sans-serif; font-size: 18px; font-weight: 700; color: var(--primary-light); }
+
+  .top-actions { display: flex; align-items: center; gap: 8px; }
+  .btn-action {
+    height: 28px; padding: 0 12px; border-radius: var(--radius);
+    border: none; background: var(--panel-hover); color: var(--ink);
+    font-size: 11px; font-weight: 500; display: inline-flex; align-items: center; gap: 5px; cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .btn-action:hover { background: var(--primary); color: #fff; }
+
+  /* STEPPER */
+  .stepper-wrap {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    height: 32px; margin-bottom: 6px; flex-shrink: 0;
+  }
+  .step-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink-muted); font-weight: 500; }
+  .step-circle {
+    width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    background: var(--border); color: var(--ink-muted); font-size: 11px; font-weight: 700;
+  }
+  .step-item.active { color: var(--primary-light); font-weight: 600; }
+  .step-item.active .step-circle { background: var(--primary); color: #fff; box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.25); }
+  .step-item.done { color: var(--ink); }
+  .step-item.done .step-circle { background: #10b981; color: #fff; }
+  .step-line { width: 32px; height: 2px; background: var(--border); }
+  .step-line.done { background: var(--primary); }
+
+  /* WORKSPACE */
+  .workspace {
+    flex: 1; display: grid; grid-template-columns: 1.25fr 0.75fr; gap: 12px;
+    height: calc(100vh - 90px); min-height: 0; overflow: hidden;
+  }
+
+  .stage-card {
+    background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 8px; display: flex; flex-direction: column; height: 100%; min-height: 0;
+  }
+  .view-viewport {
+    flex: 1; position: relative; background: var(--stage-bg); border-radius: var(--radius);
+    overflow: hidden; display: flex; align-items: center; justify-content: center; min-height: 0;
+    border: 1px solid var(--border);
+  }
+  
+  #video {
+    width: 100%; height: 100%; object-fit: contain;
+    background: #000; display: block;
+  }
+  #video.mirror { transform: scaleX(-1); }
+
+  .view-placeholder {
+    position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 8px; color: var(--primary-light); font-size: 13.5px; font-weight: 500; z-index: 2; pointer-events: none;
+  }
+  .view-placeholder svg { width: 40px; height: 40px; stroke: var(--primary-light); }
+
+  #composeWrap { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; min-height: 0; z-index: 5; }
+  #composeCanvas { max-width: 100%; max-height: 100%; object-fit: contain; }
+
+  #countdownOverlay {
+    position: absolute; inset: 0; display: none; align-items: center; justify-content: center;
+    background: rgba(3, 7, 18, 0.6); z-index: 20;
+  }
+  #countdownOverlay span { font-family: 'Kodchasan', sans-serif; font-weight: 700; font-size: 11vw; color: #fff; }
+  #flashEffect { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; z-index: 30; }
+
+  .stage-toolbar { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; flex-shrink: 0; }
+  .btn-ctl {
+    border: none; border-radius: var(--radius); padding: 6px 12px; font-weight: 500; font-size: 11.5px;
+    display: inline-flex; align-items: center; gap: 5px; cursor: pointer;
+  }
+  .btn-ctl-primary { background: var(--primary); color: #fff; }
+  .btn-ctl-danger { background: #dc2626; color: #fff; }
+  .btn-ctl-sub { background: var(--border); color: var(--ink); }
+  .btn-ctl:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  .controls-footer { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 6px; font-size: 11px; color: var(--ink-muted); flex-shrink: 0; }
+  .studio-switch { display: inline-flex; align-items: center; gap: 5px; cursor: pointer; }
+  .studio-switch input { display: none; }
+  .switch-rail { width: 28px; height: 15px; background: var(--switch-bg); border-radius: 20px; position: relative; border: 1px solid var(--border); }
+  .switch-knob { width: 9px; height: 9px; background: #fff; border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: transform 0.2s ease; }
+  .studio-switch input:checked + .switch-rail { background: var(--switch-on); border-color: var(--switch-on); }
+  .studio-switch input:checked + .switch-rail .switch-knob { transform: translateX(13px); }
+
+  /* RIGHT SETTINGS PANEL */
+  .settings-card {
+    background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 12px 14px; display: flex; flex-direction: column; height: 100%; min-height: 0;
+    overflow-y: auto; box-sizing: border-box;
+  }
+  .settings-card::-webkit-scrollbar { width: 3px; }
+  .settings-card::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .cfg-group { margin-bottom: 10px; flex-shrink: 0; }
+  .cfg-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; height: 20px; }
+  .cfg-label { font-size: 11px; font-weight: 600; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+
+  .layout-size-hint { font-size: 11px; color: var(--primary-light); font-weight: 500; margin: -2px 0 6px; }
+
+  .matrix-layout {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px;
+    max-height: 155px; overflow-y: auto; padding-right: 2px;
+  }
+  .card-option {
+    border: none; border-radius: var(--radius); padding: 6px 2px; background: var(--panel-hover);
+    display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer;
+    transition: background 0.15s ease, box-shadow 0.15s ease;
+  }
+  .card-option.active { background: rgba(56, 189, 248, 0.16); box-shadow: inset 0 0 0 2px var(--primary-light); }
+  .card-option svg { width: 22px; height: 28px; stroke: var(--ink-muted); fill: none; }
+  .card-option.active svg { stroke: var(--primary-light); }
+  .card-option span { font-size: 9.5px; font-weight: 500; text-align: center; }
+
+  .matrix-swatches { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+  .swatch-item {
+    border: none; border-radius: var(--radius); padding: 5px 3px; background: var(--panel-hover);
+    display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer;
+    transition: box-shadow 0.15s ease;
+  }
+  .swatch-item.active { box-shadow: inset 0 0 0 2px var(--primary-light); }
+  .swatch-dot { width: 20px; height: 20px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); }
+  .swatch-name { font-size: 10px; }
+
+  .field-input { width: 100%; padding: 5px 8px; border-radius: var(--radius); border: 1px solid var(--border); font-size: 11.5px; background: var(--panel); color: var(--ink); }
+  .field-select { width: 100%; padding: 5px 8px; border-radius: var(--radius); border: 1px solid var(--border); font-size: 11.5px; background: var(--panel); color: var(--ink); }
+
+  /* CLIENT GALLERY PORTAL */
+  #clientPortal {
+    display: none; width: 100vw; min-height: 100vh; overflow-y: auto;
+    padding: 24px 16px; background: #030712; color: #f8fafc;
+    flex-direction: column; align-items: center; box-sizing: border-box;
+  }
+  body.portal-mode #clientPortal { display: flex; }
+  body.portal-mode #app, body.portal-mode #displayApp { display: none !important; }
+
+  .portal-container { width: 100%; max-width: 440px; display: flex; flex-direction: column; gap: 14px; }
+  .portal-head { text-align: center; padding-bottom: 8px; border-bottom: 1px solid #1e293b; }
+  .portal-head h2 { font-family: 'Kodchasan', sans-serif; font-size: 20px; color: #38bdf8; font-weight: 700; }
+  .portal-head p { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+
+  .portal-card {
+    background: #0b1325; border: 1px solid #1e293b; border-radius: 12px;
+    padding: 12px; display: flex; flex-direction: column; align-items: center; gap: 12px;
+  }
+  .portal-card img { width: 100%; border-radius: 8px; display: block; box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
+  
+  .portal-switch-tabs { display: flex; width: 100%; gap: 6px; }
+  .portal-tab {
+    flex: 1; padding: 8px 0; font-size: 12px; font-weight: 600; text-align: center;
+    background: #111e38; border: 1px solid #1e293b; border-radius: 6px; color: #94a3b8; cursor: pointer;
+  }
+  .portal-tab.active { background: #0284c7; border-color: #0284c7; color: #fff; }
+
+  .portal-btns { display: flex; flex-direction: column; gap: 8px; }
+  .portal-btn {
+    width: 100%; padding: 12px; border-radius: 8px; font-weight: 600; font-size: 13px;
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; cursor: pointer;
+  }
+  .portal-btn-dl { background: #0284c7; color: #fff; border: none; }
+  .portal-btn-share { background: #111e38; color: #38bdf8; border: 1px solid #1e293b; }
+
+  /* SECOND SCREEN */
+  body.display-mode { background: var(--bg-base) !important; width: 100vw; height: 100vh; overflow: hidden !important; }
+  body.display-mode #app, body.display-mode #clientPortal { display: none !important; }
+
+  #displayApp {
+    display: none; width: 100vw; height: 100vh; padding: 12px 18px;
+    flex-direction: column; box-sizing: border-box; background: var(--bg-base);
+  }
+  body.display-mode #displayApp { display: flex; }
+
+  .d-viewport {
+    flex: 1; display: grid; grid-template-columns: 1fr 340px; gap: 14px;
+    height: calc(100vh - 44px); min-height: 0;
+  }
+  .d-live-frame {
+    background: #000; border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden;
+    position: relative; display: flex; align-items: center; justify-content: center; height: 100%; min-height: 0;
+  }
+  .d-live-frame img { width: 100%; height: 100%; object-fit: contain; display: block; }
+  .d-sidebar { display: flex; flex-direction: column; gap: 10px; height: 100%; min-height: 0; }
+  .d-card-result {
+    flex: 1; background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    position: relative; overflow: hidden; min-height: 0;
+  }
+  .d-card-result img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 4px; display: none; }
+  
+  .d-card-qr-box {
+    height: 135px; flex-shrink: 0; background: var(--panel); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 8px 12px; display: flex; align-items: center; justify-content: center;
+    gap: 14px; box-sizing: border-box; position: relative; overflow: hidden;
+  }
+  .d-progress-line {
+    position: absolute; bottom: 0; left: 0; height: 3px; background: var(--primary-light);
+    width: 0%; transition: width 1s linear;
+  }
+  .d-qr-frame {
+    background: #fff; padding: 4px; border-radius: 4px; width: 92px; height: 92px;
+    flex-shrink: 0; display: flex; align-items: center; justify-content: center; overflow: hidden;
+  }
+  .d-qr-frame img { width: 100% !important; height: 100% !important; object-fit: contain; }
+  .d-qr-info h4 { font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 2px; }
+  .d-qr-info p { font-size: 11px; color: var(--ink-muted); line-height: 1.3; }
+  .d-qr-info .auto-wipe-badge { font-size: 10.5px; color: var(--primary-light); margin-top: 4px; display: block; }
+</style>
+</head>
+<body>
+
+<!-- SVG DEFINITIONS -->
+<svg style="display:none;">
+  <symbol id="icon-shutter" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="10"></circle>
+    <path d="m14.31 8 5.74 9.94M9.69 8h11.48M7.38 12l5.74-9.94M9.69 16 3.95 6.06M14.31 16H2.83M16.62 12l-5.74 9.94"></path>
+  </symbol>
+  <symbol id="icon-camera" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path>
+    <circle cx="12" cy="13" r="3"></circle>
+  </symbol>
+  <symbol id="icon-camera-off" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="1" y1="1" x2="23" y2="23"></line>
+    <path d="M21 21H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h3m3-3h6l2.5 3H20a2 2 0 0 1 2 2v7"></path>
+  </symbol>
+  <symbol id="icon-play" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+  </symbol>
+  <symbol id="icon-refresh" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+  </symbol>
+  <symbol id="icon-download" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"></path>
+  </symbol>
+  <symbol id="icon-printer" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="6 9 6 2 18 2 18 9"></polyline>
+    <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+    <rect x="6" y="14" width="12" height="8"></rect>
+  </symbol>
+  <symbol id="icon-monitor" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+    <line x1="8" y1="21" x2="16" y2="21"></line>
+    <line x1="12" y1="17" x2="12" y2="21"></line>
+  </symbol>
+  <symbol id="icon-moon" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </symbol>
+</svg>
+
+<!-- 1. STUDIO CONTROL APP -->
+<div id="app">
+  <div class="topbar">
+    <div class="brand">
+      <svg><use href="#icon-shutter"></use></svg>
+      <div>
+        <span class="brand-title">TSK STUDIO</span>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button class="btn-action" id="themeBtn"><svg class="line-icon"><use href="#icon-moon"></use></svg> Mode</button>
+      <button class="btn-action" id="openDisplayBtn"><svg class="line-icon"><use href="#icon-monitor"></use></svg> Display 2</button>
+    </div>
+  </div>
+
+  <div class="stepper-wrap">
+    <div class="step-item active" id="step1">
+      <div class="step-circle" id="circle1">1</div>
+      <span>Select Template</span>
+    </div>
+    <div class="step-line" id="line1"></div>
+    <div class="step-item" id="step2">
+      <div class="step-circle" id="circle2">2</div>
+      <span>Add Shoot</span>
+    </div>
+    <div class="step-line" id="line2"></div>
+    <div class="step-item" id="step3">
+      <div class="step-circle" id="circle3">3</div>
+      <span>Edit and Download</span>
+    </div>
+  </div>
+
+  <div class="workspace">
+    <!-- LEFT: STAGE -->
+    <div class="stage-card">
+      <div class="view-viewport" id="stage">
+        <!-- วิดีโอกล้องสดหลัก -->
+        <video id="video" autoplay playsinline muted></video>
+
+        <div class="view-placeholder" id="stagePlaceholder">
+          <svg><use href="#icon-shutter"></use></svg>
+          <span>Starting... Cameras</span>
+        </div>
+        <div id="countdownOverlay"><span id="countdownNum">3</span></div>
+        <div id="flashEffect"></div>
+      </div>
+
+      <div id="composeWrap" class="hidden">
+        <canvas id="composeCanvas"></canvas>
+      </div>
+
+      <div class="stage-toolbar">
+        <button class="btn-ctl btn-ctl-sub" id="openCamBtn"><svg class="line-icon"><use href="#icon-camera"></use></svg> Start</button>
+        <button class="btn-ctl btn-ctl-danger hidden" id="closeCamBtn"><svg class="line-icon"><use href="#icon-camera-off"></use></svg> Disable</button>
+        <button class="btn-ctl btn-ctl-primary" id="startCaptureBtn" disabled><svg class="line-icon"><use href="#icon-play"></use></svg> Shoot (<span id="keyLabel">Space</span>)</button>
+        <button class="btn-ctl btn-ctl-sub hidden" id="retakeBtn"><svg class="line-icon"><use href="#icon-refresh"></use></svg> Shoot Again</button>
+        <button class="btn-ctl btn-ctl-sub hidden" id="downloadBtn"><svg class="line-icon"><use href="#icon-download"></use></svg> Save Photo</button>
+        <button class="btn-ctl btn-ctl-sub hidden" id="printBtn"><svg class="line-icon"><use href="#icon-printer"></use></svg> Print</button>
+      </div>
+
+      <div class="controls-footer">
+        <label class="studio-switch">
+          <input type="checkbox" id="mirrorChk" checked>
+          <span class="switch-rail"><span class="switch-knob"></span></span>
+          <span>Left-Right</span>
+        </label>
+        <label class="studio-switch">
+          <input type="checkbox" id="soundChk" checked>
+          <span class="switch-rail"><span class="switch-knob"></span></span>
+          <span>Sound</span>
+        </label>
+        <label>Time:
+          <select class="field-select" style="width: auto; display: inline-block; padding: 2px 4px;" id="countdownSelect">
+            <option value="3" selected>3 S</option>
+            <option value="5">5 S</option>
+            <option value="8">8 S</option>
+            <option value="10">10 S</option>
+          </select>
+        </label>
+        <label>Shortcut keys:
+          <button class="btn-action" style="padding: 1px 6px; height: 20px; font-size: 10.5px;" id="changeKeyBtn">keys</button>
+        </label>
+        <label>Select Camera:
+          <select class="field-select" style="width: 120px; display: inline-block; padding: 2px 4px;" id="cameraSelect"><option value="">Search...</option></select>
+        </label>
+      </div>
+    </div>
+
+    <!-- RIGHT: SETTINGS -->
+    <div class="settings-card">
+      <div class="cfg-group">
+        <div class="cfg-header">
+          <label class="cfg-label">รูปแบบเฟรมถ่ายภาพ (LAYOUT)</label>
+        </div>
+        <div class="layout-size-hint" id="tooltipText">ขนาดที่แนะนำ: 1200 × 1800 px (4:6)</div>
+        <div class="matrix-layout" id="formatMatrix">
+          <div class="card-option active" data-format="single" data-size="1200 × 1800 px (4:6)">
+            <svg viewBox="0 0 24 30"><rect x="2" y="2" width="20" height="26" rx="2"/><rect x="4" y="4" width="16" height="18" fill="rgba(255,255,255,0.2)"/></svg>
+            <span>รูปเดี่ยว</span>
+          </div>
+          <div class="card-option" data-format="h_dual" data-size="1800 × 1200 px (6:4)">
+            <svg viewBox="0 0 24 30"><rect x="2" y="4" width="20" height="22" rx="2"/><rect x="4" y="6" width="7.5" height="14" fill="rgba(255,255,255,0.2)"/><rect x="12.5" y="6" width="7.5" height="14" fill="rgba(255,255,255,0.2)"/></svg>
+            <span>2 รูป (นอน)</span>
+          </div>
+          <div class="card-option" data-format="v_dual" data-size="1200 × 1800 px (4:6)">
+            <svg viewBox="0 0 24 30"><rect x="4" y="2" width="16" height="26" rx="2"/><rect x="6" y="4" width="12" height="10" fill="rgba(255,255,255,0.2)"/><rect x="6" y="16" width="12" height="10" fill="rgba(255,255,255,0.2)"/></svg>
+            <span>2 รูป (ตั้ง)</span>
+          </div>
+          <div class="card-option" data-format="v_triple" data-size="600 × 1800 px (2:6)">
+            <svg viewBox="0 0 24 30"><rect x="4" y="2" width="16" height="26" rx="2"/><rect x="6" y="4" width="12" height="6" fill="rgba(255,255,255,0.2)"/><rect x="6" y="11.5" width="12" height="6" fill="rgba(255,255,255,0.2)"/><rect x="6" y="19" width="12" height="6" fill="rgba(255,255,255,0.2)"/></svg>
+            <span>3 รูป (สตริป)</span>
+          </div>
+          <div class="card-option" data-format="strip4" data-size="600 × 1800 px (2:6)">
+            <svg viewBox="0 0 24 30"><rect x="4" y="2" width="16" height="26" rx="2"/><rect x="6" y="4" width="12" height="4.5" fill="rgba(255,255,255,0.2)"/><rect x="6" y="10" width="12" height="4.5" fill="rgba(255,255,255,0.2)"/><rect x="6" y="16" width="12" height="4.5" fill="rgba(255,255,255,0.2)"/><rect x="6" y="22" width="12" height="4.5" fill="rgba(255,255,255,0.2)"/></svg>
+            <span>4 รูป (สตริป 4)</span>
+          </div>
+          <div class="card-option" data-format="grid2x2" data-size="1200 × 1800 px (4:6)">
+            <svg viewBox="0 0 24 30"><rect x="2" y="2" width="20" height="26" rx="2"/><rect x="4" y="4" width="7.5" height="9" fill="rgba(255,255,255,0.2)"/><rect x="12.5" y="4" width="7.5" height="9" fill="rgba(255,255,255,0.2)"/><rect x="4" y="14" width="7.5" height="9" fill="rgba(255,255,255,0.2)"/><rect x="12.5" y="14" width="7.5" height="9" fill="rgba(255,255,255,0.2)"/></svg>
+            <span>4 รูป (ตาราง 2×2)</span>
+          </div>
+          <div class="card-option" data-format="polaroid4" data-size="1200 × 1800 px (4:6)">
+            <svg viewBox="0 0 24 30"><rect x="2" y="2" width="20" height="26" rx="2"/><rect x="4" y="4" width="7.5" height="8" fill="rgba(255,255,255,0.2)"/><rect x="12.5" y="4" width="7.5" height="8" fill="rgba(255,255,255,0.2)"/><rect x="4" y="13" width="7.5" height="8" fill="rgba(255,255,255,0.2)"/><rect x="12.5" y="13" width="7.5" height="8" fill="rgba(255,255,255,0.2)"/><rect x="4" y="22" width="16" height="4" fill="none"/></svg>
+            <span>4 รูป (โพลารอยด์)</span>
+          </div>
+          <div class="card-option" data-format="grid2x3" data-size="1200 × 1800 px (4:6)">
+            <svg viewBox="0 0 24 30"><rect x="2" y="2" width="20" height="26" rx="2"/><rect x="4" y="4" width="7.5" height="6.5" fill="rgba(255,255,255,0.2)"/><rect x="12.5" y="4" width="7.5" height="6.5" fill="rgba(255,255,255,0.2)"/><rect x="4" y="11.5" width="7.5" height="6.5" fill="rgba(255,255,255,0.2)"/><rect x="12.5" y="11.5" width="7.5" height="6.5" fill="rgba(255,255,255,0.2)"/><rect x="4" y="19" width="7.5" height="6.5" fill="rgba(255,255,255,0.2)"/><rect x="12.5" y="19" width="7.5" height="6.5" fill="rgba(255,255,255,0.2)"/></svg>
+            <span>6 รูป (ตาราง 2×3)</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="cfg-group">
+        <div class="cfg-header">
+          <label class="cfg-label">สีกรอบภาพ (FRAME PALETTE)</label>
+          <button class="btn-action" style="font-size: 10.5px; padding: 1px 6px;" onclick="document.getElementById('frameInput').click()">+ อัปโหลด PNG</button>
+          <input type="file" id="frameInput" accept="image/png">
+        </div>
+        <div class="matrix-swatches" id="frameSwatches"></div>
+      </div>
+      
+<div class="cfg-group hidden" id="customFrameMarginGroup">
+        <div class="cfg-header">
+          <label class="cfg-label">ช่องใส่รูป (PHOTO WINDOW)</label>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:6px; font-size:11px; color:var(--ink-muted);">
+          <label style="display:flex; justify-content:space-between;">บน (Top) <span id="marginTopVal">12%</span></label>
+          <input type="range" id="marginTopRange" min="0" max="45" value="12" style="width:100%;">
+          <label style="display:flex; justify-content:space-between;">ล่าง (Bottom) <span id="marginBottomVal">12%</span></label>
+          <input type="range" id="marginBottomRange" min="0" max="45" value="12" style="width:100%;">
+          <label style="display:flex; justify-content:space-between;">ซ้าย (Left) <span id="marginLeftVal">12%</span></label>
+          <input type="range" id="marginLeftRange" min="0" max="45" value="12" style="width:100%;">
+          <label style="display:flex; justify-content:space-between;">ขวา (Right) <span id="marginRightVal">12%</span></label>
+          <input type="range" id="marginRightRange" min="0" max="45" value="12" style="width:100%;">
+        </div>
+      </div>
+      <div class="cfg-group">
+        <div class="cfg-header">
+          <label class="cfg-label">โทนสีภาพ (COLOR TONE)</label>
+          <button class="btn-action" style="font-size: 10.5px; padding: 1px 6px;" onclick="document.getElementById('presetInput').click()">+ นำเข้า Preset</button>
+          <input type="file" id="presetInput" accept=".cube,.dng,.xmp">
+        </div>
+        <div class="matrix-swatches" id="toneSwatches"></div>
+      </div>
+
+      <div class="cfg-group">
+        <label class="cfg-label">ข้อความใต้ภาพ (CAPTION)</label>
+        <input type="text" class="field-input" id="captionInput" value="TSK PHOTO STUDIO" maxlength="35">
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 5px;">
+          <div>
+            <select class="field-select" id="fontSelect">
+              <option value="Prompt" selected>Prompt</option>
+              <option value="Kodchasan">Kodchasan</option>
+              <option value="Inter">Inter</option>
+              <option value="Sarabun">Sarabun</option>
+            </select>
+          </div>
+          <div>
+            <input type="range" id="fontSizeRange" min="20" max="50" value="32" style="width: 100%; margin-top: 6px;">
+          </div>
+        </div>
+      </div>
+
+      <div class="cfg-group">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+          <label class="cfg-label" style="margin-bottom: 0;">วันที่ (DATE STAMP)</label>
+          <label class="studio-switch">
+            <input type="checkbox" id="dateChk" checked>
+            <span class="switch-rail"><span class="switch-knob"></span></span>
+          </label>
+        </div>
+        <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 6px;">
+          <select class="field-select" id="dateFormatSelect">
+            <option value="en_num">17.09.2026</option>
+            <option value="en_short">17 Sep 2026</option>
+            <option value="th_short">17 ก.ย. 2569</option>
+            <option value="th_full">17 กันยายน 2569</option>
+          </select>
+          <select class="field-select" id="datePosSelect">
+            <option value="bottom-center">กึ่งกลาง</option>
+            <option value="bottom-right">ล่างขวา</option>
+            <option value="bottom-left">ล่างซ้าย</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 2. CLIENT GALLERY PORTAL -->
+<div id="clientPortal">
+  <div class="portal-container">
+    <div class="portal-head">
+      <h2>TSK PHOTO STUDIO</h2>
+      <p>Photo Gallery</p>
+    </div>
+
+    <div class="portal-card">
+      <div class="portal-switch-tabs">
+        <button class="portal-tab active" id="tabPhotoBtn">ภาพนิ่ง (Photo)</button>
+        <button class="portal-tab" id="tabGifBtn">ภาพเคลื่อนไหว (GIF)</button>
+      </div>
+      <img id="portalPreviewImg" src="" alt="ภาพถ่ายของคุณ">
+    </div>
+
+    <div class="portal-btns">
+      <a class="portal-btn portal-btn-dl" id="portalDownloadBtn" download="TSK_Photo.png">บันทึกไฟล์ลงเครื่อง (Download)</a>
+      <button class="portal-btn portal-btn-share" id="portalShareBtn">แชร์ไปยังแอปอื่น (Share to Apps)</button>
+    </div>
+  </div>
+</div>
+
+<!-- 3. DISPLAY APP -->
+<div id="displayApp">
+  <div style="text-align: center; font-size: 14px; font-weight: 700; color: var(--primary-light); height: 24px;">
+    TSK PHOTO STUDIO · LIVE DISPLAY
+  </div>
+  <div class="d-viewport">
+    <div class="d-live-frame">
+      <img id="dLiveImg" style="display:none;">
+      <div class="view-placeholder" id="dWaiting">
+        <svg><use href="#icon-shutter"></use></svg>
+        <span>Please wait...</span>
+      </div>
+      <div id="dCountdown" style="position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.4);"><span id="dCountdownNum" style="font-size:14vw;color:#fff;font-weight:700;">3</span></div>
+      <div id="dFlash" style="position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;"></div>
+    </div>
+
+    <div class="d-sidebar">
+      <div class="d-card-result">
+        <span style="position:absolute;top:6px;left:6px;background:rgba(0,0,0,0.6);color:#fff;font-size:10px;padding:2px 6px;border-radius:4px;">ผลงานล่าสุด</span>
+        <img id="dResultPic" alt="ผลงาน">
+        <span style="color:var(--ink-muted);font-size:12px;" id="dEmptyNotice">Waiting Image...</span>
+      </div>
+
+      <div class="d-card-qr-box">
+        <div class="d-progress-line" id="dTimerBar"></div>
+        <div class="d-qr-frame" id="dQR"></div>
+        <div class="d-qr-info">
+          <h4>Scan QR Download</h4>
+          <p>เปิดกล้องสแกนเพื่อเปิดภาพและ GIF</p>
+          <span class="auto-wipe-badge" id="dWipeNotice"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+const params = new URLSearchParams(location.search);
+const isDisplay = params.get('display') === '1';
+const viewToken = params.get('view');
+
+if (isDisplay) document.body.classList.add('display-mode');
+if (viewToken) document.body.classList.add('portal-mode');
+
+const imgParam = params.get('img'); // ลิงก์รูปจาก Google Drive ที่ฝังมาใน QR ใช้ดูข้ามเครื่องได้
+const DRIVE_UPLOAD_URL = 'https://script.google.com/macros/s/AKfycbxZx9lUhn6pC3VOUzhPnWJft2pwuiEyN3B-0H_-zqUWu4IllQGPxFcTUwDZu_Z0Ndg-MQ/exec';
+
+const channel = ('BroadcastChannel' in window) ? new BroadcastChannel('tsk_studio_final_channel') : null;
+
+// THEME TOGGLE
+const themeBtn = document.getElementById('themeBtn');
+function applyStudioTheme(theme) {
+  if (theme === 'light') {
+    document.body.classList.add('light-theme');
+  } else {
+    document.body.classList.remove('light-theme');
+  }
+}
+const currentTheme = localStorage.getItem('tsk_studio_theme') || 'dark';
+applyStudioTheme(currentTheme);
+
+if (themeBtn) {
+  themeBtn.onclick = () => {
+    const isLight = document.body.classList.toggle('light-theme');
+    const newTheme = isLight ? 'light' : 'dark';
+    localStorage.setItem('tsk_studio_theme', newTheme);
+    applyStudioTheme(newTheme);
+    if (channel) channel.postMessage({ type: 'syncTheme', theme: newTheme });
+  };
+}
+
+/* --------------------------------------------------------------------------
+   MODE: CLIENT GALLERY PORTAL
+-------------------------------------------------------------------------- */
+if (viewToken) {
+  // ถ้ามี "img" แนบมาใน URL (ลิงก์จาก Google Drive) ให้ใช้อันนี้ก่อน เพราะดูได้จากทุกอุปกรณ์
+  // ถ้าไม่มี (เช่นเปิดจากเครื่องเดิมที่ถ่าย) ให้ fallback ไปอ่านจาก storage เหมือนเดิม
+  const stored = JSON.parse(sessionStorage.getItem('tsk_art_' + viewToken) || localStorage.getItem('tsk_art_' + viewToken) || '{}');
+  const data = imgParam ? { image: decodeURIComponent(imgParam), gif: stored.gif || null } : stored;
+
+  const imgPreview = document.getElementById('portalPreviewImg');
+  const tabPhoto = document.getElementById('tabPhotoBtn');
+  const tabGif = document.getElementById('tabGifBtn');
+  const btnDownload = document.getElementById('portalDownloadBtn');
+  const btnShare = document.getElementById('portalShareBtn');
+
+  let currentSource = data.image || '';
+  let currentFileName = 'TSK_Studio_Photo.png';
+
+  if (data.image) {
+    imgPreview.src = data.image;
+    btnDownload.href = data.image;
+  } else {
+    imgPreview.alt = 'ไม่พบรูปภาพ อาจเกิดจากลิงก์หมดอายุหรืออัปโหลดไม่สำเร็จ';
+  }
+
+  tabPhoto.onclick = () => {
+    tabPhoto.classList.add('active');
+    tabGif.classList.remove('active');
+    currentSource = data.image;
+    currentFileName = 'TSK_Studio_Photo.png';
+    imgPreview.src = currentSource;
+    btnDownload.href = currentSource;
+    btnDownload.download = currentFileName;
+  };
+
+  tabGif.onclick = () => {
+    if (!data.gif) { alert('รอบนี้ไม่มีภาพเคลื่อนไหว GIF'); return; }
+    tabGif.classList.add('active');
+    tabPhoto.classList.remove('active');
+    currentSource = data.gif;
+    currentFileName = 'TSK_Studio_Motion.gif';
+    imgPreview.src = currentSource;
+    btnDownload.href = currentSource;
+    btnDownload.download = currentFileName;
+  };
+
+  btnShare.onclick = async () => {
+    if (!navigator.share) {
+      alert('กรุณากดบันทึกภาพลงเครื่องเพื่อนำไปแชร์ต่อ');
+      return;
+    }
+    try {
+      const resp = await fetch(currentSource);
+      const blob = await resp.blob();
+      const file = new File([blob], currentFileName, { type: blob.type });
+      await navigator.share({
+        title: 'TSK Photo Studio',
+        text: 'ภาพความทรงจำจาก TSK Photo Studio',
+        files: [file]
+      });
+    } catch(err){}
+  };
+  return;
+}
+
+/* --------------------------------------------------------------------------
+   FRAME & TONE MATRICES DEFINITIONS
+-------------------------------------------------------------------------- */
+const STUDIO_FRAMES = [
+  { key: 'sky', label: 'ฟ้าคราม', bg: '#f0f9ff', border: '#0284c7', text: '#0369a1' },
+  { key: 'white', label: 'ขาวสตูดิโอ', bg: '#ffffff', border: '#cbd5e1', text: '#0f172a' },
+  { key: 'slate', label: 'สเลตเข้ม', bg: '#0f172a', border: '#38bdf8', text: '#f8fafc' },
+  { key: 'noir', label: 'นัวร์ดำ', bg: '#000000', border: '#334155', text: '#ffffff' }
+];
+
+const DEFAULT_TONES = [
+  { key: 'natural', label: 'ต้นฉบับ', bgGrad: 'linear-gradient(135deg, #38bdf8, #0284c7)', filter: 'none' },
+  { key: 'bright', label: 'สว่างนุ่ม', bgGrad: 'linear-gradient(135deg, #fed7aa, #fb923c)', filter: 'brightness(1.08) contrast(1.02) saturate(1.05)' },
+  { key: 'cool', label: 'โทนเย็น', bgGrad: 'linear-gradient(135deg, #93c5fd, #3b82f6)', filter: 'saturate(0.95) hue-rotate(185deg) brightness(1.03)' },
+  { key: 'bw', label: 'ขาวดำ', bgGrad: 'linear-gradient(135deg, #94a3b8, #334155)', filter: 'grayscale(1) contrast(1.2)' },
+  { key: 'warm', label: 'วินเทจ', bgGrad: 'linear-gradient(135deg, #fde047, #ca8a04)', filter: 'sepia(0.25) saturate(1.2) contrast(1.05)' }
+];
+
+const state = {
+  step: 1, format: 'single', frameKey: 'sky', toneKey: 'natural',
+  mirrored: true, soundOn: true, countdownSeconds: 3, shortcutKey: ' ',
+  caption: 'TSK PHOTO STUDIO', font: 'Prompt', fontSize: 32,
+  showDate: true, dateFormat: 'en_num', datePos: 'bottom-center',
+  shots: [], roundNumber: 0,
+  lastPhotoData: null, lastGifData: null,
+  customFrames: JSON.parse(localStorage.getItem('tsk_custom_frames') || '[]'),
+  customTones: JSON.parse(localStorage.getItem('tsk_custom_tones') || '[]'),
+  customFrameMargins: JSON.parse(localStorage.getItem('tsk_custom_frame_margins') || '{}')
+};
+
+let stream = null;
+
+if (!isDisplay) {
+  initControlStudio();
+} else {
+  initDisplayStudio();
+}
+
+function updateStepper(step) {
+  state.step = step;
+  const s1 = document.getElementById('step1');
+  const s2 = document.getElementById('step2');
+  const s3 = document.getElementById('step3');
+  const l1 = document.getElementById('line1');
+  const l2 = document.getElementById('line2');
+
+  const c1 = document.getElementById('circle1');
+  const c2 = document.getElementById('circle2');
+  const c3 = document.getElementById('circle3');
+
+  s1.className = 'step-item'; s2.className = 'step-item'; s3.className = 'step-item';
+  l1.className = 'step-line'; l2.className = 'step-line';
+  c1.textContent = '1'; c2.textContent = '2'; c3.textContent = '3';
+
+  if (step === 1) {
+    s1.classList.add('active');
+  } else if (step === 2) {
+    s1.classList.add('done'); c1.innerHTML = '✓';
+    l1.classList.add('done');
+    s2.classList.add('active');
+  } else if (step === 3) {
+    s1.classList.add('done'); c1.innerHTML = '✓';
+    s2.classList.add('done'); c2.innerHTML = '✓';
+    l1.classList.add('done'); l2.classList.add('done');
+    s3.classList.add('active');
+  }
+}
+
+/* -------------------------------------------------------------
+   CONTROL STUDIO ENGINE
+------------------------------------------------------------- */
+function initControlStudio() {
+  const video = document.getElementById('video');
+  const stagePlaceholder = document.getElementById('stagePlaceholder');
+  const composeWrap = document.getElementById('composeWrap');
+  const composeCanvas = document.getElementById('composeCanvas');
+  const countdownOverlay = document.getElementById('countdownOverlay');
+  const countdownNum = document.getElementById('countdownNum');
+  const flashEffect = document.getElementById('flashEffect');
+
+  const openCamBtn = document.getElementById('openCamBtn');
+  const closeCamBtn = document.getElementById('closeCamBtn');
+  const startCaptureBtn = document.getElementById('startCaptureBtn');
+  const retakeBtn = document.getElementById('retakeBtn');
+  const downloadBtn = document.getElementById('downloadBtn');
+  const printBtn = document.getElementById('printBtn');
+  const openDisplayBtn = document.getElementById('openDisplayBtn');
+
+  const mirrorChk = document.getElementById('mirrorChk');
+  const soundChk = document.getElementById('soundChk');
+  const countdownSelect = document.getElementById('countdownSelect');
+  const cameraSelect = document.getElementById('cameraSelect');
+  const changeKeyBtn = document.getElementById('changeKeyBtn');
+  const keyLabel = document.getElementById('keyLabel');
+
+  const formatMatrix = document.getElementById('formatMatrix');
+  const tooltipText = document.getElementById('tooltipText');
+  const frameSwatches = document.getElementById('frameSwatches');
+  const toneSwatches = document.getElementById('toneSwatches');
+
+  const captionInput = document.getElementById('captionInput');
+  const fontSelect = document.getElementById('fontSelect');
+  const fontSizeRange = document.getElementById('fontSizeRange');
+  const dateChk = document.getElementById('dateChk');
+  const dateFormatSelect = document.getElementById('dateFormatSelect');
+  const datePosSelect = document.getElementById('datePosSelect');
+
+  const frameInput = document.getElementById('frameInput');
+  const presetInput = document.getElementById('presetInput');
+  const marginGroup = document.getElementById('customFrameMarginGroup');
+  const marginTopRange = document.getElementById('marginTopRange');
+  const marginBottomRange = document.getElementById('marginBottomRange');
+  const marginLeftRange = document.getElementById('marginLeftRange');
+  const marginRightRange = document.getElementById('marginRightRange');
+  const marginTopVal = document.getElementById('marginTopVal');
+  const marginBottomVal = document.getElementById('marginBottomVal');
+  const marginLeftVal = document.getElementById('marginLeftVal');
+  const marginRightVal = document.getElementById('marginRightVal');
+
+  function getCurrentFrameMargin() {
+    return state.customFrameMargins[state.frameKey] || { top: 12, bottom: 12, left: 12, right: 12 };
+  }
+
+  function updateMarginUI() {
+    const isCustom = state.customFrames.some(f => f.key === state.frameKey);
+    marginGroup.classList.toggle('hidden', !isCustom);
+    if (!isCustom) return;
+    const m = getCurrentFrameMargin();
+    marginTopRange.value = m.top;       marginTopVal.textContent = m.top + '%';
+    marginBottomRange.value = m.bottom; marginBottomVal.textContent = m.bottom + '%';
+    marginLeftRange.value = m.left;     marginLeftVal.textContent = m.left + '%';
+    marginRightRange.value = m.right;   marginRightVal.textContent = m.right + '%';
+  }
+
+  [['top', marginTopRange, marginTopVal], ['bottom', marginBottomRange, marginBottomVal],
+   ['left', marginLeftRange, marginLeftVal], ['right', marginRightRange, marginRightVal]]
+    .forEach(([key, el, valEl]) => {
+      el.oninput = () => {
+        const m = getCurrentFrameMargin();
+        m[key] = parseInt(el.value, 10);
+        state.customFrameMargins[state.frameKey] = m;
+        localStorage.setItem('tsk_custom_frame_margins', JSON.stringify(state.customFrameMargins));
+        valEl.textContent = m[key] + '%';
+        renderComposedPhoto();
+      };
+    });
+  
+  function renderFrameSwatches() {
+    frameSwatches.innerHTML = '';
+    const all = [...STUDIO_FRAMES, ...state.customFrames];
+    all.forEach(f => {
+      const item = document.createElement('div');
+      item.className = 'swatch-item' + (f.key === state.frameKey ? ' active' : '');
+      item.innerHTML = `
+        <div class="swatch-dot" style="background:${f.bg}; border-color:${f.border}"></div>
+        <span class="swatch-name">${f.label}</span>
+      `;
+      item.onclick = () => {
+        state.frameKey = f.key;
+        renderFrameSwatches();
+        updateMarginUI();
+        renderComposedPhoto();
+      };
+      frameSwatches.appendChild(item);
+    });
+  }
+  renderFrameSwatches();
+  updateMarginUI();
+
+  frameInput.onchange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      const newKey = 'custom_' + Date.now();
+      state.customFrames.push({
+        key: newKey, label: file.name.substring(0, 6), src: evt.target.result, isCustom: true
+      });
+      localStorage.setItem('tsk_custom_frames', JSON.stringify(state.customFrames));
+      state.frameKey = newKey;
+      state.customFrameMargins[newKey] = { top: 12, bottom: 12, left: 12, right: 12 };
+      localStorage.setItem('tsk_custom_frame_margins', JSON.stringify(state.customFrameMargins));
+      renderFrameSwatches();
+      updateMarginUI();
+      renderComposedPhoto();
+    };
+    reader.readAsDataURL(file);
+  };
+
+  function renderToneSwatches() {
+    toneSwatches.innerHTML = '';
+    const allTones = [...DEFAULT_TONES, ...state.customTones];
+    allTones.forEach(t => {
+      const item = document.createElement('div');
+      item.className = 'swatch-item' + (t.key === state.toneKey ? ' active' : '');
+      item.innerHTML = `
+        <div class="swatch-dot" style="background:${t.bgGrad};"></div>
+        <span class="swatch-name">${t.label}</span>
+      `;
+      item.onclick = () => {
+        state.toneKey = t.key;
+        renderToneSwatches();
+        renderComposedPhoto();
+      };
+      toneSwatches.appendChild(item);
+    });
+  }
+  renderToneSwatches();
+
+  // UPLOAD CUSTOM PRESET (LUTS / TONES)
+  presetInput.onchange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const newToneKey = 'tone_' + Date.now();
+    const cleanName = file.name.replace(/\.[^/.]+$/, "").substring(0, 6);
+    // ฟิลเตอร์สไตล์ฟิล์ม/LUT สำเร็จรูป
+    const customFilter = 'contrast(1.15) saturate(1.2) brightness(1.02) sepia(0.12)';
+    state.customTones.push({
+      key: newToneKey,
+      label: cleanName,
+      bgGrad: 'linear-gradient(135deg, #f43f5e, #fb7185)',
+      filter: customFilter
+    });
+    localStorage.setItem('tsk_custom_tones', JSON.stringify(state.customTones));
+    state.toneKey = newToneKey;
+    renderToneSwatches();
+    renderComposedPhoto();
+  };
+
+  formatMatrix.onclick = (e) => {
+    const card = e.target.closest('.card-option');
+    if (!card) return;
+    [...formatMatrix.children].forEach(c => c.classList.toggle('active', c === card));
+    state.format = card.dataset.format;
+    tooltipText.textContent = `ขนาดที่แนะนำ: ${card.dataset.size}`;
+    renderComposedPhoto();
+  };
+
+  // CAMERA ENGINE
+  let liveBroadcastTimer = null;
+  async function listCameras() {
+    try {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const cams = devices.filter(d => d.kind === 'videoinput');
+      cameraSelect.innerHTML = '';
+      cams.forEach((c, idx) => {
+        const opt = document.createElement('option');
+        opt.value = c.deviceId;
+        opt.textContent = c.label || `Camera ${idx+1}`;
+        if (idx === 0) opt.selected = true;
+        cameraSelect.appendChild(opt);
+      });
+    } catch(e){}
+  }
+
+  async function startCamera(deviceId = null) {
+    if (stream) {
+      stream.getTracks().forEach(t => t.stop());
+      stream = null;
+      // เว้นจังหวะสั้นๆ ให้กล้องตัวเก่าคืนสิทธิ์ก่อน ไม่งั้นบางเครื่อง/กล้อง virtual จะสลับไม่ทัน
+      await new Promise(res => setTimeout(res, 250));
+    }
+
+    const selectedDevId = deviceId || (cameraSelect.value !== "" ? cameraSelect.value : null);
+
+    // ใช้ exact แทน ideal เพื่อ "บังคับ" ให้เปิดกล้องตัวที่เลือกไว้จริงๆ
+    const constraints = {
+      video: selectedDevId ? { deviceId: { exact: selectedDevId } } : { facingMode: 'user' },
+      audio: false
+    };
+
+    try {
+      stream = await navigator.mediaDevices.getUserMedia(constraints);
+      video.srcObject = stream;
+
+      // ดักจับจังหวะโหลดเมตาดาต้าของวิดีโอเพื่อสั่ง play
+      video.onloadedmetadata = async () => {
+        try {
+          await video.play();
+          video.style.display = 'block';
+          stagePlaceholder.classList.add('hidden');
+          openCamBtn.classList.add('hidden');
+          closeCamBtn.classList.remove('hidden');
+          startCaptureBtn.disabled = false;
+
+          await listCameras();
+          startBroadcastLoop();
+        } catch(playErr) {
+          console.error("Play error:", playErr);
+        }
+      };
+    } catch (err) {
+      console.warn("เปิดกล้องแบบ exact ไม่ได้ ลองใช้ ideal แทน:", err);
+      try {
+        const fallbackConstraints = {
+          video: selectedDevId ? { deviceId: { ideal: selectedDevId } } : { facingMode: 'user' },
+          audio: false
+        };
+        stream = await navigator.mediaDevices.getUserMedia(fallbackConstraints);
+        video.srcObject = stream;
+        video.onloadedmetadata = async () => {
+          await video.play();
+          video.style.display = 'block';
+          stagePlaceholder.classList.add('hidden');
+          openCamBtn.classList.add('hidden');
+          closeCamBtn.classList.remove('hidden');
+          startCaptureBtn.disabled = false;
+          await listCameras();
+          startBroadcastLoop();
+        };
+      } catch (fallbackErr) {
+        alert('ไม่สามารถเปิดกล้องได้ กรุณากดไอคอนแม่กุญแจที่แถบ URL เพื่ออนุญาตการเข้าถึงกล้อง');
+      }
+    }
+  }
+
+  function startBroadcastLoop() {
+    if (liveBroadcastTimer) clearInterval(liveBroadcastTimer);
+    const canvasTmp = document.createElement('canvas');
+    const ctxTmp = canvasTmp.getContext('2d');
+
+    liveBroadcastTimer = setInterval(() => {
+      if (!video.videoWidth) return;
+      canvasTmp.width = 640;
+      canvasTmp.height = Math.round(640 * video.videoHeight / video.videoWidth);
+
+      if (state.mirrored) {
+        ctxTmp.translate(canvasTmp.width, 0);
+        ctxTmp.scale(-1, 1);
+      }
+      ctxTmp.drawImage(video, 0, 0, canvasTmp.width, canvasTmp.height);
+
+      if (channel) {
+        channel.postMessage({
+          type: 'frame',
+          src: canvasTmp.toDataURL('image/jpeg', 0.75)
+        });
+      }
+
+      if (state.mirrored) {
+        ctxTmp.setTransform(1, 0, 0, 1, 0, 0);
+      }
+    }, 80);
+  }
+
+  function stopCamera() {
+    if (liveBroadcastTimer) clearInterval(liveBroadcastTimer);
+    if (stream) {
+      stream.getTracks().forEach(t => t.stop());
+      stream = null;
+    }
+    video.srcObject = null;
+    video.style.display = 'none';
+    stagePlaceholder.classList.remove('hidden');
+    openCamBtn.classList.remove('hidden');
+    closeCamBtn.classList.add('hidden');
+    startCaptureBtn.disabled = true;
+    if (channel) channel.postMessage({ type: 'cameraOff' });
+  }
+
+  openCamBtn.onclick = () => startCamera();
+  closeCamBtn.onclick = () => stopCamera();
+  cameraSelect.onchange = () => startCamera(cameraSelect.value);
+
+  mirrorChk.onchange = () => {
+    state.mirrored = mirrorChk.checked;
+    video.classList.toggle('mirror', state.mirrored);
+  };
+  soundChk.onchange = () => state.soundOn = soundChk.checked;
+  countdownSelect.onchange = () => state.countdownSeconds = parseInt(countdownSelect.value, 10);
+
+  // KEY SHORTCUT
+  window.addEventListener('keydown', (e) => {
+    if (e.target.tagName === 'INPUT') return;
+    if (e.key === state.shortcutKey || (state.shortcutKey === ' ' && e.code === 'Space')) {
+      e.preventDefault();
+      if (!startCaptureBtn.disabled && stream) triggerCaptureWorkflow();
+    }
+  });
+
+  changeKeyBtn.onclick = () => {
+    keyLabel.textContent = 'กดปุ่ม...';
+    const listenKey = (e) => {
+      e.preventDefault();
+      state.shortcutKey = e.key;
+      keyLabel.textContent = e.key === ' ' ? 'Space' : e.key.toUpperCase();
+      window.removeEventListener('keydown', listenKey);
+    };
+    window.addEventListener('keydown', listenKey);
+  };
+
+  captionInput.oninput = () => { state.caption = captionInput.value; renderComposedPhoto(); };
+  fontSelect.onchange = () => { state.font = fontSelect.value; renderComposedPhoto(); };
+  fontSizeRange.oninput = () => { state.fontSize = parseInt(fontSizeRange.value, 10); renderComposedPhoto(); };
+  dateChk.onchange = () => { state.showDate = dateChk.checked; renderComposedPhoto(); };
+  dateFormatSelect.onchange = () => { state.dateFormat = dateFormatSelect.value; renderComposedPhoto(); };
+  datePosSelect.onchange = () => { state.datePos = datePosSelect.value; renderComposedPhoto(); };
+
+  // CAPTURE WORKFLOW
+  async function triggerCaptureWorkflow() {
+    if (!stream) { alert('กรุณาเปิดกล้องก่อน'); return; }
+    state.shots = [];
+    if (channel) channel.postMessage({ type: 'clearRound' });
+
+    updateStepper(2);
+    startCaptureBtn.disabled = true;
+
+    let total = 1;
+    if (state.format === 'h_dual' || state.format === 'v_dual') total = 2;
+    else if (state.format === 'v_triple') total = 3;
+    else if (state.format === 'strip4' || state.format === 'grid2x2' || state.format === 'polaroid4') total = 4;
+    else if (state.format === 'grid2x3') total = 6;
+
+    for (let i = 0; i < total; i++) {
+      await executeCountdown();
+      await captureSnapshot();
+      if (i < total - 1) await new Promise(r => setTimeout(r, 600));
+    }
+
+    state.roundNumber += 1;
+    startCaptureBtn.disabled = false;
+    updateStepper(3);
+
+    document.getElementById('stage').classList.add('hidden');
+    composeWrap.classList.remove('hidden');
+
+    renderComposedPhoto();
+    retakeBtn.classList.remove('hidden');
+    downloadBtn.classList.remove('hidden');
+    printBtn.classList.remove('hidden');
+
+    publishToPortalAndDisplay();
+  }
+  startCaptureBtn.onclick = triggerCaptureWorkflow;
+
+  function executeCountdown() {
+    return new Promise(resolve => {
+      let cnt = state.countdownSeconds;
+      countdownOverlay.style.display = 'flex';
+      countdownNum.textContent = cnt;
+      if (channel) channel.postMessage({ type: 'countdown', value: cnt });
+
+      const timer = setInterval(() => {
+        cnt--;
+        if (cnt <= 0) {
+          clearInterval(timer);
+          countdownOverlay.style.display = 'none';
+          if (channel) channel.postMessage({ type: 'countdown', value: null });
+          resolve();
+        } else {
+          countdownNum.textContent = cnt;
+          if (channel) channel.postMessage({ type: 'countdown', value: cnt });
+        }
+      }, 1000);
+    });
+  }
+
+  async function captureSnapshot() {
+    flashEffect.style.opacity = '1';
+    if (channel) channel.postMessage({ type: 'flash' });
+    const vw = video.videoWidth || 640, vh = video.videoHeight || 480;
+    const cvs = document.createElement('canvas');
+    cvs.width = vw; cvs.height = vh;
+    const ctx = cvs.getContext('2d');
+    if (state.mirrored) { ctx.translate(vw, 0); ctx.scale(-1, 1); }
+    ctx.drawImage(video, 0, 0, vw, vh);
+    state.shots.push(cvs);
+    await new Promise(r => setTimeout(r, 50));
+    flashEffect.style.opacity = '0';
+  }
+
+  retakeBtn.onclick = () => {
+    state.shots = [];
+    [retakeBtn, downloadBtn, printBtn].forEach(b => b.classList.add('hidden'));
+    composeWrap.classList.add('hidden');
+    document.getElementById('stage').classList.remove('hidden');
+    updateStepper(1);
+    if (channel) channel.postMessage({ type: 'clearRound' });
+  };
+
+  // RENDER COMPOSITE PHOTO
+  function renderComposedPhoto() {
+    if (!state.shots.length) return;
+    const isHorizontal = state.format === 'h_dual';
+    const isSlimStrip = state.format === 'v_triple' || state.format === 'strip4';
+
+    let w = 1200, h = 1800;
+    if (isHorizontal) { w = 1800; h = 1200; }
+    else if (isSlimStrip) { w = 600; h = 1800; }
+
+    composeCanvas.width = w; composeCanvas.height = h;
+    const ctx = composeCanvas.getContext('2d');
+
+    const custom = state.customFrames.find(f => f.key === state.frameKey);
+    const frame = custom || STUDIO_FRAMES.find(f => f.key === state.frameKey) || STUDIO_FRAMES[0];
+
+    const allTones = [...DEFAULT_TONES, ...state.customTones];
+    const currentToneObj = allTones.find(t => t.key === state.toneKey) || allTones[0];
+
+    function drawTile(img, x, y, cw, ch) {
+      ctx.save();
+      ctx.filter = currentToneObj.filter;
+      const scale = Math.max(cw / img.width, ch / img.height);
+      const sw = cw / scale, sh = ch / scale;
+      ctx.drawImage(img, (img.width - sw)/2, (img.height - sh)/2, sw, sh, x, y, cw, ch);
+      ctx.restore();
+    }
+
+    function drawAllTiles(pad, captionH, areaW, areaH) {
+      const photoH = areaH - captionH - pad;
+      const photoW = areaW - pad * 2;
+
+      if (state.format === 'single') {
+        drawTile(state.shots[0], pad, pad, photoW, photoH);
+      } else if (state.format === 'h_dual') {
+        const gap = areaW * 0.02;
+        const cellW = (photoW - gap) / 2;
+        drawTile(state.shots[0], pad, pad, cellW, photoH);
+        drawTile(state.shots[1] || state.shots[0], pad + cellW + gap, pad, cellW, photoH);
+      } else if (state.format === 'v_dual') {
+        const gap = areaH * 0.02;
+        const cellH = (photoH - gap) / 2;
+        drawTile(state.shots[0], pad, pad, photoW, cellH);
+        drawTile(state.shots[1] || state.shots[0], pad, pad + cellH + gap, photoW, cellH);
+      } else if (state.format === 'v_triple') {
+        const gap = areaH * 0.015;
+        const cellH = (photoH - gap * 2) / 3;
+        for (let i = 0; i < 3; i++) drawTile(state.shots[i] || state.shots[0], pad, pad + i * (cellH + gap), photoW, cellH);
+      } else if (state.format === 'strip4') {
+        const gap = areaH * 0.012;
+        const cellH = (photoH - gap * 3) / 4;
+        for (let i = 0; i < 4; i++) drawTile(state.shots[i] || state.shots[0], pad, pad + i * (cellH + gap), photoW, cellH);
+      } else if (state.format === 'grid2x2' || state.format === 'polaroid4') {
+        const gap = areaW * 0.025;
+        const cellW = (photoW - gap) / 2, cellH = (photoH - gap) / 2;
+        for (let i = 0; i < 4; i++) {
+          drawTile(state.shots[i] || state.shots[0], pad + (i % 2) * (cellW + gap), pad + Math.floor(i / 2) * (cellH + gap), cellW, cellH);
+        }
+      } else if (state.format === 'grid2x3') {
+        const gap = areaW * 0.02;
+        const cellW = (photoW - gap) / 2, cellH = (photoH - gap * 2) / 3;
+        for (let i = 0; i < 6; i++) {
+          drawTile(state.shots[i] || state.shots[0], pad + (i % 2) * (cellW + gap), pad + Math.floor(i / 2) * (cellH + gap), cellW, cellH);
+        }
+      }
+    }
+
+    if (custom && custom.src) {
+      const img = new Image();
+      img.src = custom.src;
+      img.onload = () => {
+        // 1) วาดกรอบ PNG ที่อัปโหลดเองเป็นพื้นหลังก่อน (ไม่สนใจว่าไฟล์จะโปร่งใสหรือไม่)
+        ctx.drawImage(img, 0, 0, w, h);
+
+        // 2) คำนวณ "ช่องใส่รูป" จากค่า margin ที่ผู้ใช้ปรับเอง (หน่วย % ต่อด้าน)
+        const m = state.customFrameMargins[state.frameKey] || { top: 12, bottom: 12, left: 12, right: 12 };
+        const insetTop = h * (m.top / 100);
+        const insetBottom = h * (m.bottom / 100);
+        const insetLeft = w * (m.left / 100);
+        const insetRight = w * (m.right / 100);
+        const innerW = w - insetLeft - insetRight;
+        const innerH = h - insetTop - insetBottom;
+
+        // 3) ตัดพื้นที่ (clip) แล้ววาดรูปทับลงไปเฉพาะในช่องนั้น -> รูปจะเห็นแน่นอน
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(insetLeft, insetTop, innerW, innerH);
+        ctx.clip();
+        ctx.translate(insetLeft, insetTop);
+        drawAllTiles(0, 0, innerW, innerH);
+        ctx.restore();
+
+        renderTypography(ctx, w, h, 0, frame.text);
+      };
+      return;
+    }
+
+    ctx.fillStyle = frame.bg;
+    ctx.fillRect(0, 0, w, h);
+    ctx.strokeStyle = frame.border;
+    ctx.lineWidth = w * 0.015;
+    ctx.strokeRect(ctx.lineWidth/2, ctx.lineWidth/2, w - ctx.lineWidth, h - ctx.lineWidth);
+
+    const pad = w * 0.055;
+    const captionH = h * 0.10;
+    drawAllTiles(pad, captionH, w, h);
+    renderTypography(ctx, w, h, captionH, frame.text);
+  }
+
+  function getRealtimeDateString() {
+    const d = new Date();
+    const thMonthsShort = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+    const thMonthsFull = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
+    const enMonthsShort = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const toThaiNum = num => num.toString().replace(/\d/g, d => "๐๑๒๓๔๕๖๗๘๙"[d]);
+
+    const day = d.getDate();
+    const month = d.getMonth();
+    const yearCE = d.getFullYear();
+    const yearBE = yearCE + 543;
+
+    switch(state.dateFormat) {
+      case 'en_short': return `${day} ${enMonthsShort[month]} ${yearCE}`;
+      case 'th_short': return `${day} ${thMonthsShort[month]} ${yearBE}`;
+      case 'th_full': return `${day} ${thMonthsFull[month]} ${yearBE}`;
+      default: return `${day.toString().padStart(2,'0')}.${(month+1).toString().padStart(2,'0')}.${yearCE}`;
+    }
+  }
+
+  function renderTypography(ctx, w, h, captionH, textColor) {
+    if (captionH > 0) {
+      ctx.font = `600 ${state.fontSize}px "${state.font}", sans-serif`;
+      ctx.fillStyle = textColor || '#0284c7';
+      ctx.textAlign = 'center';
+      ctx.fillText(state.caption, w / 2, h - captionH / 2 + 6);
+    }
+
+    if (state.showDate) {
+      const dateText = getRealtimeDateString();
+      ctx.font = `500 ${Math.max(16, state.fontSize * 0.52)}px "${state.font}", sans-serif`;
+      ctx.fillStyle = textColor || '#64748b';
+
+      let dx = w / 2, dy = h - 18;
+      ctx.textAlign = 'center';
+      if (state.datePos === 'bottom-left') { dx = w * 0.08; ctx.textAlign = 'left'; }
+      else if (state.datePos === 'bottom-right') { dx = w * 0.92; ctx.textAlign = 'right'; }
+
+      ctx.fillText(dateText, dx, dy);
+    }
+  }
+
+  // PUBLISH TO PRIVATE CLIENT PORTAL & SCREEN 2
+  async function publishToPortalAndDisplay() {
+    const sessionToken = "ART_" + Date.now();
+    const base64Png = composeCanvas.toDataURL('image/png', 0.9);
+    state.lastPhotoData = base64Png;
+
+    let portalUrl = `${window.location.origin}${window.location.pathname}?view=${sessionToken}`;
+
+    // อัปโหลดรูปขึ้น Google Drive ผ่าน Apps Script เพื่อให้สแกน QR จากมือถือเครื่องอื่นแล้วเห็นรูปได้จริง
+    try {
+      const uploadRes = await fetch(DRIVE_UPLOAD_URL, {
+        method: 'POST',
+        body: JSON.stringify({ image: base64Png })
+      });
+      const uploadData = await uploadRes.json();
+      if (uploadData.success && uploadData.url) {
+        portalUrl += `&img=${encodeURIComponent(uploadData.url)}`;
+      } else {
+        console.warn('อัปโหลดขึ้น Google Drive ไม่สำเร็จ จะใช้ลิงก์แบบเดิมแทน (ใช้ได้เฉพาะเครื่องนี้)', uploadData);
+      }
+    } catch (uploadErr) {
+      console.warn('เชื่อมต่อ Google Apps Script ไม่ได้ จะใช้ลิงก์แบบเดิมแทน (ใช้ได้เฉพาะเครื่องนี้)', uploadErr);
+    }
+
+    if (channel) {
+      channel.postMessage({
+        type: 'roundResult',
+        composedSrc: composeCanvas.toDataURL('image/jpeg', 0.65),
+        qrText: portalUrl,
+        roundNumber: state.roundNumber
+      });
+    }
+
+    if (state.shots.length > 0 && typeof gifshot !== 'undefined') {
+      const frameImgs = state.shots.map(s => {
+        const c = document.createElement('canvas');
+        c.width = 300; c.height = Math.round(300 * s.height / s.width);
+        c.getContext('2d').drawImage(s, 0, 0, c.width, c.height);
+        return c.toDataURL('image/jpeg', 0.7);
+      });
+
+      gifshot.createGIF({
+        images: frameImgs,
+        gifWidth: 300,
+        gifHeight: Math.round(300 * state.shots[0].height / state.shots[0].width),
+        interval: 0.45,
+        numWorkers: 0
+      }, function(obj) {
+        let base64Gif = null;
+        if (!obj.error) {
+          base64Gif = obj.image;
+          state.lastGifData = base64Gif;
+        }
+        const artPayload = { image: base64Png, gif: base64Gif };
+        sessionStorage.setItem('tsk_art_' + sessionToken, JSON.stringify(artPayload));
+        localStorage.setItem('tsk_art_' + sessionToken, JSON.stringify(artPayload));
+      });
+    } else {
+      const artPayload = { image: base64Png, gif: null };
+      sessionStorage.setItem('tsk_art_' + sessionToken, JSON.stringify(artPayload));
+      localStorage.setItem('tsk_art_' + sessionToken, JSON.stringify(artPayload));
+    }
+  }
+
+  downloadBtn.onclick = () => {
+    const a = document.createElement('a');
+    a.download = `TSK_${Date.now()}.png`;
+    a.href = composeCanvas.toDataURL('image/png');
+    a.click();
+  };
+
+  printBtn.onclick = () => {
+    const dataUrl = composeCanvas.toDataURL('image/png');
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(`
+        <html><head><title>Print Photo</title>
+        <style>@page { size: auto; margin: 0; } body { margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; }</style>
+        </head><body><img src="${dataUrl}" style="max-height:100vh;max-width:100vw;object-fit:contain;" onload="window.print();window.close();"/></body></html>
+      `);
+      printWindow.document.close();
+    }
+  };
+
+  openDisplayBtn.onclick = () => {
+    window.open(location.pathname + '?display=1', 'tsk_display', 'width=1200,height=800');
+  };
+}
+
+/* -------------------------------------------------------------
+   DISPLAY STUDIO ENGINE (SECOND SCREEN + AUTO WIPE 60s)
+------------------------------------------------------------- */
+function initDisplayStudio() {
+  const liveImg = document.getElementById('dLiveImg');
+  const waiting = document.getElementById('dWaiting');
+  const countdownBox = document.getElementById('dCountdown');
+  const countdownNum = document.getElementById('dCountdownNum');
+  const flash = document.getElementById('dFlash');
+  const resultPic = document.getElementById('dResultPic');
+  const emptyNotice = document.getElementById('dEmptyNotice');
+  const qrFrame = document.getElementById('dQR');
+  const timerBar = document.getElementById('dTimerBar');
+  const wipeNotice = document.getElementById('dWipeNotice');
+
+  let wipeTimer = null;
+  let ticker = null;
+  let remainingSeconds = 60;
+
+  function resetDisplayState() {
+    resultPic.style.display = 'none';
+    resultPic.src = '';
+    emptyNotice.style.display = 'block';
+    qrFrame.innerHTML = '';
+    wipeNotice.textContent = '';
+    timerBar.style.width = '0%';
+    if (wipeTimer) clearTimeout(wipeTimer);
+    if (ticker) clearInterval(ticker);
+  }
+
+  if (!channel) return;
+  channel.postMessage({ type: 'ready' });
+
+  channel.onmessage = (e) => {
+    const msg = e.data;
+    if (!msg) return;
+
+    if (msg.type === 'syncTheme') {
+      applyStudioTheme(msg.theme);
+    }
+
+    if (msg.type === 'frame') {
+      waiting.style.display = 'none';
+      liveImg.style.display = 'block';
+      liveImg.src = msg.src;
+    }
+
+    if (msg.type === 'cameraOff') {
+      liveImg.style.display = 'none';
+      waiting.style.display = 'flex';
+    }
+
+    if (msg.type === 'countdown') {
+      if (msg.value) {
+        countdownBox.style.display = 'flex';
+        countdownNum.textContent = msg.value;
+      } else {
+        countdownBox.style.display = 'none';
+      }
+    }
+
+    if (msg.type === 'flash') {
+      flash.style.opacity = '1';
+      setTimeout(() => { flash.style.opacity = '0'; }, 60);
+    }
+
+    if (msg.type === 'roundResult') {
+      emptyNotice.style.display = 'none';
+      resultPic.src = msg.composedSrc;
+      resultPic.style.display = 'block';
+
+      qrFrame.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(msg.qrText)}" alt="QR Code">`;
+
+      if (wipeTimer) clearTimeout(wipeTimer);
+      if (ticker) clearInterval(ticker);
+
+      remainingSeconds = 60;
+      wipeNotice.textContent = `Delete Data Automatic ${remainingSeconds} Second`;
+      timerBar.style.transition = 'none';
+      timerBar.style.width = '100%';
+
+      setTimeout(() => {
+        timerBar.style.transition = 'width 60s linear';
+        timerBar.style.width = '0%';
+      }, 50);
+
+      ticker = setInterval(() => {
+        remainingSeconds--;
+        if (remainingSeconds > 0) {
+          wipeNotice.textContent = `Delete Data Automatic ${remainingSeconds} Second`;
+        } else {
+          clearInterval(ticker);
+        }
+      }, 1000);
+
+      wipeTimer = setTimeout(() => {
+        resetDisplayState();
+      }, 60000);
+    }
+
+    if (msg.type === 'clearRound') {
+      resetDisplayState();
+    }
+  };
+}
+
+})();
+</script>
+</body>
+</html>
