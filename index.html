@@ -452,20 +452,17 @@
           <label class="cfg-label">ช่องใส่รูป (PHOTO WINDOW)</label>
         </div>
         <div style="display:flex; flex-direction:column; gap:6px; font-size:11px; color:var(--ink-muted);">
-          <label>บน (Top)
-            <input type="range" id="marginTopRange" min="0" max="45" value="12" style="width:100%;">
-          </label>
-          <label>ล่าง (Bottom)
-            <input type="range" id="marginBottomRange" min="0" max="45" value="12" style="width:100%;">
-          </label>
-          <label>ซ้าย (Left)
-            <input type="range" id="marginLeftRange" min="0" max="45" value="12" style="width:100%;">
-          </label>
-          <label>ขวา (Right)
-            <input type="range" id="marginRightRange" min="0" max="45" value="12" style="width:100%;">
-          </label>
+          <label style="display:flex; justify-content:space-between;">บน (Top) <span id="marginTopVal">12%</span></label>
+          <input type="range" id="marginTopRange" min="0" max="45" value="12" style="width:100%;">
+          <label style="display:flex; justify-content:space-between;">ล่าง (Bottom) <span id="marginBottomVal">12%</span></label>
+          <input type="range" id="marginBottomRange" min="0" max="45" value="12" style="width:100%;">
+          <label style="display:flex; justify-content:space-between;">ซ้าย (Left) <span id="marginLeftVal">12%</span></label>
+          <input type="range" id="marginLeftRange" min="0" max="45" value="12" style="width:100%;">
+          <label style="display:flex; justify-content:space-between;">ขวา (Right) <span id="marginRightVal">12%</span></label>
+          <input type="range" id="marginRightRange" min="0" max="45" value="12" style="width:100%;">
         </div>
       </div>
+      
       <div class="cfg-group">
         <div class="cfg-header">
           <label class="cfg-label">โทนสีภาพ (COLOR TONE)</label>
@@ -787,6 +784,10 @@ function initControlStudio() {
   const marginBottomRange = document.getElementById('marginBottomRange');
   const marginLeftRange = document.getElementById('marginLeftRange');
   const marginRightRange = document.getElementById('marginRightRange');
+  const marginTopVal = document.getElementById('marginTopVal');
+  const marginBottomVal = document.getElementById('marginBottomVal');
+  const marginLeftVal = document.getElementById('marginLeftVal');
+  const marginRightVal = document.getElementById('marginRightVal');
 
   function getCurrentFrameMargin() {
     return state.customFrameMargins[state.frameKey] || { top: 12, bottom: 12, left: 12, right: 12 };
@@ -797,19 +798,21 @@ function initControlStudio() {
     marginGroup.classList.toggle('hidden', !isCustom);
     if (!isCustom) return;
     const m = getCurrentFrameMargin();
-    marginTopRange.value = m.top;
-    marginBottomRange.value = m.bottom;
-    marginLeftRange.value = m.left;
-    marginRightRange.value = m.right;
+    marginTopRange.value = m.top;       marginTopVal.textContent = m.top + '%';
+    marginBottomRange.value = m.bottom; marginBottomVal.textContent = m.bottom + '%';
+    marginLeftRange.value = m.left;     marginLeftVal.textContent = m.left + '%';
+    marginRightRange.value = m.right;   marginRightVal.textContent = m.right + '%';
   }
 
-  [['top', marginTopRange], ['bottom', marginBottomRange], ['left', marginLeftRange], ['right', marginRightRange]]
-    .forEach(([key, el]) => {
+  [['top', marginTopRange, marginTopVal], ['bottom', marginBottomRange, marginBottomVal],
+   ['left', marginLeftRange, marginLeftVal], ['right', marginRightRange, marginRightVal]]
+    .forEach(([key, el, valEl]) => {
       el.oninput = () => {
         const m = getCurrentFrameMargin();
         m[key] = parseInt(el.value, 10);
         state.customFrameMargins[state.frameKey] = m;
         localStorage.setItem('tsk_custom_frame_margins', JSON.stringify(state.customFrameMargins));
+        valEl.textContent = m[key] + '%';
         renderComposedPhoto();
       };
     });
@@ -922,25 +925,25 @@ function initControlStudio() {
     } catch(e){}
   }
 
-  async function startCamera(deviceId = null) {
+    async function startCamera(deviceId = null) {
     if (stream) {
       stream.getTracks().forEach(t => t.stop());
       stream = null;
+      // เว้นจังหวะสั้นๆ ให้กล้องตัวเก่าคืนสิทธิ์ก่อน ไม่งั้นบางเครื่อง/กล้อง virtual จะสลับไม่ทัน
+      await new Promise(res => setTimeout(res, 250));
     }
 
     const selectedDevId = deviceId || (cameraSelect.value !== "" ? cameraSelect.value : null);
-    
-    // ตั้งค่า Constraints ที่เสถียรที่สุด
+
+    // ใช้ exact แทน ideal เพื่อ "บังคับ" ให้เปิดกล้องตัวที่เลือกจริงๆ
     const constraints = {
-      video: selectedDevId ? { deviceId: { ideal: selectedDevId } } : { facingMode: 'user' },
+      video: selectedDevId ? { deviceId: { exact: selectedDevId } } : { facingMode: 'user' },
       audio: false
     };
 
     try {
       stream = await navigator.mediaDevices.getUserMedia(constraints);
       video.srcObject = stream;
-      
-      // ดักจับจังหวะโหลดเมตาดาต้าของวิดีโอเพื่อสั่ง play
       video.onloadedmetadata = async () => {
         try {
           await video.play();
@@ -949,7 +952,6 @@ function initControlStudio() {
           openCamBtn.classList.add('hidden');
           closeCamBtn.classList.remove('hidden');
           startCaptureBtn.disabled = false;
-          
           await listCameras();
           startBroadcastLoop();
         } catch(playErr) {
@@ -957,9 +959,13 @@ function initControlStudio() {
         }
       };
     } catch (err) {
-      console.warn("Primary camera start failed, trying fallback:", err);
+      console.warn("เปิดกล้องตามที่เลือก (exact) ไม่ได้ ลองใช้ ideal แทน:", err);
       try {
-        stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+        const fallbackConstraints = {
+          video: selectedDevId ? { deviceId: { ideal: selectedDevId } } : { facingMode: 'user' },
+          audio: false
+        };
+        stream = await navigator.mediaDevices.getUserMedia(fallbackConstraints);
         video.srcObject = stream;
         video.onloadedmetadata = async () => {
           await video.play();
@@ -968,6 +974,7 @@ function initControlStudio() {
           openCamBtn.classList.add('hidden');
           closeCamBtn.classList.remove('hidden');
           startCaptureBtn.disabled = false;
+          await listCameras();
           startBroadcastLoop();
         };
       } catch (fallbackErr) {
