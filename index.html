@@ -1276,18 +1276,17 @@ function initControlStudio() {
     if (liveBroadcastTimer) cancelAnimationFrame(liveBroadcastTimer);
     const canvasTmp = document.createElement('canvas');
     const ctxTmp = canvasTmp.getContext('2d', { alpha: false });
-    const supportsBitmap = (typeof createImageBitmap === 'function');
     const FRAME_INTERVAL = 50; // ~20fps จอสองจะได้ลื่นใกล้เคียงจอหลัก (เดิม 80ms/12.5fps)
     let lastSent = 0;
-    let sending = false; // กันส่งเฟรมซ้อนตอน encode เฟรมก่อนหน้ายังไม่เสร็จ ไม่งั้นจะยิ่งกระตุกสะสม
 
-    // ส่งภาพสดไปจอสองแบบ ImageBitmap ตรงๆ (ไม่ผ่านเข้ารหัส JPEG + ถอดรหัส base64 เหมือนเดิม)
-    // ลื่นกว่ามาก เพราะจอสองแค่วาดบิตแมปที่ decode มาแล้วลง canvas ได้ทันที ไม่ต้อง decode รูปใหม่ทุกเฟรม
-    // (เบราว์เซอร์ที่ไม่รองรับ หรือโคลนผ่าน BroadcastChannel ไม่ได้ จะ fallback ไปใช้ dataURL แบบเดิมอัตโนมัติ)
+    // หมายเหตุ: เคยลองส่งเป็น ImageBitmap ตรงๆ ผ่าน BroadcastChannel เพื่อความลื่น แต่พบว่าบางเครื่อง
+    // (โดยเฉพาะตอนขยายจอสองเป็นเต็มจอ ซึ่งมักทำให้ระบบสลับ GPU/รีเซ็ต context) ทำให้จอค้างทันที
+    // จึงกลับมาใช้ dataURL (JPEG) แบบเดิมซึ่งเสถียรกว่า แต่ยังคุมจังหวะด้วย requestAnimationFrame
+    // เพื่อความลื่นอยู่ (ดูฝั่งจอสองที่ decode ภาพแบบ async ก่อนวาด ช่วยเรื่องความลื่นอีกชั้น)
     function tick(ts) {
       if (!stream) return; // กล้องถูกปิดไปแล้ว หยุดลูปทันที
       liveBroadcastTimer = requestAnimationFrame(tick);
-      if (!video.videoWidth || sending) return;
+      if (!video.videoWidth) return;
       if (lastSent && ts - lastSent < FRAME_INTERVAL) return;
       lastSent = ts;
 
@@ -1305,34 +1304,13 @@ function initControlStudio() {
       }
 
       if (!channel) return;
-      const payloadBase = {
+      channel.postMessage({
         type: 'frame',
+        src: canvasTmp.toDataURL('image/jpeg', 0.72),
         videoAspect: video.videoWidth / video.videoHeight,
         cellAspect: getCellAspectRatio(),
         showGuide: state.showGuide
-      };
-
-      if (supportsBitmap) {
-        sending = true;
-        createImageBitmap(canvasTmp).then(bitmap => {
-          sending = false;
-          try {
-            // postMessage ผ่าน BroadcastChannel เป็นการ "โคลน" ไม่ใช่การโอนกรรมสิทธิ์ (transfer)
-            // ต้นฉบับ bitmap ตัวนี้จึงยังค้างอยู่ฝั่งเราเอง ต้อง close() ทิ้งเองทุกครั้งหลังส่งสำเร็จ
-            // ไม่งั้นจะรั่วสะสมไปเรื่อยๆ (ยิ่งเปิดทิ้งไว้นาน/เต็มจอนานยิ่งรั่วเยอะ) จนบราวเซอร์ค้างในที่สุด
-            channel.postMessage({ ...payloadBase, bitmap });
-            bitmap.close();
-          } catch (bitmapErr) {
-            bitmap.close();
-            channel.postMessage({ ...payloadBase, src: canvasTmp.toDataURL('image/jpeg', 0.75) });
-          }
-        }).catch(() => {
-          sending = false;
-          channel.postMessage({ ...payloadBase, src: canvasTmp.toDataURL('image/jpeg', 0.75) });
-        });
-      } else {
-        channel.postMessage({ ...payloadBase, src: canvasTmp.toDataURL('image/jpeg', 0.75) });
-      }
+      });
     }
 
     liveBroadcastTimer = requestAnimationFrame(tick);
@@ -1998,19 +1976,41 @@ function initDisplayStudio() {
   let lastCellAspect = null;
   let lastShowGuide = true;
 
-  // วาดภาพสดที่ส่งมาแบบ ImageBitmap ลงบน canvas ตรงๆ (บิตแมป decode มาเสร็จแล้วจากจอหลัก)
-  // ลื่นกว่าเดิมมาก เพราะไม่ต้องรอเบราว์เซอร์ decode รูป JPEG ใหม่ทุกครั้งที่เปลี่ยน src เหมือน <img>
-  function renderBitmapFrame(bitmap) {
-    if (liveCanvas.width !== bitmap.width) liveCanvas.width = bitmap.width;
-    if (liveCanvas.height !== bitmap.height) liveCanvas.height = bitmap.height;
-    liveCtx.drawImage(bitmap, 0, 0);
-    bitmap.close();
-    liveImg.style.display = 'none';
-    liveCanvas.style.display = 'block';
+  // ถอดรหัสภาพสด (dataURL) แบบ async ด้วย Image().decode() ก่อนค่อยวาดลง canvas ที่มองเห็นจริง
+  // ลื่นกว่าการเซ็ต <img src=...> ที่โชว์ตรงๆ ทุกเฟรม (ต้อง reflow/repaint element ใหม่ทุกครั้ง)
+  // และปลอดภัยกว่าการส่ง ImageBitmap ข้าม BroadcastChannel ที่เจอปัญหาจอค้างทันทีตอนขยายเต็มจอในบางเครื่อง
+  // (ใช้ liveImg เป็นบัฟเฟอร์ถอดรหัสที่ซ่อนไว้ตลอด ไม่เคยโชว์ให้เห็นตรงๆ)
+  let decoding = false;
+  let pendingSrc = null;
+  function renderFrameSrc(src) {
+    if (decoding) { pendingSrc = src; return; } // เฟรมใหม่มาระหว่าง decode เฟรมก่อนหน้า เก็บไว้แค่ล่าสุดพอ ไม่ไล่สะสม
+    decoding = true;
+    liveImg.src = src;
+
+    const finish = () => {
+      decoding = false;
+      if (liveImg.naturalWidth) {
+        if (liveCanvas.width !== liveImg.naturalWidth) liveCanvas.width = liveImg.naturalWidth;
+        if (liveCanvas.height !== liveImg.naturalHeight) liveCanvas.height = liveImg.naturalHeight;
+        liveCtx.drawImage(liveImg, 0, 0);
+        liveCanvas.style.display = 'block';
+      }
+      if (pendingSrc) {
+        const next = pendingSrc;
+        pendingSrc = null;
+        renderFrameSrc(next);
+      }
+    };
+
+    if (liveImg.decode) {
+      liveImg.decode().then(finish).catch(() => { decoding = false; });
+    } else {
+      liveImg.onload = finish;
+    }
   }
 
   function isLiveVisible() {
-    return liveImg.style.display !== 'none' || liveCanvas.style.display !== 'none';
+    return liveCanvas.style.display !== 'none';
   }
 
   // วาดกรอบไกด์บนจอรอง ด้วยสูตรเดียวกับจอหลัก (updateFrameGuide) เพื่อให้เห็นตรงกันทั้งสองจอ
@@ -2091,13 +2091,7 @@ function initDisplayStudio() {
 
     if (msg.type === 'frame') {
       waiting.style.display = 'none';
-      if (msg.bitmap) {
-        renderBitmapFrame(msg.bitmap);
-      } else if (msg.src) {
-        liveCanvas.style.display = 'none';
-        liveImg.style.display = 'block';
-        liveImg.src = msg.src;
-      }
+      if (msg.src) renderFrameSrc(msg.src);
       if (typeof msg.videoAspect === 'number') lastVideoAspect = msg.videoAspect;
       if (typeof msg.cellAspect === 'number') lastCellAspect = msg.cellAspect;
       if (typeof msg.showGuide === 'boolean') lastShowGuide = msg.showGuide;
@@ -2105,7 +2099,6 @@ function initDisplayStudio() {
     }
 
     if (msg.type === 'cameraOff') {
-      liveImg.style.display = 'none';
       liveCanvas.style.display = 'none';
       waiting.style.display = 'flex';
       dFrameGuide.classList.remove('show');
