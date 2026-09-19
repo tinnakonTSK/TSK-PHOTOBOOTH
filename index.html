@@ -307,7 +307,7 @@
     background: #000; border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden;
     position: relative; display: flex; align-items: center; justify-content: center; height: 100%; min-height: 0;
   }
-  .d-live-frame img { width: 100%; height: 100%; object-fit: contain; display: block; }
+  .d-live-frame img, .d-live-frame canvas { width: 100%; height: 100%; object-fit: contain; display: block; }
   .d-sidebar { display: flex; flex-direction: column; gap: 10px; height: 100%; min-height: 0; }
   .d-card-result {
     flex: 1; background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius);
@@ -317,22 +317,22 @@
   .d-card-result img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 4px; display: none; }
   
   .d-card-qr-box {
-    height: 135px; flex-shrink: 0; background: var(--panel); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 8px 12px; display: flex; align-items: center; justify-content: center;
-    gap: 14px; box-sizing: border-box; position: relative; overflow: hidden;
+    height: 190px; flex-shrink: 0; background: var(--panel); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 10px 14px; display: flex; align-items: center; justify-content: center;
+    gap: 16px; box-sizing: border-box; position: relative; overflow: hidden;
   }
   .d-progress-line {
     position: absolute; bottom: 0; left: 0; height: 3px; background: var(--primary-light);
     width: 0%; transition: width 1s linear;
   }
   .d-qr-frame {
-    background: #fff; padding: 4px; border-radius: 4px; width: 92px; height: 92px;
+    background: #fff; padding: 6px; border-radius: 6px; width: 160px; height: 160px;
     flex-shrink: 0; display: flex; align-items: center; justify-content: center; overflow: hidden;
   }
-  .d-qr-frame img { width: 100% !important; height: 100% !important; object-fit: contain; }
-  .d-qr-info h4 { font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 2px; }
-  .d-qr-info p { font-size: 11px; color: var(--ink-muted); line-height: 1.3; }
-  .d-qr-info .auto-wipe-badge { font-size: 10.5px; color: var(--primary-light); margin-top: 4px; display: block; }
+  .d-qr-frame img { width: 100% !important; height: 100% !important; object-fit: contain; image-rendering: pixelated; }
+  .d-qr-info h4 { font-size: 15px; font-weight: 600; color: var(--ink); margin-bottom: 3px; }
+  .d-qr-info p { font-size: 12px; color: var(--ink-muted); line-height: 1.35; }
+  .d-qr-info .auto-wipe-badge { font-size: 11.5px; color: var(--primary-light); margin-top: 5px; display: block; }
 </style>
 </head>
 <body>
@@ -639,6 +639,7 @@
   <div class="d-viewport">
     <div class="d-live-frame">
       <img id="dLiveImg" style="display:none;">
+      <canvas id="dLiveCanvas" style="display:none;"></canvas>
       <div class="view-placeholder" id="dWaiting">
         <svg><use href="#icon-shutter"></use></svg>
         <span>Please wait...</span>
@@ -1272,12 +1273,24 @@ function initControlStudio() {
   }
 
   function startBroadcastLoop() {
-    if (liveBroadcastTimer) clearInterval(liveBroadcastTimer);
+    if (liveBroadcastTimer) cancelAnimationFrame(liveBroadcastTimer);
     const canvasTmp = document.createElement('canvas');
-    const ctxTmp = canvasTmp.getContext('2d');
+    const ctxTmp = canvasTmp.getContext('2d', { alpha: false });
+    const supportsBitmap = (typeof createImageBitmap === 'function');
+    const FRAME_INTERVAL = 50; // ~20fps จอสองจะได้ลื่นใกล้เคียงจอหลัก (เดิม 80ms/12.5fps)
+    let lastSent = 0;
+    let sending = false; // กันส่งเฟรมซ้อนตอน encode เฟรมก่อนหน้ายังไม่เสร็จ ไม่งั้นจะยิ่งกระตุกสะสม
 
-    liveBroadcastTimer = setInterval(() => {
-      if (!video.videoWidth) return;
+    // ส่งภาพสดไปจอสองแบบ ImageBitmap ตรงๆ (ไม่ผ่านเข้ารหัส JPEG + ถอดรหัส base64 เหมือนเดิม)
+    // ลื่นกว่ามาก เพราะจอสองแค่วาดบิตแมปที่ decode มาแล้วลง canvas ได้ทันที ไม่ต้อง decode รูปใหม่ทุกเฟรม
+    // (เบราว์เซอร์ที่ไม่รองรับ หรือโคลนผ่าน BroadcastChannel ไม่ได้ จะ fallback ไปใช้ dataURL แบบเดิมอัตโนมัติ)
+    function tick(ts) {
+      if (!stream) return; // กล้องถูกปิดไปแล้ว หยุดลูปทันที
+      liveBroadcastTimer = requestAnimationFrame(tick);
+      if (!video.videoWidth || sending) return;
+      if (lastSent && ts - lastSent < FRAME_INTERVAL) return;
+      lastSent = ts;
+
       updateFrameGuide();
       canvasTmp.width = 640;
       canvasTmp.height = Math.round(640 * video.videoHeight / video.videoWidth);
@@ -1287,25 +1300,42 @@ function initControlStudio() {
         ctxTmp.scale(-1, 1);
       }
       ctxTmp.drawImage(video, 0, 0, canvasTmp.width, canvasTmp.height);
-
-      if (channel) {
-        channel.postMessage({
-          type: 'frame',
-          src: canvasTmp.toDataURL('image/jpeg', 0.75),
-          videoAspect: video.videoWidth / video.videoHeight,
-          cellAspect: getCellAspectRatio(),
-          showGuide: state.showGuide
-        });
-      }
-
       if (state.mirrored) {
         ctxTmp.setTransform(1, 0, 0, 1, 0, 0);
       }
-    }, 80);
+
+      if (!channel) return;
+      const payloadBase = {
+        type: 'frame',
+        videoAspect: video.videoWidth / video.videoHeight,
+        cellAspect: getCellAspectRatio(),
+        showGuide: state.showGuide
+      };
+
+      if (supportsBitmap) {
+        sending = true;
+        createImageBitmap(canvasTmp).then(bitmap => {
+          sending = false;
+          try {
+            channel.postMessage({ ...payloadBase, bitmap });
+          } catch (bitmapErr) {
+            bitmap.close();
+            channel.postMessage({ ...payloadBase, src: canvasTmp.toDataURL('image/jpeg', 0.75) });
+          }
+        }).catch(() => {
+          sending = false;
+          channel.postMessage({ ...payloadBase, src: canvasTmp.toDataURL('image/jpeg', 0.75) });
+        });
+      } else {
+        channel.postMessage({ ...payloadBase, src: canvasTmp.toDataURL('image/jpeg', 0.75) });
+      }
+    }
+
+    liveBroadcastTimer = requestAnimationFrame(tick);
   }
 
   function stopCamera() {
-    if (liveBroadcastTimer) clearInterval(liveBroadcastTimer);
+    if (liveBroadcastTimer) cancelAnimationFrame(liveBroadcastTimer);
     if (stream) {
       stream.getTracks().forEach(t => t.stop());
       stream = null;
@@ -1495,6 +1525,7 @@ function initControlStudio() {
   // วาดกรอบไกด์ทาบลงบนภาพสดจากกล้อง ให้ตรงกับส่วนที่จะถูก "ครอบตัด" ไปใช้จริงตอนคอมโพส
   // (ตอนคอมโพสใช้การ crop แบบ cover คือขยายภาพให้เต็มด้านใดด้านหนึ่งแล้วตัดส่วนเกินตรงกลาง
   // เราจึงคำนวณกรอบไกด์แบบเดียวกันทาบลงบนภาพสดที่แสดงแบบ object-fit:contain)
+  let guideCacheMain = { videoAspect: null, cellAspect: null, vpW: 0, vpH: 0 };
   function updateFrameGuide() {
     if (!state.showGuide || !video.videoWidth || !video.videoHeight || video.style.display === 'none') {
       frameGuide.classList.remove('show');
@@ -1504,6 +1535,17 @@ function initControlStudio() {
     if (!vpRect.width || !vpRect.height) return;
 
     const videoAspect = video.videoWidth / video.videoHeight;
+    const cellAspect = getCellAspectRatio();
+
+    // เลี่ยงคำนวณ/เขียน style ซ้ำทุกเฟรม (ถูกเรียกทุก 50ms จาก broadcast loop) ถ้าไม่มีอะไรเปลี่ยน
+    // เพื่อลดภาระ main thread ที่แย่งกับงานเข้ารหัสภาพส่งจอสอง ช่วยให้ทั้งวิดีโอและการส่งภาพลื่นขึ้น
+    if (guideCacheMain.videoAspect === videoAspect && guideCacheMain.cellAspect === cellAspect &&
+        guideCacheMain.vpW === vpRect.width && guideCacheMain.vpH === vpRect.height &&
+        frameGuide.classList.contains('show')) {
+      return;
+    }
+    guideCacheMain = { videoAspect, cellAspect, vpW: vpRect.width, vpH: vpRect.height };
+
     const vpAspect = vpRect.width / vpRect.height;
 
     // หา "พื้นที่จริง" ของวิดีโอที่แสดงผลอยู่ภายใน viewport (เพราะ object-fit:contain อาจมีแถบดำคั่น)
@@ -1519,7 +1561,6 @@ function initControlStudio() {
     const contentTop = (vpRect.height - contentH) / 2;
 
     // หากรอบไกด์ (สัดส่วนช่องรูปจริง) ที่ใหญ่ที่สุดเท่าที่จะพอดีในพื้นที่วิดีโอ แบบเดียวกับ object-fit:cover
-    const cellAspect = getCellAspectRatio();
     let guideW, guideH;
     if (videoAspect > cellAspect) {
       guideH = contentH;
@@ -1932,6 +1973,8 @@ function initControlStudio() {
 ------------------------------------------------------------- */
 function initDisplayStudio() {
   const liveImg = document.getElementById('dLiveImg');
+  const liveCanvas = document.getElementById('dLiveCanvas');
+  const liveCtx = liveCanvas.getContext('2d', { alpha: false });
   const waiting = document.getElementById('dWaiting');
   const countdownBox = document.getElementById('dCountdown');
   const countdownNum = document.getElementById('dCountdownNum');
@@ -1951,16 +1994,40 @@ function initDisplayStudio() {
   let lastCellAspect = null;
   let lastShowGuide = true;
 
+  // วาดภาพสดที่ส่งมาแบบ ImageBitmap ลงบน canvas ตรงๆ (บิตแมป decode มาเสร็จแล้วจากจอหลัก)
+  // ลื่นกว่าเดิมมาก เพราะไม่ต้องรอเบราว์เซอร์ decode รูป JPEG ใหม่ทุกครั้งที่เปลี่ยน src เหมือน <img>
+  function renderBitmapFrame(bitmap) {
+    if (liveCanvas.width !== bitmap.width) liveCanvas.width = bitmap.width;
+    if (liveCanvas.height !== bitmap.height) liveCanvas.height = bitmap.height;
+    liveCtx.drawImage(bitmap, 0, 0);
+    bitmap.close();
+    liveImg.style.display = 'none';
+    liveCanvas.style.display = 'block';
+  }
+
+  function isLiveVisible() {
+    return liveImg.style.display !== 'none' || liveCanvas.style.display !== 'none';
+  }
+
   // วาดกรอบไกด์บนจอรอง ด้วยสูตรเดียวกับจอหลัก (updateFrameGuide) เพื่อให้เห็นตรงกันทั้งสองจอ
-  // ใช้ videoAspect/cellAspect ที่ส่งมาจากจอหลักแนบไปกับทุกเฟรมภาพสด แทนการอ่านจาก <img> โดยตรง
-  // (เลี่ยงปัญหาหน่วง/กระตุกจากการรอ onload ของรูปที่เปลี่ยนสด ๆ ทุก 80ms)
+  // ใช้ videoAspect/cellAspect ที่ส่งมาจากจอหลักแนบไปกับทุกเฟรมภาพสด แทนการอ่านขนาดจากภาพโดยตรง
+  // และแคชผลไว้ ไม่คำนวณ/เขียน style ซ้ำทุกเฟรมถ้าไม่มีอะไรเปลี่ยน ลดภาระ main thread ให้ภาพลื่นขึ้น
+  let guideCacheDisplay = { videoAspect: null, cellAspect: null, vpW: 0, vpH: 0 };
   function updateDisplayFrameGuide() {
-    if (!lastShowGuide || !lastVideoAspect || !lastCellAspect || liveImg.style.display === 'none') {
+    if (!lastShowGuide || !lastVideoAspect || !lastCellAspect || !isLiveVisible()) {
       dFrameGuide.classList.remove('show');
+      guideCacheDisplay = { videoAspect: null, cellAspect: null, vpW: 0, vpH: 0 };
       return;
     }
     const vpRect = dViewport.getBoundingClientRect();
     if (!vpRect.width || !vpRect.height) return;
+
+    if (guideCacheDisplay.videoAspect === lastVideoAspect && guideCacheDisplay.cellAspect === lastCellAspect &&
+        guideCacheDisplay.vpW === vpRect.width && guideCacheDisplay.vpH === vpRect.height &&
+        dFrameGuide.classList.contains('show')) {
+      return;
+    }
+    guideCacheDisplay = { videoAspect: lastVideoAspect, cellAspect: lastCellAspect, vpW: vpRect.width, vpH: vpRect.height };
 
     const vpAspect = vpRect.width / vpRect.height;
     let contentW, contentH;
@@ -2020,8 +2087,13 @@ function initDisplayStudio() {
 
     if (msg.type === 'frame') {
       waiting.style.display = 'none';
-      liveImg.style.display = 'block';
-      liveImg.src = msg.src;
+      if (msg.bitmap) {
+        renderBitmapFrame(msg.bitmap);
+      } else if (msg.src) {
+        liveCanvas.style.display = 'none';
+        liveImg.style.display = 'block';
+        liveImg.src = msg.src;
+      }
       if (typeof msg.videoAspect === 'number') lastVideoAspect = msg.videoAspect;
       if (typeof msg.cellAspect === 'number') lastCellAspect = msg.cellAspect;
       if (typeof msg.showGuide === 'boolean') lastShowGuide = msg.showGuide;
@@ -2030,6 +2102,7 @@ function initDisplayStudio() {
 
     if (msg.type === 'cameraOff') {
       liveImg.style.display = 'none';
+      liveCanvas.style.display = 'none';
       waiting.style.display = 'flex';
       dFrameGuide.classList.remove('show');
     }
@@ -2062,7 +2135,7 @@ function initDisplayStudio() {
         const qr = qrcode(0, 'M');
         qr.addData(msg.qrText);
         qr.make();
-        qrFrame.innerHTML = qr.createImgTag(4, 4);
+        qrFrame.innerHTML = qr.createImgTag(6, 6);
       } catch (e) {
         console.error('สร้าง QR ไม่สำเร็จ:', e);
         qrFrame.innerHTML = `<div style="font-size:10.5px;color:#f87171;padding:6px;word-break:break-all;line-height:1.5;">สร้าง QR ไม่สำเร็จ ใช้ลิงก์นี้แทน:<br><a href="${msg.qrText}" target="_blank" style="color:#38bdf8">เปิดลิงก์</a></div>`;
