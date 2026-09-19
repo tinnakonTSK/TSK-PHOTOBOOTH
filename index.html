@@ -1717,8 +1717,11 @@ function initControlStudio() {
       localStorage.setItem('tsk_art_' + sessionToken, JSON.stringify(artPayload));
     } catch (storageErr) {
       console.warn('เก็บสำรองรูปในเครื่องไม่สำเร็จ (พื้นที่เก็บข้อมูลเต็ม) ข้ามได้ ไม่กระทบการอัปโหลดขึ้น Drive หรือการโชว์บนจอ 2', storageErr);
+    }
+  }
 
   downloadBtn.onclick = () => {
+    
     const a = document.createElement('a');
     a.download = `TSK_${Date.now()}.png`;
     a.href = composeCanvas.toDataURL('image/png');
