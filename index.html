@@ -8,6 +8,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Kodchasan:wght@500;600;700&family=Prompt:wght@300;400;500;600&family=Sarabun:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/gifshot@0.3.2/dist/gifshot.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gifshot@0.3.2/dist/gifshot.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <style>
   :root {
     --bg-base: #060b13;
@@ -1609,7 +1611,9 @@ function initControlStudio() {
   // ใส่กรอบ/สี/แคปชันแบบเดียวกับที่เลือกไว้ตอนถ่าย ให้ลูกค้าโหลดไปลง IG Story ได้เลย
   function buildStoryGifBase64() {
     return new Promise((resolve) => {
-      if (!(state.shots.length > 0 && typeof gifshot !== 'undefined')) {
+      if (!(state.shots.length > 0)) { resolve(null); return; }
+      if (typeof gifshot === 'undefined') {
+        console.error('ไลบรารี gifshot โหลดไม่สำเร็จ (เช็คอินเทอร์เน็ต/ตัวบล็อกโฆษณาตอนโหลดหน้าเว็บ) ข้ามการสร้าง GIF รอบนี้');
         resolve(null);
         return;
       }
@@ -1634,15 +1638,21 @@ function initControlStudio() {
           margins: state.customFrameMargins[state.frameKey]
         }));
 
-        gifshot.createGIF({
-          images: frameImgs,
-          gifWidth: STORY_W,
-          gifHeight: STORY_H,
-          interval: 0.8,
-          numWorkers: 0
-        }, function(obj) {
-          resolve(obj.error ? null : obj.image);
-        });
+        try {
+          gifshot.createGIF({
+            images: frameImgs,
+            gifWidth: STORY_W,
+            gifHeight: STORY_H,
+            interval: 0.8,
+            numWorkers: 0
+          }, function(obj) {
+            if (obj.error) console.error('gifshot สร้าง GIF ไม่สำเร็จ:', obj.errorMsg || obj.error);
+            resolve(obj.error ? null : obj.image);
+          });
+        } catch (e) {
+          console.error('เรียก gifshot.createGIF ผิดพลาด:', e);
+          resolve(null);
+        }
       }).catch(() => resolve(null));
     });
   }
@@ -1794,7 +1804,15 @@ function initDisplayStudio() {
       resultPic.src = msg.composedSrc;
       resultPic.style.display = 'block';
 
-      qrFrame.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(msg.qrText)}" alt="QR Code">`;
+      try {
+        const qr = qrcode(0, 'M');
+        qr.addData(msg.qrText);
+        qr.make();
+        qrFrame.innerHTML = qr.createImgTag(4, 4);
+      } catch (e) {
+        console.error('สร้าง QR ไม่สำเร็จ:', e);
+        qrFrame.innerHTML = `<div style="font-size:10.5px;color:#f87171;padding:6px;word-break:break-all;line-height:1.5;">สร้าง QR ไม่สำเร็จ ใช้ลิงก์นี้แทน:<br><a href="${msg.qrText}" target="_blank" style="color:#38bdf8">เปิดลิงก์</a></div>`;
+      }
 
       if (wipeTimer) clearTimeout(wipeTimer);
       if (ticker) clearInterval(ticker);
