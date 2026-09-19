@@ -1706,13 +1706,17 @@ function initControlStudio() {
         qrText: portalUrl,
         roundNumber: state.roundNumber
       });
-    }
 
     // เก็บสำรองไว้ในเครื่องที่ถ่ายด้วย เผื่อเปิดหน้า portal จากเครื่องนี้เองตอนอินเทอร์เน็ตหลุด/อัปโหลดไม่สำเร็จ
+    // ล้างของรอบเก่าทิ้งก่อนทุกครั้ง กันพื้นที่เก็บข้อมูลเต็ม (เก็บแค่รอบล่าสุดพอ)
     const artPayload = { image: base64Png, gif: base64Gif };
-    sessionStorage.setItem('tsk_art_' + sessionToken, JSON.stringify(artPayload));
-    localStorage.setItem('tsk_art_' + sessionToken, JSON.stringify(artPayload));
-  }
+    try {
+      Object.keys(localStorage).filter(k => k.startsWith('tsk_art_')).forEach(k => localStorage.removeItem(k));
+      Object.keys(sessionStorage).filter(k => k.startsWith('tsk_art_')).forEach(k => sessionStorage.removeItem(k));
+      sessionStorage.setItem('tsk_art_' + sessionToken, JSON.stringify(artPayload));
+      localStorage.setItem('tsk_art_' + sessionToken, JSON.stringify(artPayload));
+    } catch (storageErr) {
+      console.warn('เก็บสำรองรูปในเครื่องไม่สำเร็จ (พื้นที่เก็บข้อมูลเต็ม) ข้ามได้ ไม่กระทบการอัปโหลดขึ้น Drive หรือการโชว์บนจอ 2', storageErr);
 
   downloadBtn.onclick = () => {
     const a = document.createElement('a');
