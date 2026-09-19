@@ -419,7 +419,7 @@
           <span>Camera Starting...</span>
         </div>
         <div id="frameGuide">
-          <span class="fg-label">Guide Frame</span>
+          <span class="fg-label">อยู่ในกรอบนี้ ห้ามหลุดเฟรม</span>
           <span class="fg-corner fg-tl"></span>
           <span class="fg-corner fg-tr"></span>
           <span class="fg-corner fg-bl"></span>
@@ -645,7 +645,7 @@
         <span>Please wait...</span>
       </div>
       <div id="dFrameGuide">
-        <span class="fg-label">Guide Frame</span>
+        <span class="fg-label">อยู่ในกรอบนี้ ห้ามหลุดเฟรม</span>
         <span class="fg-corner fg-tl"></span>
         <span class="fg-corner fg-tr"></span>
         <span class="fg-corner fg-bl"></span>
@@ -1317,7 +1317,11 @@ function initControlStudio() {
         createImageBitmap(canvasTmp).then(bitmap => {
           sending = false;
           try {
+            // postMessage ผ่าน BroadcastChannel เป็นการ "โคลน" ไม่ใช่การโอนกรรมสิทธิ์ (transfer)
+            // ต้นฉบับ bitmap ตัวนี้จึงยังค้างอยู่ฝั่งเราเอง ต้อง close() ทิ้งเองทุกครั้งหลังส่งสำเร็จ
+            // ไม่งั้นจะรั่วสะสมไปเรื่อยๆ (ยิ่งเปิดทิ้งไว้นาน/เต็มจอนานยิ่งรั่วเยอะ) จนบราวเซอร์ค้างในที่สุด
             channel.postMessage({ ...payloadBase, bitmap });
+            bitmap.close();
           } catch (bitmapErr) {
             bitmap.close();
             channel.postMessage({ ...payloadBase, src: canvasTmp.toDataURL('image/jpeg', 0.75) });
