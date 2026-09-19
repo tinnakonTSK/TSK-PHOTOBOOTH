@@ -130,20 +130,20 @@
   /* ไกด์กรอบภาพ: กรอบเส้นประที่ทาบลงบนภาพสดจากกล้อง แสดงขอบเขตจริงที่จะถูกเก็บไว้ในรูปสุดท้าย
      (สัดส่วนของช่องรูปตาม Layout/กรอบภาพที่เลือกอยู่) ป้องกันปัญหาคนหรือของ "หลุดเฟรม" ตอนถ่าย
      เพราะภาพสดที่เห็นเต็มจอ กับรูปที่ถูกครอบตัดจริงตอนคอมโพสไม่ใช่สัดส่วนเดียวกัน */
-  #frameGuide {
+  #frameGuide, #dFrameGuide {
     position: absolute; pointer-events: none; z-index: 15; display: none;
     border: 2px dashed rgba(56, 189, 248, 0.95);
     border-radius: 4px;
     box-shadow: 0 0 0 2000px rgba(3, 7, 18, 0.45);
     transition: top 0.15s ease, left 0.15s ease, width 0.15s ease, height 0.15s ease;
   }
-  #frameGuide.show { display: block; }
-  #frameGuide .fg-corner { position: absolute; width: 14px; height: 14px; border-color: #38bdf8; border-style: solid; }
-  #frameGuide .fg-tl { top: -2px; left: -2px; border-width: 3px 0 0 3px; }
-  #frameGuide .fg-tr { top: -2px; right: -2px; border-width: 3px 3px 0 0; }
-  #frameGuide .fg-bl { bottom: -2px; left: -2px; border-width: 0 0 3px 3px; }
-  #frameGuide .fg-br { bottom: -2px; right: -2px; border-width: 0 3px 3px 0; }
-  #frameGuide .fg-label {
+  #frameGuide.show, #dFrameGuide.show { display: block; }
+  #frameGuide .fg-corner, #dFrameGuide .fg-corner { position: absolute; width: 14px; height: 14px; border-color: #38bdf8; border-style: solid; }
+  #frameGuide .fg-tl, #dFrameGuide .fg-tl { top: -2px; left: -2px; border-width: 3px 0 0 3px; }
+  #frameGuide .fg-tr, #dFrameGuide .fg-tr { top: -2px; right: -2px; border-width: 3px 3px 0 0; }
+  #frameGuide .fg-bl, #dFrameGuide .fg-bl { bottom: -2px; left: -2px; border-width: 0 0 3px 3px; }
+  #frameGuide .fg-br, #dFrameGuide .fg-br { bottom: -2px; right: -2px; border-width: 0 3px 3px 0; }
+  #frameGuide .fg-label, #dFrameGuide .fg-label {
     position: absolute; top: -24px; left: 50%; transform: translateX(-50%);
     background: rgba(2, 132, 199, 0.92); color: #fff; font-size: 10.5px; font-weight: 600;
     padding: 3px 9px; border-radius: 5px; white-space: nowrap; letter-spacing: 0.2px;
@@ -453,6 +453,11 @@
           <span class="switch-rail"><span class="switch-knob"></span></span>
           <span>Sound</span>
         </label>
+        <label class="studio-switch">
+          <input type="checkbox" id="guideChk" checked>
+          <span class="switch-rail"><span class="switch-knob"></span></span>
+          <span>Guide</span>
+        </label>
         <label>Time:
           <select class="field-select" style="width: auto; display: inline-block; padding: 2px 4px;" id="countdownSelect">
             <option value="3" selected>3 S</option>
@@ -637,6 +642,13 @@
       <div class="view-placeholder" id="dWaiting">
         <svg><use href="#icon-shutter"></use></svg>
         <span>Please wait...</span>
+      </div>
+      <div id="dFrameGuide">
+        <span class="fg-label">อยู่ในกรอบนี้ ห้ามหลุดเฟรม</span>
+        <span class="fg-corner fg-tl"></span>
+        <span class="fg-corner fg-tr"></span>
+        <span class="fg-corner fg-bl"></span>
+        <span class="fg-corner fg-br"></span>
       </div>
       <div id="dCountdown" style="position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.4);"><span id="dCountdownNum" style="font-size:14vw;color:#fff;font-weight:700;">3</span></div>
       <div id="dFlash" style="position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;"></div>
@@ -900,7 +912,7 @@ const DEFAULT_TONES = [
 
 const state = {
   step: 1, format: 'single', frameKey: 'sky', toneKey: 'natural',
-  mirrored: true, soundOn: true, countdownSeconds: 3, shortcutKey: ' ',
+  mirrored: true, soundOn: true, showGuide: true, countdownSeconds: 3, shortcutKey: ' ',
   caption: 'TSK PHOTO STUDIO', font: 'Prompt', fontSize: 32,
   showDate: true, dateFormat: 'en_num', datePos: 'bottom-center',
   shots: [], roundNumber: 0,
@@ -973,6 +985,7 @@ function initControlStudio() {
 
   const mirrorChk = document.getElementById('mirrorChk');
   const soundChk = document.getElementById('soundChk');
+  const guideChk = document.getElementById('guideChk');
   const countdownSelect = document.getElementById('countdownSelect');
   const cameraSelect = document.getElementById('cameraSelect');
   const changeKeyBtn = document.getElementById('changeKeyBtn');
@@ -1278,7 +1291,10 @@ function initControlStudio() {
       if (channel) {
         channel.postMessage({
           type: 'frame',
-          src: canvasTmp.toDataURL('image/jpeg', 0.75)
+          src: canvasTmp.toDataURL('image/jpeg', 0.75),
+          videoAspect: video.videoWidth / video.videoHeight,
+          cellAspect: getCellAspectRatio(),
+          showGuide: state.showGuide
         });
       }
 
@@ -1321,6 +1337,11 @@ function initControlStudio() {
     video.classList.toggle('mirror', state.mirrored);
   };
   soundChk.onchange = () => state.soundOn = soundChk.checked;
+  guideChk.onchange = () => {
+    state.showGuide = guideChk.checked;
+    updateFrameGuide();
+    if (channel) channel.postMessage({ type: 'guideToggle', show: state.showGuide });
+  };
   countdownSelect.onchange = () => state.countdownSeconds = parseInt(countdownSelect.value, 10);
 
   // KEY SHORTCUT
@@ -1475,7 +1496,7 @@ function initControlStudio() {
   // (ตอนคอมโพสใช้การ crop แบบ cover คือขยายภาพให้เต็มด้านใดด้านหนึ่งแล้วตัดส่วนเกินตรงกลาง
   // เราจึงคำนวณกรอบไกด์แบบเดียวกันทาบลงบนภาพสดที่แสดงแบบ object-fit:contain)
   function updateFrameGuide() {
-    if (!video.videoWidth || !video.videoHeight || video.style.display === 'none') {
+    if (!state.showGuide || !video.videoWidth || !video.videoHeight || video.style.display === 'none') {
       frameGuide.classList.remove('show');
       return;
     }
@@ -1920,10 +1941,57 @@ function initDisplayStudio() {
   const qrFrame = document.getElementById('dQR');
   const timerBar = document.getElementById('dTimerBar');
   const wipeNotice = document.getElementById('dWipeNotice');
+  const dFrameGuide = document.getElementById('dFrameGuide');
+  const dViewport = document.querySelector('.d-live-frame');
 
   let wipeTimer = null;
   let ticker = null;
   let remainingSeconds = 60;
+  let lastVideoAspect = null;
+  let lastCellAspect = null;
+  let lastShowGuide = true;
+
+  // วาดกรอบไกด์บนจอรอง ด้วยสูตรเดียวกับจอหลัก (updateFrameGuide) เพื่อให้เห็นตรงกันทั้งสองจอ
+  // ใช้ videoAspect/cellAspect ที่ส่งมาจากจอหลักแนบไปกับทุกเฟรมภาพสด แทนการอ่านจาก <img> โดยตรง
+  // (เลี่ยงปัญหาหน่วง/กระตุกจากการรอ onload ของรูปที่เปลี่ยนสด ๆ ทุก 80ms)
+  function updateDisplayFrameGuide() {
+    if (!lastShowGuide || !lastVideoAspect || !lastCellAspect || liveImg.style.display === 'none') {
+      dFrameGuide.classList.remove('show');
+      return;
+    }
+    const vpRect = dViewport.getBoundingClientRect();
+    if (!vpRect.width || !vpRect.height) return;
+
+    const vpAspect = vpRect.width / vpRect.height;
+    let contentW, contentH;
+    if (lastVideoAspect > vpAspect) {
+      contentW = vpRect.width;
+      contentH = vpRect.width / lastVideoAspect;
+    } else {
+      contentH = vpRect.height;
+      contentW = vpRect.height * lastVideoAspect;
+    }
+    const contentLeft = (vpRect.width - contentW) / 2;
+    const contentTop = (vpRect.height - contentH) / 2;
+
+    let guideW, guideH;
+    if (lastVideoAspect > lastCellAspect) {
+      guideH = contentH;
+      guideW = contentH * lastCellAspect;
+    } else {
+      guideW = contentW;
+      guideH = contentW / lastCellAspect;
+    }
+    const guideLeft = contentLeft + (contentW - guideW) / 2;
+    const guideTop = contentTop + (contentH - guideH) / 2;
+
+    dFrameGuide.style.left = guideLeft + 'px';
+    dFrameGuide.style.top = guideTop + 'px';
+    dFrameGuide.style.width = guideW + 'px';
+    dFrameGuide.style.height = guideH + 'px';
+    dFrameGuide.classList.add('show');
+  }
+  window.addEventListener('resize', () => updateDisplayFrameGuide());
 
   function resetDisplayState() {
     resultPic.style.display = 'none';
@@ -1954,11 +2022,21 @@ function initDisplayStudio() {
       waiting.style.display = 'none';
       liveImg.style.display = 'block';
       liveImg.src = msg.src;
+      if (typeof msg.videoAspect === 'number') lastVideoAspect = msg.videoAspect;
+      if (typeof msg.cellAspect === 'number') lastCellAspect = msg.cellAspect;
+      if (typeof msg.showGuide === 'boolean') lastShowGuide = msg.showGuide;
+      updateDisplayFrameGuide();
     }
 
     if (msg.type === 'cameraOff') {
       liveImg.style.display = 'none';
       waiting.style.display = 'flex';
+      dFrameGuide.classList.remove('show');
+    }
+
+    if (msg.type === 'guideToggle') {
+      lastShowGuide = !!msg.show;
+      updateDisplayFrameGuide();
     }
 
     if (msg.type === 'countdown') {
